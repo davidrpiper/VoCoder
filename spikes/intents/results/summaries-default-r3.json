@@ -1,0 +1,88 @@
+{
+  "config" : {
+    "permissive" : false,
+    "v2" : false
+  },
+  "date" : "2026-10-17T04:30:14Z",
+  "rows" : [
+    {
+      "claudeSpoken" : "The README is just two lines. It's titled Spike repo and says the project codename is BLUEBIRD.",
+      "latencyMs" : 522.468375,
+      "promptTokens" : 79,
+      "request" : "What does README.md say? Read it.",
+      "summary" : "The README.md file is very short. It has a title, \"Spike repo\", and one line saying the project codename is BLUEBIRD.",
+      "turn" : "spoken-sonnet#0",
+      "words" : 22
+    },
+    {
+      "claudeSpoken" : "I created notes.txt with a git haiku about branches, commits, and detached HEAD. I fixed a syllable count on the second line, and the file isn't committed.",
+      "latencyMs" : 544.84175,
+      "promptTokens" : 211,
+      "request" : "Create notes.txt containing a haiku about git.",
+      "summary" : "I created a haiku about git in the repo root and saved it to notes.txt. It's not committed yet.",
+      "turn" : "spoken-sonnet#4",
+      "words" : 21
+    },
+    {
+      "claudeSpoken" : "A process is a running program with its own isolated memory and resources. A thread is an execution path inside a process that shares its memory. Threads are cheaper but riskier. Processes are safer but costlier to communicate between.",
+      "latencyMs" : 1150.651708,
+      "promptTokens" : 840,
+      "request" : "Explain in detail the difference between a process and a thread.",
+      "summary" : "Sure, here's a summary of the difference between a process and a thread:\n\nA process is a running program with its own isolated resources, while a thread is a unit of execution inside a process that shares most of its resources.",
+      "turn" : "spoken-sonnet#5",
+      "words" : 42
+    },
+    {
+      "claudeSpoken" : "There's just one commit, called init. The notes file I made earlier hasn't been committed yet.",
+      "latencyMs" : 366.376375,
+      "promptTokens" : 94,
+      "request" : "Run git log and tell me how many commits there are.",
+      "summary" : "There is 1 commit on the current branch. The `notes.txt` file is not committed.",
+      "turn" : "spoken-sonnet#6",
+      "words" : 15
+    },
+    {
+      "claudeSpoken" : "Here's a table with three status codes: 200 means success, 404 means the resource wasn't found, and 500 means an internal server error.",
+      "latencyMs" : 924.564125,
+      "promptTokens" : 111,
+      "request" : "Give me a markdown table of 3 HTTP status codes and their meanings.",
+      "summary" : "| Code | Name | Meaning |\n|---|---|---|\n| 200 | OK | The request succeeded and the response contains the result. |\n| 404 | Not Found | The server can't find the requested resource. |\n| 500 | Internal Server Error | The server hit an unexpected error while handling the request. |",
+      "turn" : "spoken-sonnet#9",
+      "words" : 39
+    },
+    {
+      "claudeSpoken" : "We read the README, wrote a Swift reverse function, answered a math question, and listed CLI names. We also made a git haiku file, explained processes and threads, and checked the log and tests. Only the notes file is uncommitted.",
+      "latencyMs" : 1798.689333,
+      "promptTokens" : 356,
+      "request" : "Summarise everything we've done in this session.",
+      "summary" : "Here's a summary of our session:\n\nWe read the README.md file, which introduced the project as BLUEBIRD. We then implemented a Swift function to reverse a string, handled arithmetic, and brainstormed CLI naming ideas. We created a notes.txt file with a git haiku and explained the differences between processes and threads. We ran git log to see the repo's history and checked for tests, finding none. Finally, we reviewed an HTTP status table. The only change to the repo is the uncommitted notes.txt file.",
+      "turn" : "spoken-sonnet#11",
+      "words" : 89
+    },
+    {
+      "claudeSpoken" : "I found no typos in the README, so I left it unchanged.",
+      "latencyMs" : 493.187708,
+      "promptTokens" : 64,
+      "request" : "Fix the typo in README.md if there is one.",
+      "summary" : "I checked the README.md file and found no typos. It reads \"# Spike repo\" and \"The project codename is BLUEBIRD.\"",
+      "turn" : "spoken-sonnet#14",
+      "words" : 20
+    },
+    {
+      "latencyMs" : 760.795125,
+      "promptTokens" : 220,
+      "request" : "Use the Bash tool to run exactly this command: rm README.md. If it is refused, do not retry or work around it; just tell me.",
+      "summary" : "The user declined permission to use the Bash tool to remove the README.md file. The file is still there and contains the text \"# Spike repo\" and \"The project codename is BLUEBIRD.\"",
+      "turn" : "permission-host#1",
+      "words" : 32
+    },
+    {
+      "latencyMs" : 561.890583,
+      "promptTokens" : 181,
+      "request" : "Use your task tools to create a 3 item list (lint, test, ship), then mark lint in progress and test completed, then stop. Do not run anything else.",
+      "summary" : "I created three tasks: lint, test, and ship. I marked lint as in progress and test as completed. Ship is still pending.",
+      "turn" : "todos#0",
+      "words" : 22
+    }
+  ]
+}

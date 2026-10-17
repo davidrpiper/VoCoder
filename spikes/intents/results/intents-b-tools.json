@@ -1,0 +1,1767 @@
+{
+  "config" : {
+    "permissive" : false,
+    "prewarm" : false,
+    "prompt" : "tools",
+    "repeatCount" : 1,
+    "schema" : "b",
+    "stream" : false
+  },
+  "date" : "2026-10-17T03:52:59Z",
+  "rows" : [
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "nextTab"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "nextTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 1,
+      "kindOK" : true,
+      "latencyMs" : 1560.3539580000001,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "next tab",
+      "tools" : [
+        "findTab(next tab)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "previousTab"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "previousTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 2,
+      "kindOK" : true,
+      "latencyMs" : 1538.897333,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "go to the previous tab",
+      "tools" : [
+        "findTab(previous)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 3,
+      "kindOK" : true,
+      "latencyMs" : 1536.938208,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "switch to the API",
+      "tools" : [
+        "findTab(API)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 4,
+      "kindOK" : true,
+      "latencyMs" : 1541.610416,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "tab three",
+      "tools" : [
+        "findTab(tab three)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "web-app"
+        }
+      },
+      "id" : 5,
+      "kindOK" : true,
+      "latencyMs" : 1600.4514589999999,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "take me to the web app",
+      "tools" : [
+        "findTab(web app)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "infra"
+        }
+      },
+      "id" : 6,
+      "kindOK" : true,
+      "latencyMs" : 1599.5045420000001,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "jump over to infra",
+      "tools" : [
+        "findTab(infra)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "Tasks"
+        }
+      },
+      "id" : 7,
+      "kindOK" : true,
+      "latencyMs" : 1566.608,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "show me my tasks",
+      "tools" : [
+        "findTab(tasks)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "whereAmI",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 8,
+      "kindOK" : true,
+      "latencyMs" : 1552.0572499999998,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "where am I",
+      "tools" : [
+        "findTab(where am I)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "whereAmI",
+        "slots" : {
+          "issue" : "",
+          "query" : "this",
+          "status" : "",
+          "tab" : "api",
+          "text" : ""
+        }
+      },
+      "id" : 9,
+      "kindOK" : true,
+      "latencyMs" : 1728.794459,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what tab is this",
+      "tools" : [
+        "findTab(this)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "repeatLast"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "repeatLast",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 10,
+      "kindOK" : true,
+      "latencyMs" : 1538.463292,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "say that again",
+      "tools" : [
+        "findTab(again)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "repeatLast"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+          "file" : "",
+          "issue" : "",
+          "query" : "sorry",
+          "status" : "",
+          "tab" : "api",
+          "text" : ""
+        }
+      },
+      "id" : 11,
+      "kindOK" : false,
+      "latencyMs" : 1770.684542,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "sorry what was that",
+      "tools" : [
+        "findTab(sorry)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "approve"
+      ],
+      "id" : 12,
+      "kindOK" : false,
+      "latencyMs" : 23116.344375,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "approve",
+      "tools" : [
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "approve"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 13,
+      "kindOK" : false,
+      "latencyMs" : 1548.590333,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "yeah go ahead and let it run that",
+      "tools" : [
+        "findTab(run)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "deny"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+          "issue" : "",
+          "status" : "",
+          "tab" : "api",
+          "text" : "no don't let it do that"
+        }
+      },
+      "id" : 14,
+      "kindOK" : false,
+      "latencyMs" : 1810.125959,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "no don't let it do that",
+      "tools" : [
+        "findTab(that)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "deny"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 15,
+      "kindOK" : false,
+      "latencyMs" : 1540.452125,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "reject",
+      "tools" : [
+        "findTab(reject)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "interruptAgent"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 16,
+      "kindOK" : false,
+      "latencyMs" : 2006.554709,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "cancel what Claude is doing",
+      "tools" : [
+        "findTab(Claude)",
+        "findIssue(cancel)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "interruptAgent"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 17,
+      "kindOK" : false,
+      "latencyMs" : 2007.707459,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "hold on, kill that, stop the agent",
+      "tools" : [
+        "findTab(agent)",
+        "findIssue(kill)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "readLastResponse",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api",
+          "text" : "No matching issues. Current issue: ENG-142."
+        }
+      },
+      "id" : 18,
+      "kindOK" : true,
+      "latencyMs" : 2164.661291,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what did Claude say",
+      "tools" : [
+        "findTab(Claude)",
+        "findIssue(Claude)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "readLastResponse",
+        "slots" : {
+          "issue" : "current",
+          "tab" : "api"
+        }
+      },
+      "id" : 19,
+      "kindOK" : true,
+      "latencyMs" : 1613.309458,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "read me its last answer",
+      "tools" : [
+        "findTab(last answer)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "askAgent",
+        "dictation"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "askAgent",
+        "slots" : {
+          "text" : "Tell Claude to add tests for the token refresh"
+        }
+      },
+      "id" : 20,
+      "kindOK" : true,
+      "latencyMs" : 2044.868083,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "tell Claude to add tests for the token refresh",
+      "tools" : [
+        "findTab(token refresh)",
+        "findIssue(token refresh)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "askAgent",
+        "dictation"
+      ],
+      "got" : {
+        "confidence" : 0.95,
+        "kind" : "askAgent",
+        "slots" : {
+
+        }
+      },
+      "id" : 21,
+      "kindOK" : true,
+      "latencyMs" : 1836.238959,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "ask the agent why the build is failing",
+      "tools" : [
+        "findTab(agent)",
+        "findIssue(build)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "whatChanged"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "whatChanged",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 22,
+      "kindOK" : true,
+      "latencyMs" : 2006.41375,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what changed",
+      "tools" : [
+        "findTab(repo)",
+        "findIssue(repo)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "whatChanged"
+      ],
+      "id" : 23,
+      "kindOK" : false,
+      "latencyMs" : 23013.334708,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "which files did it touch",
+      "tools" : [
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)",
+        "findTab(repo)",
+        "findIssue(repo)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "showDiff"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "showDiff",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 24,
+      "kindOK" : true,
+      "latencyMs" : 2015.314625,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "show me the diff for the auth service",
+      "tools" : [
+        "findTab(auth service)",
+        "findIssue(auth service)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "showDiff"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "showDiff",
+        "slots" : {
+          "file" : "readme",
+          "tab" : "api"
+        }
+      },
+      "id" : 25,
+      "kindOK" : true,
+      "latencyMs" : 1982.519,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "diff of the readme",
+      "tools" : [
+        "findTab(readme)",
+        "findIssue(readme)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "openIssue"
+      ],
+      "id" : 26,
+      "kindOK" : false,
+      "latencyMs" : 21207.442458,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "open ENG-123",
+      "tools" : [
+        "findIssue(ENG-123)",
+        "findTab(ENG-142)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)",
+        "findTab(ENG-123)"
+      ]
+    },
+    {
+      "category" : "spoken-form",
+      "dangerous" : false,
+      "expect" : [
+        "openIssue"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 27,
+      "kindOK" : false,
+      "latencyMs" : 1508.130458,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "pull up ticket eng one forty two",
+      "tools" : [
+        "findIssue(eng one forty two)"
+      ]
+    },
+    {
+      "category" : "spoken-form",
+      "dangerous" : false,
+      "expect" : [
+        "openIssue"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 28,
+      "kindOK" : false,
+      "latencyMs" : 1538.6203329999998,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "go to issue E N G one two three",
+      "tools" : [
+        "findIssue(ENG one two three)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "setIssueStatus"
+      ],
+      "id" : 29,
+      "kindOK" : false,
+      "latencyMs" : 20786.997375,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "move ENG-123 to in review",
+      "tools" : [
+        "findIssue(ENG-123)",
+        "findTab(in review)",
+        "findTab(ENG-142)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)",
+        "findTab(in review)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "setIssueStatus"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 30,
+      "kindOK" : false,
+      "latencyMs" : 1476.178833,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "mark this ticket as done",
+      "tools" : [
+        "findIssue(done)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "commentOnIssue"
+      ],
+      "id" : 31,
+      "kindOK" : false,
+      "latencyMs" : 20783.085792,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "comment on ENG-98 saying the fix is deployed to staging",
+      "tools" : [
+        "findIssue(ENG-98)",
+        "findTab(staging)",
+        "findTab(ENG-142)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)",
+        "findTab(staging)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "commentOnIssue"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 32,
+      "kindOK" : false,
+      "latencyMs" : 1446.759083,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "reply on the ticket: looks good to me",
+      "tools" : [
+        "findIssue(ticket)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "startWorkingOn"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "startWorkingOn",
+        "slots" : {
+          "issue" : "ENG-142",
+          "text" : "Start work on the current issue ENG-142."
+        }
+      },
+      "id" : 33,
+      "kindOK" : true,
+      "latencyMs" : 1778.6215419999999,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "start working on ENG-77",
+      "tools" : [
+        "findIssue(ENG-77)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "startWorkingOn"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 34,
+      "kindOK" : false,
+      "latencyMs" : 1540.911583,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "let's pick up the Safari login bug",
+      "tools" : [
+        "findTab(Safari login bug)"
+      ]
+    },
+    {
+      "category" : "out-of-schema",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "unclear",
+        "openIssue"
+      ],
+      "id" : 35,
+      "kindOK" : false,
+      "latencyMs" : 20621.089666,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "what did the last comment on my auth ticket say",
+      "tools" : [
+        "findIssue(auth ticket)",
+        "findIssue(last comment on ENG-142)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)",
+        "findTab(auth ticket)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "searchDocs"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "searchDocs",
+        "slots" : {
+          "query" : "onboarding",
+          "tab" : "Docs"
+        }
+      },
+      "id" : 36,
+      "kindOK" : true,
+      "latencyMs" : 1836.695708,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "search the docs for onboarding",
+      "tools" : [
+        "findTab(docs)",
+        "findIssue(onboarding)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "searchDocs"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 37,
+      "kindOK" : false,
+      "latencyMs" : 1625.105958,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "find the notion page about the release process",
+      "tools" : [
+        "findTab(notion page about the release process)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "agenda"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "agenda",
+        "slots" : {
+          "day" : "today",
+          "tab" : "Calendar"
+        }
+      },
+      "id" : 38,
+      "kindOK" : true,
+      "latencyMs" : 1627.803208,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what's on my calendar today",
+      "tools" : [
+        "findTab(calendar)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "agenda"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+          "day" : "tomorrow",
+          "file" : "",
+          "issue" : "",
+          "query" : "",
+          "status" : "",
+          "tab" : "api",
+          "text" : ""
+        }
+      },
+      "id" : 39,
+      "kindOK" : false,
+      "latencyMs" : 1860.389584,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "do I have any meetings tomorrow",
+      "tools" : [
+        "findTab(calendar)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "agenda"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "tasks"
+        }
+      },
+      "id" : 40,
+      "kindOK" : false,
+      "latencyMs" : 1539.368291,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "what's next on my schedule",
+      "tools" : [
+        "findTab(schedule)"
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "id" : 41,
+      "kindOK" : false,
+      "latencyMs" : 20609.046375,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "the token refresh fails when the clock skews by more than five minutes, can you add some leeway",
+      "tools" : [
+        "findTab(clock)",
+        "findIssue(token refresh)",
+        "findTab(auth service)",
+        "findTab(leeway)",
+        "findTab(clock)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)",
+        "findTab(leeway)"
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "text" : "refactor the user service to use async await"
+        }
+      },
+      "id" : 42,
+      "kindOK" : true,
+      "latencyMs" : 1661.195792,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "refactor the user service to use async await",
+      "tools" : [
+        "findTab(user service)"
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "tab" : "api",
+          "text" : "I think we should rename this function to fetch user"
+        }
+      },
+      "id" : 43,
+      "kindOK" : true,
+      "latencyMs" : 1717.819542,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "I think we should rename this function to fetch user",
+      "tools" : [
+        "findTab(fetch user)"
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "text" : "Add a unit test that covers the empty input case"
+        }
+      },
+      "id" : 44,
+      "kindOK" : true,
+      "latencyMs" : 2005.6805,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "add a unit test that covers the empty input case",
+      "tools" : [
+        "findTab(tests)",
+        "findIssue(empty input case)"
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.7,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 45,
+      "kindOK" : false,
+      "latencyMs" : 1482.273792,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "why is this test flaky",
+      "tools" : [
+        "findTab(test)"
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "changelog"
+        }
+      },
+      "id" : 46,
+      "kindOK" : false,
+      "latencyMs" : 1756.172667,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "next we need to update the changelog and bump the version",
+      "tools" : [
+        "findTab(changelog)",
+        "findTab(version)"
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 47,
+      "kindOK" : false,
+      "latencyMs" : 2066.860458,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "open a pull request when you're done",
+      "tools" : [
+        "findTab(pull request)",
+        "findIssue(pull request)"
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : false,
+      "error" : "exceededContextWindowSize",
+      "expect" : [
+        "dictation",
+        "askAgent",
+        "unclear"
+      ],
+      "id" : 48,
+      "kindOK" : false,
+      "latencyMs" : 22088.029625,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "approve the PR once CI passes",
+      "tools" : [
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)",
+        "findTab(CI)",
+        "findIssue(PR)",
+        "findTab(PR)"
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "parser"
+        }
+      },
+      "id" : 49,
+      "kindOK" : false,
+      "latencyMs" : 1539.535333,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "stop using force unwraps in the parser",
+      "tools" : [
+        "findTab(parser)"
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 50,
+      "kindOK" : false,
+      "latencyMs" : 1566.969791,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "do the thing",
+      "tools" : [
+        "findTab(do the thing)"
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 51,
+      "kindOK" : false,
+      "latencyMs" : 1541.154125,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "uh",
+      "tools" : [
+        "findTab(uh)"
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 52,
+      "kindOK" : false,
+      "latencyMs" : 1567.641583,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "the other one",
+      "tools" : [
+        "findTab(the other one)"
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 53,
+      "kindOK" : false,
+      "latencyMs" : 1539.969583,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "move it",
+      "tools" : [
+        "findTab(move it)"
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 54,
+      "kindOK" : false,
+      "latencyMs" : 1540.4160000000002,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "can you check on that",
+      "tools" : [
+        "findTab(that)"
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear",
+        "whatChanged",
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 55,
+      "kindOK" : false,
+      "latencyMs" : 1537.971584,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "status",
+      "tools" : [
+        "findTab(status)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 56,
+      "kindOK" : true,
+      "latencyMs" : 1536.7205,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "switch to tab number five",
+      "tools" : [
+        "findTab(five)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse",
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "whereAmI",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 57,
+      "kindOK" : true,
+      "latencyMs" : 1519.8902090000001,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what's the agent doing right now",
+      "tools" : [
+        "findTab(agent)"
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse",
+        "repeatLast"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 58,
+      "kindOK" : false,
+      "latencyMs" : 1538.715708,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "read it",
+      "tools" : [
+        "findTab(read it)"
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "approve",
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 59,
+      "kindOK" : false,
+      "latencyMs" : 1540.673625,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "yes",
+      "tools" : [
+        "findTab(yes)"
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "Home"
+        }
+      },
+      "id" : 60,
+      "kindOK" : true,
+      "latencyMs" : 1538.857,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "go back to the home screen",
+      "tools" : [
+        "findTab(home screen)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "config" : {
+    "permissive" : false,
+    "v2" : true
+  },
+  "date" : "2026-10-17T04:30:07Z",
+  "rows" : [
+    {
+      "claudeSpoken" : "The README is just two lines. It's titled Spike repo and says the project codename is BLUEBIRD.",
+      "latencyMs" : 549.872791,
+      "promptTokens" : 79,
+      "request" : "What does README.md say? Read it.",
+      "summary" : "The README is very short. It has a title, \"Spike repo\", and one line saying the project codename is BLUEBIRD.",
+      "turn" : "spoken-sonnet#0",
+      "words" : 20
+    },
+    {
+      "claudeSpoken" : "I created notes.txt with a git haiku about branches, commits, and detached HEAD. I fixed a syllable count on the second line, and the file isn't committed.",
+      "latencyMs" : 693.968458,
+      "promptTokens" : 185,
+      "request" : "Create notes.txt containing a haiku about git.",
+      "summary" : "I created notes.txt in the repo root with this haiku: My first draft had a line with too many syllables, so I rewrote it. The file has the corrected version, and it isn't committed.",
+      "turn" : "spoken-sonnet#4",
+      "words" : 36
+    },
+    {
+      "claudeSpoken" : "A process is a running program with its own isolated memory and resources. A thread is an execution path inside a process that shares its memory. Threads are cheaper but riskier. Processes are safer but costlier to communicate between.",
+      "latencyMs" : 1100.419,
+      "promptTokens" : 659,
+      "request" : "Explain in detail the difference between a process and a thread.",
+      "summary" : "A process is a running program with its own isolated resources, while a thread is a unit of execution inside a process that shares most of its resources but has its own stack, registers, and thread-local storage.",
+      "turn" : "spoken-sonnet#5",
+      "words" : 38
+    },
+    {
+      "claudeSpoken" : "There's just one commit, called init. The notes file I made earlier hasn't been committed yet.",
+      "latencyMs" : 507.035083,
+      "promptTokens" : 90,
+      "request" : "Run git log and tell me how many commits there are.",
+      "summary" : "There is 1 commit on the current branch: cfc22b5 init. The notes.txt file I created earlier isn't committed.",
+      "turn" : "spoken-sonnet#6",
+      "words" : 20
+    },
+    {
+      "claudeSpoken" : "Here's a table with three status codes: 200 means success, 404 means the resource wasn't found, and 500 means an internal server error.",
+      "error" : "decodingFailure",
+      "latencyMs" : 1285.848416,
+      "promptTokens" : 40,
+      "request" : "Give me a markdown table of 3 HTTP status codes and their meanings.",
+      "turn" : "spoken-sonnet#9",
+      "words" : 0
+    },
+    {
+      "claudeSpoken" : "We read the README, wrote a Swift reverse function, answered a math question, and listed CLI names. We also made a git haiku file, explained processes and threads, and checked the log and tests. Only the notes file is uncommitted.",
+      "latencyMs" : 749.183292,
+      "promptTokens" : 320,
+      "request" : "Summarise everything we've done in this session.",
+      "summary" : "We read the README.md, created notes.txt, and ran git log. The only change to the repo is the uncommitted notes.txt.",
+      "turn" : "spoken-sonnet#11",
+      "words" : 23
+    },
+    {
+      "claudeSpoken" : "I found no typos in the README, so I left it unchanged.",
+      "latencyMs" : 578.9275,
+      "promptTokens" : 63,
+      "request" : "Fix the typo in README.md if there is one.",
+      "summary" : "I found no typo in README.md, so I made no changes. It reads \"# Spike repo\" and \"The project codename is BLUEBIRD.\"",
+      "turn" : "spoken-sonnet#14",
+      "words" : 22
+    },
+    {
+      "latencyMs" : 772.147541,
+      "promptTokens" : 218,
+      "request" : "Use the Bash tool to run exactly this command: rm README.md. If it is refused, do not retry or work around it; just tell me.",
+      "summary" : "The rm README.md command was declined, so README.md is still there. Before the refusal, it was 48 bytes and contained '# Spike repo' and 'The project codename is BLUEBIRD.'",
+      "turn" : "permission-host#1",
+      "words" : 30
+    },
+    {
+      "latencyMs" : 709.541,
+      "promptTokens" : 181,
+      "request" : "Use your task tools to create a 3 item list (lint, test, ship), then mark lint in progress and test completed, then stop. Do not run anything else.",
+      "summary" : "I created three tasks (lint, test, ship). Lint is now in progress and test is marked completed. Ship is still pending. I stopped there as you asked, and I didn't run any other commands.",
+      "turn" : "todos#0",
+      "words" : 35
+    }
+  ]
+}

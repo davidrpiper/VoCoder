@@ -350,11 +350,17 @@ mirrored on screen.
 ### P2-05 — Utterance router and brain foundation
 - **Depends on:** P2-02, P1-05
 - **Scope:** grammar compiler from command voice phrases with typed slots (tab name/alias,
-  number, issue key, free text); `LanguageModel` protocol + Foundation Models implementation;
-  `@Generable` intent schema generated from the command registry; three-stage routing with
-  confidence and timeouts; clarification dialogue ("did you mean …?"); dictation target
-  resolution by context; routing test table seeded from P0-05 utterances.
-- **Acceptance:** routing test table ≥ agreed accuracy; grammar stage <50 ms.
+  number, issue key, free text) plus deterministic normalisation of spoken issue keys/numbers;
+  `LanguageModel` protocol + Foundation Models implementation (availability, prewarm, guided
+  generation with timeout, typed "no parse" outcome); flat `kind` + slots `@Generable` schema
+  and prompt generated from the commands available in the current context; three-stage routing
+  per [ADR 0003](decisions/0003-on-device-intent-routing.md) (`unclear`/errors → clarify, model-stage
+  risky kinds always confirm, raw utterance for dictation); clarification dialogue ("did you
+  mean …?"); dictation target resolution by context; routing test table seeded from
+  `spikes/intents/utterances.json` (incl. its hold-out set).
+- **Acceptance:** grammar stage <50 ms; routing table ≥90% on clean and ≥75% on loose and
+  hold-out utterances; 0 unconfirmed dangerous actions; wrong-action rate ≤10%; model p50
+  ≤1.0 s with prewarm (thresholds proposed by P0-05, confirmed in P0-06).
 
 ### P2-06 — Spoken representations and voice navigation
 - **Depends on:** P2-05, P2-03
@@ -406,7 +412,8 @@ queue never talks over the user.
 - **Depends on:** P3-01
 - **Scope:** Claude API `LanguageModel` implementation (key in Keychain); `BrainTool` registry
   populated by modules; cross-app question answering with escalation rules; cost/latency
-  logging.
+  logging; Claude as second interpreter for utterances the on-device model returns as `unclear`
+  (measure accuracy/latency on the P0-05 utterance set, ADR 0003).
 - **Acceptance:** "what am I doing today?" answered using calendar + agent tools (fakes in
   tests).
 

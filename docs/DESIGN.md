@@ -28,7 +28,7 @@ keyboard-driven TUI at the desk, and fully operable by voice from across the roo
   matters day-to-day and links out for the rest.
 - Remote/mobile use beyond Bluetooth range of the Mac (no phone companion app for now).
 - Distribution to other users: no signing, notarisation, installer or multi-user concerns.
-- Cross-platform support. macOS 26+ only, Apple Silicon, Apple Intelligence enabled.
+- Cross-platform support. macOS 26.4+ only (Foundation Models `tokenCount`, [ADR 0003](decisions/0003-on-device-intent-routing.md)), Apple Silicon, Apple Intelligence enabled.
 
 ### Decisions so far
 
@@ -138,13 +138,20 @@ End of utterance is detected by silence, so a second press is never required.
 **Utterance routing** — three stages, cheapest first:
 
 1. **Grammar match** (local, instant): fixed phrases from the command registry — "next tab",
-   "stop", "approve", "read it", "tab three", "go to the API".
-2. **Intent parse** (on-device Foundation Models, guided generation into a typed `Intent`): looser
-   phrasing — "what did the last comment on my auth ticket say?"
+   "stop", "approve", "read it", "tab three", "go to the API" — after deterministic
+   normalisation of spoken issue keys and numbers ("eng one forty two" → ENG-142).
+2. **Intent parse** (on-device Foundation Models, guided generation into a flat `kind` + optional
+   slots schema, app context injected, ~1.5 s timeout, prewarmed on activation): looser
+   phrasing — "do I have any meetings tomorrow?" Measured ~70–80% right on loose phrasings,
+   ~0.8 s with prewarm ([ADR 0003](decisions/0003-on-device-intent-routing.md)).
 3. **Dictation**: anything else is content for the focused context — a prompt to the agent in a
-   repo tab, a comment draft on an issue.
+   repo tab, a comment draft on an issue. The raw utterance is used, never the model's rewording.
 
-Low-confidence results trigger a clarifying question rather than a guess. Distinct **earcons**
+The model's own `unclear` result (or a timeout / guardrail / decoding failure) means "no parse":
+utterances with content escalate to Claude (§4.6) when available, otherwise VoCoder asks a
+clarifying question rather than guessing. Self-reported confidence scores are not used (they are
+uncalibrated). Risky commands (approve, deny, status changes, comments, start work, interrupt)
+chosen by the model stage always ask for confirmation. Distinct **earcons**
 signal "heard a command" vs "taking dictation" vs "didn't understand".
 
 **Barge-in**: "stop" / "skip" / "shut up" interrupt speech immediately. Requires acoustic echo
@@ -385,11 +392,16 @@ protocol CalendarProvider {                  // EventKit
 
 ### 4.6 Brain
 
-- **On-device (Foundation Models)**: intent parsing (guided generation into a `@Generable Intent`
-  type), short summaries, briefing text. Fast, private, free.
-- **Claude API**: escalation for harder cross-app questions and long-document summaries. Default
-  to the latest Sonnet/Haiku models; configurable.
-- Routing: grammar → on-device → Claude, with timeouts so voice never stalls.
+- **On-device (Foundation Models)**: intent parsing (guided generation into a `@Generable` flat
+  `kind` + slots type generated from the commands available in the current context; no tools,
+  no confidence field), fallback speakable summaries (when `<spoken>` is missing; input budgeted
+  to ~1,500 tokens, code/tables replaced by notes, output capped), briefing text. Fast, private,
+  free; context window 4,096 tokens. See [ADR 0003](decisions/0003-on-device-intent-routing.md).
+- **Claude API**: escalation for harder cross-app questions, long-document summaries, and
+  utterances the on-device model returns as `unclear`. Default to the latest Sonnet/Haiku models;
+  configurable.
+- Routing: grammar → on-device → Claude, with timeouts so voice never stalls. Model errors
+  (guardrail, refusal, decoding, context overflow) map to "no parse", never to user-facing errors.
 
 ### 4.7 Attention queue
 
@@ -550,7 +562,7 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
 | 1 | Can a terminal-launched process receive AirPods remote commands as Now Playing app? | Spike (c) |
 | 2 | Are TCC permissions + embedded Info.plist sufficient for Speech/EventKit from a CLI? | Spike (b) |
 | 3 | AEC quality for barge-in with AirPods and built-in speakers | Spike (b) |
-| 4 | Recognition and intent latency targets: <300 ms grammar, <1 s intent | Spikes (b), (e) |
+| 4 | Recognition and intent latency targets: <300 ms grammar, <1 s intent | Intent: ✅ ~0.8 s p50 with prewarm, ~1.15 s without ([ADR 0003](decisions/0003-on-device-intent-routing.md)); recognition: spike (b) |
 | 5 | Permission prompt round-trip via `--permission-prompt-tool` in stream-json mode | ✅ Resolved: in-band host control protocol, no MCP ([ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md)) |
 | 6 | Building FTXUI as a SwiftPM C++ target cleanly (no CMake) | ✅ Resolved: works, no `unsafeFlags` ([ADR 0001](decisions/0001-ftxui-objc-bridge.md)) |
 | 7 | Music playback vs. play/pause activation conflict | Spike (c); config option |

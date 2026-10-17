@@ -1,0 +1,119 @@
+{
+  "config" : {
+    "normalise" : true,
+    "only" : [
+      3,
+      25,
+      66,
+      12,
+      48
+    ],
+    "permissive" : true,
+    "prewarm" : false,
+    "prompt" : "v2",
+    "repeatCount" : 1,
+    "schema" : "c",
+    "stream" : false
+  },
+  "date" : "2026-10-17T04:30:35Z",
+  "rows" : [
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "error" : "guardrailViolation",
+      "expect" : [
+        "switchTab"
+      ],
+      "id" : 3,
+      "kindOK" : false,
+      "latencyMs" : 1272.786292,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "switch to the API",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "approve"
+      ],
+      "got" : {
+        "kind" : "approve",
+        "slots" : {
+          "text" : "approve"
+        }
+      },
+      "id" : 12,
+      "kindOK" : true,
+      "latencyMs" : 1256.615042,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "approve",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "error" : "guardrailViolation",
+      "expect" : [
+        "showDiff"
+      ],
+      "id" : 25,
+      "kindOK" : false,
+      "latencyMs" : 1338.270875,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "diff of the readme",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : true,
+      "expect" : [
+        "dictation",
+        "askAgent",
+        "unclear"
+      ],
+      "got" : {
+        "kind" : "approve",
+        "slots" : {
+          "text" : "approve the PR once CI passes"
+        }
+      },
+      "id" : 48,
+      "kindOK" : false,
+      "latencyMs" : 1285.059667,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "approve the PR once CI passes",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "holdout-loose",
+      "dangerous" : false,
+      "error" : "guardrailViolation",
+      "expect" : [
+        "interruptAgent",
+        "unclear"
+      ],
+      "id" : 66,
+      "kindOK" : false,
+      "latencyMs" : 1453.542625,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "abort, abort",
+      "tools" : [
+
+      ]
+    }
+  ]
+}

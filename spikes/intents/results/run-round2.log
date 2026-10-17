@@ -1,0 +1,766 @@
+instructions: 912 tokens
+✓  1  1281ms  nextTab ["tab": "web-app"] c=0.90  ← next tab 
+✓  2  1127ms  previousTab ["tab": "api"] c=0.90  ← go to the previous tab 
+✓  3  1098ms  switchTab ["tab": "api"] c=0.90  ← switch to the API 
+✓  4  1130ms  switchTab ["tab": "three"] c=0.90  ← tab three 
+✓  5  1128ms  switchTab ["tab": "web-app"] c=0.90  ← take me to the web app 
+✓  6  1152ms  switchTab ["tab": "infra"] c=0.90  ← jump over to infra 
+✗  7  1081ms  searchDocs ["query": "tasks"] c=0.90  ← show me my tasks 
+✓  8  1201ms  whereAmI ["tab": "api", "issue": "ENG-142"] c=1.00  ← where am I 
+✓  9  1202ms  whereAmI ["tab": "api", "issue": "ENG-142"] c=1.00  ← what tab is this 
+✓ 10  1212ms  repeatLast ["text": "say that again"] c=1.00  ← say that again 
+✗ 11  1214ms  unclear ["text": "sorry what was that"] c=0.50  ← sorry what was that 
+✓ 12  1038ms  approve [:] c=1.00  ← approve 
+✓ 13  1039ms  approve [:] c=0.90  ← yeah go ahead and let it run that 
+✗ 14  1310ms  unclear ["text": "no don\'t let it do that"] c=0.90  ← no don't let it do that 
+✓ 15  1272ms  deny ["text": "reject"] c=0.90  ← reject 
+✗ 16  1277ms  unclear ["text": "cancel what Claude is doing"] c=0.70  ← cancel what Claude is doing 
+✗ 17  1048ms  unclear [:] c=0.90  ← hold on, kill that, stop the agent 
+✓ 18  1321ms  readLastResponse ["tab": "api", "issue": "ENG-142", "text": "token refresh in auth service"] c=0.90  ← what did Claude say 
+✓ 19  1319ms  readLastResponse ["tab": "api", "issue": "ENG-142", "text": "Fix token refresh in auth service"] c=0.90  ← read me its last answer 
+✓ 20  1190ms  askAgent ["text": "tell Claude to add tests for the token refresh"] c=0.90  ← tell Claude to add tests for the token refresh 
+✓ 21  1189ms  askAgent ["text": "why the build is failing"] c=0.90  ← ask the agent why the build is failing 
+✓ 22  1041ms  whatChanged [:] c=0.90  ← what changed 
+✓ 23  1217ms  whatChanged ["tab": "api", "issue": "ENG-142"] c=0.90  ← which files did it touch 
+✓ 24  1367ms  showDiff ["issue": "ENG-142", "file": "Sources/Auth/AuthService.swift", "tab": "api"] c=0.90  ← show me the diff for the auth service 
+✓ 25  1317ms  showDiff ["tab": "api", "issue": "ENG-142", "file": "README.md"] c=0.90  ← diff of the readme 
+✓ 26  1101ms  openIssue ["issue": "ENG-123"] c=0.90  ← open ENG-123 
+✗ 27  1044ms  unclear [:] c=0.90  ← pull up ticket eng one forty two 
+✗ 28  1040ms  unclear [:] c=0.70  ← go to issue E N G one two three 
+✓ 29  1218ms  setIssueStatus ["issue": "ENG-123", "status": "in review"] c=0.90  ← move ENG-123 to in review 
+✓ 30  1189ms  setIssueStatus ["status": "done", "issue": "ENG-142"] c=0.90  ← mark this ticket as done 
+✓ 31  1231ms  commentOnIssue ["issue": "ENG-98", "text": "say the fix is deployed to staging"] c=0.90  ← comment on ENG-98 saying the fix is deployed to staging 
+✓ 32  1199ms  commentOnIssue ["issue": "ENG-142", "text": "Looks good to me"] c=0.90  ← reply on the ticket: looks good to me 
+✓ 33  1113ms  startWorkingOn ["issue": "ENG-77"] c=0.90  ← start working on ENG-77 
+✗ 34  1215ms  dictation ["text": "let\'s pick up the Safari login bug"] c=0.90  ← let's pick up the Safari login bug 
+✗ 35  1233ms  readLastResponse ["text": "token refresh in auth service", "issue": "ENG-142"] c=0.90  ← what did the last comment on my auth ticket say 
+✓ 36  1097ms  searchDocs ["query": "onboarding"] c=0.90  ← search the docs for onboarding 
+✓ 37  1204ms  searchDocs ["query": "notion page about the release process"] c=0.90  ← find the notion page about the release process 
+✓ 38  1123ms  agenda ["day": "today"] c=0.90  ← what's on my calendar today 
+✗ 39  1043ms  unclear [:] c=0.70  ← do I have any meetings tomorrow 
+✓ 40  1364ms  agenda ["tab": "Calendar"] c=0.90  ← what's next on my schedule 
+✓ 41  1214ms  dictation ["text": "add leeway to token refresh"] c=0.90  ← the token refresh fails when the clock skews by more than five minutes, can you add some leeway 
+✓ 42  1219ms  dictation ["text": "refactor the user service to use async await"] c=0.90  ← refactor the user service to use async await 
+✓ 43  1220ms  dictation ["text": "I think we should rename this function to fetch user"] c=0.90  ← I think we should rename this function to fetch user 
+✓ 44  1181ms  dictation ["text": "add a unit test that covers the empty input case"] c=0.90  ← add a unit test that covers the empty input case 
+✗ 45  1044ms  unclear [:] c=0.70  ← why is this test flaky 
+✗ 46  1092ms  nextTab ["tab": "docs"] c=0.90  ← next we need to update the changelog and bump the version 
+✗ 47  1248ms  openIssue ["issue": "ENG-142", "text": "open a pull request when you\'re done"] c=0.90  ← open a pull request when you're done 
+✗! 48  1037ms  approve [:] c=0.90  ← approve the PR once CI passes 
+✗ 49  1045ms  unclear [:] c=0.70  ← stop using force unwraps in the parser 
+✓ 50  1006ms  unclear [:] c=0.50  ← do the thing 
+✓ 51  1042ms  unclear [:] c=0.10  ← uh 
+✓ 52  1300ms  unclear [:] c=0.50  ← the other one 
+✓ 53  1017ms  unclear [:] c=0.50  ← move it 
+✓ 54  1041ms  unclear [:] c=0.70  ← can you check on that 
+✓ 55  1213ms  whatChanged ["issue": "ENG-142", "tab": "api"] c=0.90  ← status 
+✓ 56  1098ms  switchTab ["tab": "5"] c=0.90  ← switch to tab number five 
+✗ 57  1038ms  unclear [:] c=0.90  ← what's the agent doing right now 
+✓ 58  1052ms  readLastResponse [:] c=0.90  ← read it 
+✓ 59  1040ms  approve [:] c=0.90  ← yes 
+✓ 60  1092ms  switchTab ["tab": "Home"] c=0.90  ← go back to the home screen 
+✗ 61  1299ms  unclear [:] c=0.50  ← flip to the calendar 
+✗ 62  1121ms  switchTab ["tab": "web-app"] c=0.90  ← go one tab to the right 
+✓ 63  1241ms  repeatLast ["text": "can you repeat that"] c=0.90  ← can you repeat that 
+✓ 64  1039ms  approve [:] c=0.90  ← sure, allow it 
+✗ 65  1246ms  unclear ["text": "block that command"] c=0.90  ← nope, block that command 
+✓ 66  1046ms  unclear [:] c=0.90  ← abort, abort 
+✓ 67  1803ms  readLastResponse ["tab": "api", "issue": "ENG-142", "text": "Claude\'s reply was: \'I\'ve installed npm and updated the AuthService.swift file to fix the token refresh issue in the auth service.\'"] c=0.90  ← what was Claude's reply 
+✓ 68  1210ms  whatChanged ["issue": "ENG-142", "tab": "api"] c=0.90  ← anything modified in this repo 
+✗ 69  1216ms  whatChanged ["issue": "ENG-142", "tab": "api"] c=0.90  ← let me see the changes in token tests 
+✗ 70  1043ms  unclear [:] c=0.90  ← bring up ENG-98 
+✓ 71  1221ms  setIssueStatus ["status": "in progress", "issue": "ENG-77"] c=0.90  ← set ENG-77 to in progress 
+✓ 72  1271ms  commentOnIssue ["text": "I\'m blocked on the API keys", "issue": "ENG-123"] c=0.90  ← leave a note on ENG-123 that I'm blocked on the API keys 
+✓ 73  1233ms  startWorkingOn ["issue": "ENG-98", "text": "start working on ENG-98"] c=0.90  ← begin work on ENG-98 
+✓ 74  1119ms  searchDocs ["query": "rate limiting"] c=0.90  ← look up the docs on rate limiting 
+✓ 75  1154ms  agenda ["tab": "Calendar", "day": "Friday"] c=0.90  ← what meetings do I have on Friday 
+✓ 76  1224ms  dictation ["text": "make the retry count configurable through an environment variable"] c=0.90  ← make the retry count configurable through an environment variable 
+✗ 77  1042ms  unclear [:] c=0.70  ← stop the build from caching node modules 
+✓ 78  1158ms  dictation ["text": "write a migration for the users table"] c=0.90  ← next, write a migration for the users table 
+✓ 79  1018ms  unclear [:] c=0.50  ← hmm 
+✓ 80  1013ms  unclear [:] c=0.50  ← change it 
+✓ 81  1041ms  unclear [:] c=0.70  ← close ENG-142 
+✓ 82  1127ms  switchTab ["tab": "2"] c=0.90  ← open tab two 
+✗ 83  1042ms  unclear [:] c=0.70  ← pull up ticket eng ninety eight 
+### r2-b-context
+
+schema=b prompt=context prewarm=false stream=false permissive=false normalise=false runs=1 n=83 instructionTokens=912
+
+| Metric | Value |
+|---|---|
+| Kind accuracy | 72% |
+| Kind + slots | 72% |
+| Dangerous errors (risky kind chosen wrongly) | 1 |
+| Errors thrown | 0 |
+| First call (incl. load) | 1281 ms |
+| Latency p50 / p95 / max (rest) | 1154 / 1319 / 1803 ms |
+
+| Set | n | kind | kind+slots | wrong action (not unclear) | dangerous |
+|---|---|---|---|---|---|
+| tuning 1–60 | 60 | 73% | 73% | 6 | 1 |
+| hold-out 61+ | 23 | 70% | 70% | 2 | 0 |
+| all | 83 | 72% | 72% | 8 | 1 |
+
+| Category | n | kind | kind+slots |
+|---|---|---|---|
+| ambiguous | 7 | 100% | 100% |
+| clean | 20 | 100% | 100% |
+| dictation | 5 | 80% | 80% |
+| dictation-trap | 4 | 0% | 0% |
+| holdout-ambiguous | 2 | 100% | 100% |
+| holdout-clean | 6 | 83% | 83% |
+| holdout-dictation | 3 | 67% | 67% |
+| holdout-loose | 11 | 64% | 64% |
+| holdout-spoken-form | 1 | 0% | 0% |
+| loose | 21 | 62% | 62% |
+| out-of-schema | 1 | 0% | 0% |
+| spoken-form | 2 | 0% | 0% |
+
+| Confidence | n | kind correct |
+|---|---|---|
+| [0.00, 0.50) | 1 | 100% |
+| [0.50, 0.80) | 16 | 44% |
+| [0.80, 0.95) | 62 | 77% |
+| [0.95, 1.00) | 4 | 100% |
+
+Failures:
+- 7 "show me my tasks" → searchDocs ["query": "tasks"] (expected switchTab)
+- 11 "sorry what was that" → unclear ["text": "sorry what was that"] (expected repeatLast)
+- 14 "no don't let it do that" → unclear ["text": "no don\'t let it do that"] (expected deny)
+- 16 "cancel what Claude is doing" → unclear ["text": "cancel what Claude is doing"] (expected interruptAgent)
+- 17 "hold on, kill that, stop the agent" → unclear [:] (expected interruptAgent)
+- 27 "pull up ticket eng one forty two" → unclear [:] (expected openIssue)
+- 28 "go to issue E N G one two three" → unclear [:] (expected openIssue)
+- 34 "let's pick up the Safari login bug" → dictation ["text": "let\'s pick up the Safari login bug"] (expected startWorkingOn)
+- 35 "what did the last comment on my auth ticket say" → readLastResponse ["text": "token refresh in auth service", "issue": "ENG-142"] (expected unclear|openIssue)
+- 39 "do I have any meetings tomorrow" → unclear [:] (expected agenda)
+- 45 "why is this test flaky" → unclear [:] (expected dictation|askAgent)
+- 46 "next we need to update the changelog and bump the version" → nextTab ["tab": "docs"] (expected dictation|askAgent)
+- 47 "open a pull request when you're done" → openIssue ["issue": "ENG-142", "text": "open a pull request when you\'re done"] (expected dictation|askAgent)
+- 48 "approve the PR once CI passes" → approve [:] (expected dictation|askAgent|unclear) **dangerous**
+- 49 "stop using force unwraps in the parser" → unclear [:] (expected dictation|askAgent)
+- 57 "what's the agent doing right now" → unclear [:] (expected readLastResponse|whereAmI)
+- 61 "flip to the calendar" → unclear [:] (expected switchTab)
+- 62 "go one tab to the right" → switchTab ["tab": "web-app"] (expected nextTab)
+- 65 "nope, block that command" → unclear ["text": "block that command"] (expected deny)
+- 69 "let me see the changes in token tests" → whatChanged ["issue": "ENG-142", "tab": "api"] (expected showDiff)
+- 70 "bring up ENG-98" → unclear [:] (expected openIssue)
+- 77 "stop the build from caching node modules" → unclear [:] (expected dictation|askAgent)
+- 83 "pull up ticket eng ninety eight" → unclear [:] (expected openIssue)
+
+instructions: 912 tokens
+✓  1  1132ms  nextTab ["tab": "web-app"] c=0.90  ← next tab 
+✓  2  1130ms  previousTab ["tab": "api"] c=0.90  ← go to the previous tab 
+✓  3  1098ms  switchTab ["tab": "api"] c=0.90  ← switch to the API 
+✓  4  1126ms  switchTab ["tab": "three"] c=0.90  ← tab three 
+✓  5  1131ms  switchTab ["tab": "web-app"] c=0.90  ← take me to the web app 
+✓  6  1156ms  switchTab ["tab": "infra"] c=0.90  ← jump over to infra 
+✗  7  1084ms  searchDocs ["query": "tasks"] c=0.90  ← show me my tasks 
+✓  8  1198ms  whereAmI ["tab": "api", "issue": "ENG-142"] c=1.00  ← where am I 
+✓  9  1202ms  whereAmI ["tab": "api", "issue": "ENG-142"] c=1.00  ← what tab is this 
+✓ 10  1219ms  repeatLast ["text": "say that again"] c=1.00  ← say that again 
+✗ 11  1217ms  unclear ["text": "sorry what was that"] c=0.50  ← sorry what was that 
+✓ 12  1041ms  approve [:] c=1.00  ← approve 
+✓ 13  1040ms  approve [:] c=0.90  ← yeah go ahead and let it run that 
+✗ 14  1308ms  unclear ["text": "no don\'t let it do that"] c=0.90  ← no don't let it do that 
+✓ 15  1275ms  deny ["text": "reject"] c=0.90  ← reject 
+✗ 16  1280ms  unclear ["text": "cancel what Claude is doing"] c=0.70  ← cancel what Claude is doing 
+✗ 17  1042ms  unclear [:] c=0.90  ← hold on, kill that, stop the agent 
+✓ 18  1322ms  readLastResponse ["issue": "ENG-142", "text": "token refresh in auth service", "tab": "api"] c=0.90  ← what did Claude say 
+✓ 19  1319ms  readLastResponse ["issue": "ENG-142", "tab": "api", "text": "Fix token refresh in auth service"] c=0.90  ← read me its last answer 
+✓ 20  1190ms  askAgent ["text": "tell Claude to add tests for the token refresh"] c=0.90  ← tell Claude to add tests for the token refresh 
+✓ 21  1191ms  askAgent ["text": "why the build is failing"] c=0.90  ← ask the agent why the build is failing 
+✓ 22  1041ms  whatChanged [:] c=0.90  ← what changed 
+✓ 23  1216ms  whatChanged ["tab": "api", "issue": "ENG-142"] c=0.90  ← which files did it touch 
+✓ 24  1367ms  showDiff ["file": "Sources/Auth/AuthService.swift", "tab": "api", "issue": "ENG-142"] c=0.90  ← show me the diff for the auth service 
+✓ 25  1305ms  showDiff ["issue": "ENG-142", "file": "README.md", "tab": "api"] c=0.90  ← diff of the readme 
+✓ 26  1108ms  openIssue ["issue": "ENG-123"] c=0.90  ← open ENG-123 
+✗ 27  1205ms  searchDocs ["query": "ticket ENG-142"] c=0.90  ← pull up ticket eng one forty two 
+✗ 28  1034ms  unclear [:] c=0.90  ← go to issue E N G one two three 
+✓ 29  1208ms  setIssueStatus ["issue": "ENG-123", "status": "in review"] c=0.90  ← move ENG-123 to in review 
+✓ 30  1178ms  setIssueStatus ["status": "done", "issue": "ENG-142"] c=0.90  ← mark this ticket as done 
+✓ 31  1223ms  commentOnIssue ["text": "say the fix is deployed to staging", "issue": "ENG-98"] c=0.90  ← comment on ENG-98 saying the fix is deployed to staging 
+✓ 32  1191ms  commentOnIssue ["issue": "ENG-142", "text": "Looks good to me"] c=0.90  ← reply on the ticket: looks good to me 
+✓ 33  1110ms  startWorkingOn ["issue": "ENG-77"] c=0.90  ← start working on ENG-77 
+✗ 34  1215ms  dictation ["text": "let\'s pick up the Safari login bug"] c=0.90  ← let's pick up the Safari login bug 
+✗ 35  1238ms  readLastResponse ["issue": "ENG-142", "text": "token refresh in auth service"] c=0.90  ← what did the last comment on my auth ticket say 
+✓ 36  1097ms  searchDocs ["query": "onboarding"] c=0.90  ← search the docs for onboarding 
+✓ 37  1199ms  searchDocs ["query": "notion page about the release process"] c=0.90  ← find the notion page about the release process 
+✓ 38  1118ms  agenda ["day": "today"] c=0.90  ← what's on my calendar today 
+✗ 39  1033ms  unclear [:] c=0.70  ← do I have any meetings tomorrow 
+✓ 40  1351ms  agenda ["tab": "Calendar"] c=0.90  ← what's next on my schedule 
+✓ 41  1203ms  dictation ["text": "add leeway to token refresh"] c=0.90  ← the token refresh fails when the clock skews by more than five minutes, can you add some leeway 
+✓ 42  1220ms  dictation ["text": "refactor the user service to use async await"] c=0.90  ← refactor the user service to use async await 
+✓ 43  1224ms  dictation ["text": "I think we should rename this function to fetch user"] c=0.90  ← I think we should rename this function to fetch user 
+✓ 44  1198ms  dictation ["text": "add a unit test that covers the empty input case"] c=0.90  ← add a unit test that covers the empty input case 
+✗ 45  1045ms  unclear [:] c=0.70  ← why is this test flaky 
+✗ 46  1106ms  nextTab ["tab": "docs"] c=0.90  ← next we need to update the changelog and bump the version 
+✗ 47  1253ms  openIssue ["text": "open a pull request when you\'re done", "issue": "ENG-142"] c=0.90  ← open a pull request when you're done 
+✗! 48  1046ms  approve [:] c=0.90  ← approve the PR once CI passes 
+✗ 49  1048ms  unclear [:] c=0.70  ← stop using force unwraps in the parser 
+✓ 50  1024ms  unclear [:] c=0.50  ← do the thing 
+✓ 51  1039ms  unclear [:] c=0.10  ← uh 
+✓ 52  1299ms  unclear [:] c=0.50  ← the other one 
+✓ 53  1008ms  unclear [:] c=0.50  ← move it 
+✓ 54  1045ms  unclear [:] c=0.70  ← can you check on that 
+✓ 55  1217ms  whatChanged ["issue": "ENG-142", "tab": "api"] c=0.90  ← status 
+✓ 56  1099ms  switchTab ["tab": "5"] c=0.90  ← switch to tab number five 
+✗ 57  1041ms  unclear [:] c=0.90  ← what's the agent doing right now 
+✓ 58  1055ms  readLastResponse [:] c=0.90  ← read it 
+✓ 59  1042ms  approve [:] c=0.90  ← yes 
+✓ 60  1101ms  switchTab ["tab": "Home"] c=0.90  ← go back to the home screen 
+✗ 61  1301ms  unclear [:] c=0.50  ← flip to the calendar 
+✗ 62  1134ms  switchTab ["tab": "web-app"] c=0.90  ← go one tab to the right 
+✓ 63  1246ms  repeatLast ["text": "can you repeat that"] c=0.90  ← can you repeat that 
+✓ 64  1045ms  approve [:] c=0.90  ← sure, allow it 
+✗ 65  1247ms  unclear ["text": "block that command"] c=0.90  ← nope, block that command 
+✓ 66  1033ms  unclear [:] c=0.90  ← abort, abort 
+✓ 67  1782ms  readLastResponse ["text": "Claude\'s reply was: \'I\'ve installed npm and updated the AuthService.swift file to fix the token refresh issue in the auth service.\'", "tab": "api", "issue": "ENG-142"] c=0.90  ← what was Claude's reply 
+✓ 68  1200ms  whatChanged ["tab": "api", "issue": "ENG-142"] c=0.90  ← anything modified in this repo 
+✗ 69  1201ms  whatChanged ["issue": "ENG-142", "tab": "api"] c=0.90  ← let me see the changes in token tests 
+✗ 70  1034ms  unclear [:] c=0.90  ← bring up ENG-98 
+✓ 71  1215ms  setIssueStatus ["issue": "ENG-77", "status": "in progress"] c=0.90  ← set ENG-77 to in progress 
+✓ 72  1254ms  commentOnIssue ["issue": "ENG-123", "text": "I\'m blocked on the API keys"] c=0.90  ← leave a note on ENG-123 that I'm blocked on the API keys 
+✓ 73  1226ms  startWorkingOn ["text": "start working on ENG-98", "issue": "ENG-98"] c=0.90  ← begin work on ENG-98 
+✓ 74  1108ms  searchDocs ["query": "rate limiting"] c=0.90  ← look up the docs on rate limiting 
+✓ 75  1146ms  agenda ["day": "Friday", "tab": "Calendar"] c=0.90  ← what meetings do I have on Friday 
+✓ 76  1206ms  dictation ["text": "make the retry count configurable through an environment variable"] c=0.90  ← make the retry count configurable through an environment variable 
+✗ 77  1031ms  unclear [:] c=0.70  ← stop the build from caching node modules 
+✓ 78  1145ms  dictation ["text": "write a migration for the users table"] c=0.90  ← next, write a migration for the users table 
+✓ 79  1003ms  unclear [:] c=0.50  ← hmm 
+✓ 80  1005ms  unclear [:] c=0.50  ← change it 
+✓ 81  1035ms  unclear [:] c=0.70  ← close ENG-142 
+✓ 82  1118ms  switchTab ["tab": "2"] c=0.90  ← open tab two 
+✗ 83  1138ms  searchDocs ["query": "deploys"] c=0.90  ← pull up ticket eng ninety eight 
+### r2-b-context-norm
+
+schema=b prompt=context prewarm=false stream=false permissive=false normalise=true runs=1 n=83 instructionTokens=912
+
+| Metric | Value |
+|---|---|
+| Kind accuracy | 72% |
+| Kind + slots | 72% |
+| Dangerous errors (risky kind chosen wrongly) | 1 |
+| Errors thrown | 0 |
+| First call (incl. load) | 1132 ms |
+| Latency p50 / p95 / max (rest) | 1156 / 1319 / 1782 ms |
+
+| Set | n | kind | kind+slots | wrong action (not unclear) | dangerous |
+|---|---|---|---|---|---|
+| tuning 1–60 | 60 | 73% | 73% | 7 | 1 |
+| hold-out 61+ | 23 | 70% | 70% | 3 | 0 |
+| all | 83 | 72% | 72% | 10 | 1 |
+
+| Category | n | kind | kind+slots |
+|---|---|---|---|
+| ambiguous | 7 | 100% | 100% |
+| clean | 20 | 100% | 100% |
+| dictation | 5 | 80% | 80% |
+| dictation-trap | 4 | 0% | 0% |
+| holdout-ambiguous | 2 | 100% | 100% |
+| holdout-clean | 6 | 83% | 83% |
+| holdout-dictation | 3 | 67% | 67% |
+| holdout-loose | 11 | 64% | 64% |
+| holdout-spoken-form | 1 | 0% | 0% |
+| loose | 21 | 62% | 62% |
+| out-of-schema | 1 | 0% | 0% |
+| spoken-form | 2 | 0% | 0% |
+
+| Confidence | n | kind correct |
+|---|---|---|
+| [0.00, 0.50) | 1 | 100% |
+| [0.50, 0.80) | 14 | 50% |
+| [0.80, 0.95) | 64 | 75% |
+| [0.95, 1.00) | 4 | 100% |
+
+Failures:
+- 7 "show me my tasks" → searchDocs ["query": "tasks"] (expected switchTab)
+- 11 "sorry what was that" → unclear ["text": "sorry what was that"] (expected repeatLast)
+- 14 "no don't let it do that" → unclear ["text": "no don\'t let it do that"] (expected deny)
+- 16 "cancel what Claude is doing" → unclear ["text": "cancel what Claude is doing"] (expected interruptAgent)
+- 17 "hold on, kill that, stop the agent" → unclear [:] (expected interruptAgent)
+- 27 "pull up ticket eng one forty two" → searchDocs ["query": "ticket ENG-142"] (expected openIssue)
+- 28 "go to issue E N G one two three" → unclear [:] (expected openIssue)
+- 34 "let's pick up the Safari login bug" → dictation ["text": "let\'s pick up the Safari login bug"] (expected startWorkingOn)
+- 35 "what did the last comment on my auth ticket say" → readLastResponse ["issue": "ENG-142", "text": "token refresh in auth service"] (expected unclear|openIssue)
+- 39 "do I have any meetings tomorrow" → unclear [:] (expected agenda)
+- 45 "why is this test flaky" → unclear [:] (expected dictation|askAgent)
+- 46 "next we need to update the changelog and bump the version" → nextTab ["tab": "docs"] (expected dictation|askAgent)
+- 47 "open a pull request when you're done" → openIssue ["text": "open a pull request when you\'re done", "issue": "ENG-142"] (expected dictation|askAgent)
+- 48 "approve the PR once CI passes" → approve [:] (expected dictation|askAgent|unclear) **dangerous**
+- 49 "stop using force unwraps in the parser" → unclear [:] (expected dictation|askAgent)
+- 57 "what's the agent doing right now" → unclear [:] (expected readLastResponse|whereAmI)
+- 61 "flip to the calendar" → unclear [:] (expected switchTab)
+- 62 "go one tab to the right" → switchTab ["tab": "web-app"] (expected nextTab)
+- 65 "nope, block that command" → unclear ["text": "block that command"] (expected deny)
+- 69 "let me see the changes in token tests" → whatChanged ["issue": "ENG-142", "tab": "api"] (expected showDiff)
+- 70 "bring up ENG-98" → unclear [:] (expected openIssue)
+- 77 "stop the build from caching node modules" → unclear [:] (expected dictation|askAgent)
+- 83 "pull up ticket eng ninety eight" → searchDocs ["query": "deploys"] (expected openIssue)
+
+instructions: 1215 tokens
+✓  1  1370ms  nextTab ["tab": "api"] c=0.90  ← next tab 
+✓  2  1365ms  previousTab ["tab": "api"] c=0.90  ← go to the previous tab 
+✓  3  1344ms  switchTab ["tab": "api"] c=1.00  ← switch to the API 
+✓  4  1403ms  switchTab ["tab": "three"] c=0.90  ← tab three 
+✓  5  1418ms  switchTab ["tab": "web-app"] c=0.90  ← take me to the web app 
+✓  6  1464ms  switchTab ["tab": "infra"] c=0.90  ← jump over to infra 
+✗  7  1517ms  whereAmI ["tab": "api", "issue": "ENG-142"] c=0.90  ← show me my tasks 
+✓  8  1489ms  whereAmI ["tab": "api", "issue": "ENG-142"] c=1.00  ← where am I 
+✓  9  1435ms  whereAmI ["issue": "ENG-142", "tab": "api"] c=1.00  ← what tab is this 
+✓ 10  1279ms  repeatLast [:] c=0.90  ← say that again 
+✓ 11  1483ms  repeatLast ["text": "sorry what was that"] c=0.90  ← sorry what was that 
+✓ 12  1280ms  approve [:] c=0.90  ← approve 
+✓ 13  1304ms  approve [:] c=0.90  ← yeah go ahead and let it run that 
+✗ 14  1280ms  unclear [:] c=0.70  ← no don't let it do that 
+✓ 15  1303ms  deny [:] c=0.90  ← reject 
+✓ 16  1581ms  interruptAgent ["issue": "ENG-142", "text": "cancel what Claude is doing", "tab": "api"] c=0.90  ← cancel what Claude is doing 
+✓ 17  1607ms  interruptAgent ["tab": "api", "issue": "ENG-142", "text": "kill that, stop the agent"] c=0.90  ← hold on, kill that, stop the agent 
+✓ 18  1578ms  readLastResponse ["tab": "api", "text": "what did Claude say", "issue": "ENG-142"] c=0.90  ← what did Claude say 
+✓ 19  1298ms  readLastResponse [:] c=0.99  ← read me its last answer 
+✓ 20  1418ms  askAgent ["text": "tell Claude to add tests for the token refresh"] c=0.90  ← tell Claude to add tests for the token refresh 
+✓ 21  1418ms  askAgent ["text": "why the build is failing"] c=0.90  ← ask the agent why the build is failing 
+✓ 22  1754ms  whatChanged [:] c=0.90  ← what changed 
+✓ 23  1623ms  whatChanged [:] c=0.90  ← which files did it touch 
+✓ 24  1914ms  showDiff ["file": "Sources/Auth/AuthService.swift", "tab": "api", "issue": "ENG-142"] c=0.90  ← show me the diff for the auth service 
+✓ 25  6166ms  showDiff ["tab": "api", "issue": "ENG-142", "file": "README.md"] c=0.90  ← diff of the readme 
+✓ 26  1919ms  openIssue ["issue": "ENG-123"] c=0.90  ← open ENG-123 
+✗ 27  1467ms  unclear [:] c=0.90  ← pull up ticket eng one forty two 
+✓ 28  4269ms  openIssue ["issue": "ENG-123"] c=0.90  ← go to issue E N G one two three 
+✓ 29  3117ms  setIssueStatus ["status": "in review", "issue": "ENG-123"] c=0.90  ← move ENG-123 to in review 
+✓ 30  1681ms  setIssueStatus ["issue": "ENG-142", "status": "done"] c=0.90  ← mark this ticket as done 
+✓ 31  1649ms  commentOnIssue ["issue": "ENG-98", "text": "comment on ENG-98 saying the fix is deployed to staging"] c=0.90  ← comment on ENG-98 saying the fix is deployed to staging 
+✓ 32  4140ms  commentOnIssue ["text": "Looks good to me", "issue": "ENG-142"] c=0.90  ← reply on the ticket: looks good to me 
+✓ 33  3241ms  startWorkingOn ["issue": "ENG-77"] c=0.90  ← start working on ENG-77 
+✓ 34  1650ms  startWorkingOn ["issue": "ENG-77", "text": "Login bug on Safari"] c=0.90  ← let's pick up the Safari login bug 
+✗ 35  1394ms  readLastResponse [:] c=0.90  ← what did the last comment on my auth ticket say 
+~ 36  1444ms  searchDocs [:] c=0.90  ← search the docs for onboarding 
+✓ 37  1773ms  searchDocs ["tab": "Docs", "query": "release process"] c=0.90  ← find the notion page about the release process 
+✓ 38  1647ms  agenda ["day": "today", "tab": "Calendar"] c=0.90  ← what's on my calendar today 
+✗ 39  1534ms  unclear [:] c=0.70  ← do I have any meetings tomorrow 
+✓ 40  5531ms  agenda ["tab": "Calendar", "day": "today"] c=0.90  ← what's next on my schedule 
+✓ 41  1893ms  askAgent ["text": "can you add some leeway"] c=0.90  ← the token refresh fails when the clock skews by more than five minutes, can you add some leeway 
+✓ 42  1785ms  dictation ["text": "refactor the user service to use async await"] c=0.90  ← refactor the user service to use async await 
+✓ 43  1795ms  dictation ["text": "I think we should rename this function to fetch user"] c=0.90  ← I think we should rename this function to fetch user 
+✓ 44  1771ms  dictation ["text": "add a unit test that covers the empty input case"] c=0.90  ← add a unit test that covers the empty input case 
+✗ 45  1477ms  unclear [:] c=0.70  ← why is this test flaky 
+✗ 46  5088ms  switchTab ["tab": "docs"] c=0.90  ← next we need to update the changelog and bump the version 
+✗ 47  2215ms  openIssue ["issue": "ENG-142", "text": "open a pull request when you\'re done"] c=0.90  ← open a pull request when you're done 
+✗! 48  1590ms  approve [:] c=0.90  ← approve the PR once CI passes 
+✓ 49  1576ms  dictation ["text": "stop using force unwraps in the parser"] c=0.90  ← stop using force unwraps in the parser 
+✓ 50  1286ms  unclear [:] c=0.70  ← do the thing 
+✓ 51  1278ms  unclear [:] c=0.10  ← uh 
+✓ 52  1281ms  unclear [:] c=0.70  ← the other one 
+✓ 53  1250ms  unclear [:] c=0.50  ← move it 
+✓ 54  1283ms  unclear [:] c=0.70  ← can you check on that 
+✓ 55  1279ms  unclear [:] c=0.70  ← status 
+✓ 56  1331ms  switchTab ["tab": "5"] c=0.90  ← switch to tab number five 
+✗ 57  1446ms  askAgent ["text": "what\'s the agent doing right now"] c=0.90  ← what's the agent doing right now 
+✓ 58  1274ms  readLastResponse [:] c=0.90  ← read it 
+✓ 59  1272ms  approve [:] c=0.90  ← yes 
+✓ 60  1362ms  switchTab ["tab": "Home"] c=0.90  ← go back to the home screen 
+✗ 61  1282ms  unclear [:] c=0.70  ← flip to the calendar 
+✗ 62  1388ms  switchTab ["tab": "web-app"] c=0.90  ← go one tab to the right 
+✓ 63  1295ms  repeatLast [:] c=0.90  ← can you repeat that 
+✓ 64  1303ms  approve [:] c=0.90  ← sure, allow it 
+✗ 65  1484ms  unclear ["text": "block that command"] c=0.90  ← nope, block that command 
+✓ 66  1302ms  unclear [:] c=0.90  ← abort, abort 
+✓ 67  1848ms  readLastResponse ["tab": "api", "text": "Claude\'s reply was: \'Permission granted. Running npm install now.\'", "issue": "ENG-142"] c=0.90  ← what was Claude's reply 
+✓ 68  1458ms  whatChanged ["tab": "api", "issue": "ENG-142"] c=0.90  ← anything modified in this repo 
+✗ 69  1483ms  whatChanged ["tab": "api", "issue": "ENG-142"] c=0.90  ← let me see the changes in token tests 
+✗ 70  1380ms  searchDocs ["query": "deploys"] c=0.90  ← bring up ENG-98 
+✓ 71  1607ms  setIssueStatus ["status": "in progress", "text": "set ENG-77 to in progress", "issue": "ENG-77"] c=1.00  ← set ENG-77 to in progress 
+✓ 72  1518ms  commentOnIssue ["issue": "ENG-123", "text": "I\'m blocked on the API keys"] c=0.90  ← leave a note on ENG-123 that I'm blocked on the API keys 
+✓ 73  1469ms  startWorkingOn ["issue": "ENG-98", "text": "begin work on ENG-98"] c=0.90  ← begin work on ENG-98 
+✓ 74  1468ms  searchDocs ["query": "rate limiting", "tab": "Docs"] c=0.90  ← look up the docs on rate limiting 
+✓ 75  1361ms  agenda ["day": "Friday"] c=0.90  ← what meetings do I have on Friday 
+✓ 76  1455ms  dictation ["text": "make the retry count configurable through an environment variable"] c=0.90  ← make the retry count configurable through an environment variable 
+✗ 77  1281ms  unclear [:] c=0.70  ← stop the build from caching node modules 
+✓ 78  1397ms  dictation ["text": "write a migration for the users table"] c=0.90  ← next, write a migration for the users table 
+✓ 79  1246ms  unclear [:] c=0.50  ← hmm 
+✓ 80  1280ms  unclear [:] c=0.70  ← change it 
+✓ 81  1366ms  unclear [:] c=0.70  ← close ENG-142 
+✓ 82  1403ms  switchTab ["tab": "2"] c=0.90  ← open tab two 
+✗ 83  4803ms  unclear [:] c=0.70  ← pull up ticket eng ninety eight 
+### r2-b-v2-norm
+
+schema=b prompt=v2 prewarm=false stream=false permissive=false normalise=true runs=1 n=83 instructionTokens=1215
+
+| Metric | Value |
+|---|---|
+| Kind accuracy | 80% |
+| Kind + slots | 78% |
+| Dangerous errors (risky kind chosen wrongly) | 1 |
+| Errors thrown | 0 |
+| First call (incl. load) | 1370 ms |
+| Latency p50 / p95 / max (rest) | 1464 / 4269 / 6166 ms |
+
+| Set | n | kind | kind+slots | wrong action (not unclear) | dangerous |
+|---|---|---|---|---|---|
+| tuning 1–60 | 60 | 83% | 82% | 6 | 1 |
+| hold-out 61+ | 23 | 70% | 70% | 3 | 0 |
+| all | 83 | 80% | 78% | 9 | 1 |
+
+| Category | n | kind | kind+slots |
+|---|---|---|---|
+| ambiguous | 7 | 100% | 100% |
+| clean | 20 | 100% | 95% |
+| dictation | 5 | 80% | 80% |
+| dictation-trap | 4 | 25% | 25% |
+| holdout-ambiguous | 2 | 100% | 100% |
+| holdout-clean | 6 | 83% | 83% |
+| holdout-dictation | 3 | 67% | 67% |
+| holdout-loose | 11 | 64% | 64% |
+| holdout-spoken-form | 1 | 0% | 0% |
+| loose | 21 | 81% | 81% |
+| out-of-schema | 1 | 0% | 0% |
+| spoken-form | 2 | 50% | 50% |
+
+| Confidence | n | kind correct |
+|---|---|---|
+| [0.00, 0.50) | 1 | 100% |
+| [0.50, 0.80) | 14 | 57% |
+| [0.80, 0.95) | 63 | 83% |
+| [0.95, 1.00) | 5 | 100% |
+
+Failures:
+- 7 "show me my tasks" → whereAmI ["tab": "api", "issue": "ENG-142"] (expected switchTab)
+- 14 "no don't let it do that" → unclear [:] (expected deny)
+- 27 "pull up ticket eng one forty two" → unclear [:] (expected openIssue)
+- 35 "what did the last comment on my auth ticket say" → readLastResponse [:] (expected unclear|openIssue)
+- 36 "search the docs for onboarding" → searchDocs [:] (expected searchDocs)
+- 39 "do I have any meetings tomorrow" → unclear [:] (expected agenda)
+- 45 "why is this test flaky" → unclear [:] (expected dictation|askAgent)
+- 46 "next we need to update the changelog and bump the version" → switchTab ["tab": "docs"] (expected dictation|askAgent)
+- 47 "open a pull request when you're done" → openIssue ["issue": "ENG-142", "text": "open a pull request when you\'re done"] (expected dictation|askAgent)
+- 48 "approve the PR once CI passes" → approve [:] (expected dictation|askAgent|unclear) **dangerous**
+- 57 "what's the agent doing right now" → askAgent ["text": "what\'s the agent doing right now"] (expected readLastResponse|whereAmI)
+- 61 "flip to the calendar" → unclear [:] (expected switchTab)
+- 62 "go one tab to the right" → switchTab ["tab": "web-app"] (expected nextTab)
+- 65 "nope, block that command" → unclear ["text": "block that command"] (expected deny)
+- 69 "let me see the changes in token tests" → whatChanged ["tab": "api", "issue": "ENG-142"] (expected showDiff)
+- 70 "bring up ENG-98" → searchDocs ["query": "deploys"] (expected openIssue)
+- 77 "stop the build from caching node modules" → unclear [:] (expected dictation|askAgent)
+- 83 "pull up ticket eng ninety eight" → unclear [:] (expected openIssue)
+
+instructions: 1215 tokens
+✓  1  2690ms  nextTab ["tab": "web-app"] c=-  ← next tab 
+✓  2  7570ms  previousTab ["tab": "api"] c=-  ← go to the previous tab 
+✗  3  6981ms  guardrailViolation  ← switch to the API 
+✓  4  1209ms  switchTab ["tab": "three"] c=-  ← tab three 
+✓  5  1696ms  switchTab ["tab": "web-app"] c=-  ← take me to the web app 
+✓  6  2361ms  switchTab ["tab": "infra"] c=-  ← jump over to infra 
+✗  7  3054ms  whereAmI ["tab": "api", "issue": "ENG-142"] c=-  ← show me my tasks 
+✓  8  3099ms  whereAmI ["tab": "api"] c=-  ← where am I 
+✓  9  2646ms  whereAmI ["tab": "api"] c=-  ← what tab is this 
+✓ 10  8097ms  repeatLast ["text": "say that again"] c=-  ← say that again 
+✓ 11  5018ms  repeatLast ["text": "sorry what was that"] c=-  ← sorry what was that 
+✓ 12  3312ms  approve ["text": "approve"] c=-  ← approve 
+✓ 13  8777ms  approve ["text": "yes do it"] c=-  ← yeah go ahead and let it run that 
+✗ 14  5259ms  unclear ["issue": "ENG-142", "text": "no don\'t let it do that", "tab": "api"] c=-  ← no don't let it do that 
+✓ 15 10508ms  deny ["issue": "ENG-142", "text": "Deny the agent\'s permission request to run npm install."] c=-  ← reject 
+✓ 16  4631ms  interruptAgent ["text": "stop/cancel/kill/abort the agent"] c=-  ← cancel what Claude is doing 
+✓ 17  3608ms  interruptAgent ["text": "stop the agent"] c=-  ← hold on, kill that, stop the agent 
+✓ 18  8567ms  readLastResponse ["text": "Agent is waiting for permission to run npm install. Please approve or deny the request."] c=-  ← what did Claude say 
+✓ 19  7090ms  readLastResponse ["text": "what did Claude say"] c=-  ← read me its last answer 
+✓ 20  6101ms  askAgent ["text": "tell Claude to add tests for the token refresh"] c=-  ← tell Claude to add tests for the token refresh 
+✓ 21  7456ms  askAgent ["text": "why the build is failing"] c=-  ← ask the agent why the build is failing 
+✓ 22  3988ms  whatChanged ["tab": "api", "issue": "ENG-142", "text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md"] c=-  ← what changed 
+✓ 23 11610ms  whatChanged ["tab": "api", "text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "issue": "ENG-142"] c=-  ← which files did it touch 
+✓ 24  5186ms  showDiff ["tab": "api", "file": "Sources/Auth/AuthService.swift"] c=-  ← show me the diff for the auth service 
+✗ 25  8067ms  guardrailViolation  ← diff of the readme 
+✓ 26  7185ms  openIssue ["issue": "ENG-123", "text": "open/pull up/show ENG-123"] c=-  ← open ENG-123 
+✗ 27  3603ms  searchDocs ["query": "ticket ENG-142"] c=-  ← pull up ticket eng one forty two 
+✓ 28  7881ms  openIssue ["issue": "ENG-123", "text": "open/pull up/show ENG-123"] c=-  ← go to issue E N G one two three 
+✓ 29  6962ms  setIssueStatus ["issue": "ENG-123", "status": "in review"] c=-  ← move ENG-123 to in review 
+✓ 30  4486ms  setIssueStatus ["status": "done", "issue": "ENG-142"] c=-  ← mark this ticket as done 
+✓ 31  9281ms  commentOnIssue ["text": "say the fix is deployed to staging", "issue": "ENG-98"] c=-  ← comment on ENG-98 saying the fix is deployed to staging 
+✓ 32  5226ms  commentOnIssue ["text": "Looks good to me", "issue": "ENG-142"] c=-  ← reply on the ticket: looks good to me 
+✓ 33  4669ms  startWorkingOn ["issue": "ENG-77", "text": "start working on ENG-77"] c=-  ← start working on ENG-77 
+✓ 34  9588ms  startWorkingOn ["issue": "ENG-77", "text": "Login bug on Safari"] c=-  ← let's pick up the Safari login bug 
+✗ 35  5723ms  readLastResponse ["issue": "ENG-142", "text": "The last comment on my auth ticket said: \'Fix token refresh in auth service.\'"] c=-  ← what did the last comment on my auth ticket say 
+✓ 36  8481ms  searchDocs ["query": "onboarding"] c=-  ← search the docs for onboarding 
+✓ 37  6037ms  searchDocs ["query": "notion page about the release process"] c=-  ← find the notion page about the release process 
+✓ 38  8296ms  agenda ["day": "today"] c=-  ← what's on my calendar today 
+✓ 39  5407ms  agenda ["day": "tomorrow"] c=-  ← do I have any meetings tomorrow 
+✓ 40  7392ms  agenda ["day": "today"] c=-  ← what's next on my schedule 
+✓ 41  7338ms  askAgent ["text": "can you add some leeway"] c=-  ← the token refresh fails when the clock skews by more than five minutes, can you add some leeway 
+✓ 42  1509ms  dictation ["text": "refactor the user service to use async await"] c=-  ← refactor the user service to use async await 
+✓ 43  4689ms  dictation ["text": "I think we should rename this function to fetch user"] c=-  ← I think we should rename this function to fetch user 
+✓ 44  8786ms  dictation ["text": "add a unit test that covers the empty input case"] c=-  ← add a unit test that covers the empty input case 
+✗ 45  2588ms  unclear ["text": "why is this test flaky"] c=-  ← why is this test flaky 
+✗ 46  4745ms  switchTab ["tab": "docs"] c=-  ← next we need to update the changelog and bump the version 
+✗ 47  9198ms  openIssue ["text": "open a pull request when you\'re done", "issue": "ENG-142"] c=-  ← open a pull request when you're done 
+✗! 48  3697ms  approve ["text": "approve the PR once CI passes"] c=-  ← approve the PR once CI passes 
+✓ 49  2762ms  dictation ["text": "stop using force unwraps in the parser"] c=-  ← stop using force unwraps in the parser 
+✓ 50  9701ms  unclear ["text": "do the thing"] c=-  ← do the thing 
+✓ 51  6400ms  unclear [:] c=-  ← uh 
+✗ 52  7740ms  switchTab ["tab": "web-app"] c=-  ← the other one 
+✓ 53  4944ms  unclear ["text": "move it", "issue": "ENG-142", "tab": "api"] c=-  ← move it 
+✓ 54  8505ms  unclear ["text": "can you check on that", "issue": "ENG-142", "tab": "api"] c=-  ← can you check on that 
+✓ 55  3529ms  unclear ["tab": "api", "issue": "ENG-142"] c=-  ← status 
+✓ 56  7394ms  switchTab ["tab": "5"] c=-  ← switch to tab number five 
+✗ 57  3448ms  askAgent ["text": "what\'s the agent doing right now"] c=-  ← what's the agent doing right now 
+✓ 58  4550ms  readLastResponse ["text": "what did Claude say"] c=-  ← read it 
+✓ 59  6728ms  approve ["text": "yes"] c=-  ← yes 
+✓ 60  6762ms  switchTab ["tab": "Home"] c=-  ← go back to the home screen 
+✗ 61  8153ms  unclear [:] c=-  ← flip to the calendar 
+✗ 62  3469ms  switchTab ["tab": "web-app"] c=-  ← go one tab to the right 
+✓ 63  7361ms  repeatLast ["text": "can you repeat that"] c=-  ← can you repeat that 
+✓ 64  4075ms  approve ["text": "allow it"] c=-  ← sure, allow it 
+✗ 65  9510ms  unclear ["tab": "api", "issue": "ENG-142", "text": "block that command"] c=-  ← nope, block that command 
+✗ 66  6047ms  guardrailViolation  ← abort, abort 
+✓ 67  7079ms  readLastResponse ["text": "Claude\'s reply was: \'Permission granted. Running npm install now.\'"] c=-  ← what was Claude's reply 
+✓ 68  4080ms  whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "tab": "api", "issue": "ENG-142"] c=-  ← anything modified in this repo 
+✗ 69  7039ms  whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "issue": "ENG-142", "tab": "api"] c=-  ← let me see the changes in token tests 
+✗ 70  8098ms  searchDocs ["query": "Deploy pipeline flakes on staging"] c=-  ← bring up ENG-98 
+✓ 71  3384ms  setIssueStatus ["status": "in progress", "issue": "ENG-77"] c=-  ← set ENG-77 to in progress 
+✓ 72  4803ms  commentOnIssue ["issue": "ENG-123", "text": "I\'m blocked on the API keys"] c=-  ← leave a note on ENG-123 that I'm blocked on the API keys 
+✓ 73  9188ms  startWorkingOn ["issue": "ENG-98", "text": "begin work on ENG-98"] c=-  ← begin work on ENG-98 
+✓ 74  2053ms  searchDocs ["query": "rate limiting"] c=-  ← look up the docs on rate limiting 
+✓ 75  7977ms  agenda ["day": "Friday"] c=-  ← what meetings do I have on Friday 
+✓ 76  6894ms  dictation ["text": "make the retry count configurable through an environment variable"] c=-  ← make the retry count configurable through an environment variable 
+✗ 77  6235ms  unclear ["issue": "ENG-142", "text": "stop the build from caching node modules", "tab": "api"] c=-  ← stop the build from caching node modules 
+✓ 78  8498ms  dictation ["text": "write a migration for the users table"] c=-  ← next, write a migration for the users table 
+✓ 79  5808ms  unclear [:] c=-  ← hmm 
+✓ 80  9681ms  unclear ["text": "change it"] c=-  ← change it 
+✓ 81  3830ms  unclear ["tab": "api", "issue": "ENG-142", "text": "close ENG-142"] c=-  ← close ENG-142 
+✓ 82  3813ms  switchTab ["tab": "2"] c=-  ← open tab two 
+✗ 83  3788ms  searchDocs ["query": "deploys"] c=-  ← pull up ticket eng ninety eight 
+### r2-c-v2-norm
+
+schema=c prompt=v2 prewarm=false stream=false permissive=false normalise=true runs=1 n=83 instructionTokens=1215
+
+| Metric | Value |
+|---|---|
+| Kind accuracy | 76% |
+| Kind + slots | 76% |
+| Dangerous errors (risky kind chosen wrongly) | 1 |
+| Errors thrown | 3 |
+| First call (incl. load) | 2690 ms |
+| Latency p50 / p95 / max (rest) | 6101 / 9588 / 11610 ms |
+
+| Set | n | kind | kind+slots | wrong action (not unclear) | dangerous |
+|---|---|---|---|---|---|
+| tuning 1–60 | 60 | 80% | 80% | 8 | 1 |
+| hold-out 61+ | 23 | 65% | 65% | 4 | 0 |
+| all | 83 | 76% | 76% | 12 | 1 |
+
+| Category | n | kind | kind+slots |
+|---|---|---|---|
+| ambiguous | 7 | 86% | 86% |
+| clean | 20 | 95% | 95% |
+| dictation | 5 | 80% | 80% |
+| dictation-trap | 4 | 25% | 25% |
+| holdout-ambiguous | 2 | 100% | 100% |
+| holdout-clean | 6 | 83% | 83% |
+| holdout-dictation | 3 | 67% | 67% |
+| holdout-loose | 11 | 55% | 55% |
+| holdout-spoken-form | 1 | 0% | 0% |
+| loose | 21 | 81% | 81% |
+| out-of-schema | 1 | 0% | 0% |
+| spoken-form | 2 | 50% | 50% |
+
+| Confidence | n | kind correct |
+|---|---|---|
+| [0.00, 0.50) | 0 | - |
+| [0.50, 0.80) | 0 | - |
+| [0.80, 0.95) | 0 | - |
+| [0.95, 1.00) | 0 | - |
+
+Failures:
+- 3 "switch to the API" → guardrailViolation (expected switchTab)
+- 7 "show me my tasks" → whereAmI ["tab": "api", "issue": "ENG-142"] (expected switchTab)
+- 14 "no don't let it do that" → unclear ["issue": "ENG-142", "text": "no don\'t let it do that", "tab": "api"] (expected deny)
+- 25 "diff of the readme" → guardrailViolation (expected showDiff)
+- 27 "pull up ticket eng one forty two" → searchDocs ["query": "ticket ENG-142"] (expected openIssue)
+- 35 "what did the last comment on my auth ticket say" → readLastResponse ["issue": "ENG-142", "text": "The last comment on my auth ticket said: \'Fix token refresh in auth service.\'"] (expected unclear|openIssue)
+- 45 "why is this test flaky" → unclear ["text": "why is this test flaky"] (expected dictation|askAgent)
+- 46 "next we need to update the changelog and bump the version" → switchTab ["tab": "docs"] (expected dictation|askAgent)
+- 47 "open a pull request when you're done" → openIssue ["text": "open a pull request when you\'re done", "issue": "ENG-142"] (expected dictation|askAgent)
+- 48 "approve the PR once CI passes" → approve ["text": "approve the PR once CI passes"] (expected dictation|askAgent|unclear) **dangerous**
+- 52 "the other one" → switchTab ["tab": "web-app"] (expected unclear)
+- 57 "what's the agent doing right now" → askAgent ["text": "what\'s the agent doing right now"] (expected readLastResponse|whereAmI)
+- 61 "flip to the calendar" → unclear [:] (expected switchTab)
+- 62 "go one tab to the right" → switchTab ["tab": "web-app"] (expected nextTab)
+- 65 "nope, block that command" → unclear ["tab": "api", "issue": "ENG-142", "text": "block that command"] (expected deny)
+- 66 "abort, abort" → guardrailViolation (expected interruptAgent|unclear)
+- 69 "let me see the changes in token tests" → whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "issue": "ENG-142", "tab": "api"] (expected showDiff)
+- 70 "bring up ENG-98" → searchDocs ["query": "Deploy pipeline flakes on staging"] (expected openIssue)
+- 77 "stop the build from caching node modules" → unclear ["issue": "ENG-142", "text": "stop the build from caching node modules", "tab": "api"] (expected dictation|askAgent)
+- 83 "pull up ticket eng ninety eight" → searchDocs ["query": "deploys"] (expected openIssue)
+
+instructions: 1215 tokens
+✓  1  4733ms  nextTab ["tab": "web-app"] c=-  ← next tab 
+✓  2  4032ms  previousTab ["tab": "api"] c=-  ← go to the previous tab 
+✗  3   839ms  guardrailViolation  ← switch to the API 
+✓  4  1945ms  switchTab ["tab": "three"] c=-  ← tab three 
+✓  5  1573ms  switchTab ["tab": "web-app"] c=-  ← take me to the web app 
+✓  6  2459ms  switchTab ["tab": "infra"] c=-  ← jump over to infra 
+✗  7  4919ms  whereAmI ["issue": "ENG-142", "tab": "api"] c=-  ← show me my tasks 
+✓  8  3153ms  whereAmI ["tab": "api"] c=-  ← where am I 
+✓  9  4705ms  whereAmI ["tab": "api"] c=-  ← what tab is this 
+✓ 10  4407ms  repeatLast ["text": "say that again"] c=-  ← say that again 
+✓ 11  2632ms  repeatLast ["text": "sorry what was that"] c=-  ← sorry what was that 
+✓ 12  4806ms  approve ["text": "approve"] c=-  ← approve 
+✓ 13  5434ms  approve ["text": "yes do it"] c=-  ← yeah go ahead and let it run that 
+✗ 14  6393ms  unclear ["issue": "ENG-142", "text": "no don\'t let it do that", "tab": "api"] c=-  ← no don't let it do that 
+✓ 15  4738ms  deny ["issue": "ENG-142", "text": "Deny the agent\'s permission request to run npm install."] c=-  ← reject 
+✓ 16  5660ms  interruptAgent ["text": "stop/cancel/kill/abort the agent"] c=-  ← cancel what Claude is doing 
+✓ 17  5018ms  interruptAgent ["text": "stop the agent"] c=-  ← hold on, kill that, stop the agent 
+✓ 18  3624ms  readLastResponse ["text": "Agent is waiting for permission to run npm install. Please approve or deny the request."] c=-  ← what did Claude say 
+✓ 19  5187ms  readLastResponse ["text": "what did Claude say"] c=-  ← read me its last answer 
+✓ 20  3608ms  askAgent ["text": "tell Claude to add tests for the token refresh"] c=-  ← tell Claude to add tests for the token refresh 
+✓ 21  4962ms  askAgent ["text": "why the build is failing"] c=-  ← ask the agent why the build is failing 
+✓ 22  3504ms  whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "tab": "api", "issue": "ENG-142"] c=-  ← what changed 
+✓ 23  8437ms  whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "tab": "api", "issue": "ENG-142"] c=-  ← which files did it touch 
+✓ 24  3782ms  showDiff ["file": "Sources/Auth/AuthService.swift", "tab": "api"] c=-  ← show me the diff for the auth service 
+✗ 25  1800ms  guardrailViolation  ← diff of the readme 
+✓ 26  4132ms  openIssue ["text": "open/pull up/show ENG-123", "issue": "ENG-123"] c=-  ← open ENG-123 
+✗ 27  5464ms  searchDocs ["query": "ticket ENG-142"] c=-  ← pull up ticket eng one forty two 
+✓ 28  3338ms  openIssue ["issue": "ENG-123", "text": "open/pull up/show ENG-123"] c=-  ← go to issue E N G one two three 
+✓ 29  4975ms  setIssueStatus ["status": "in review", "issue": "ENG-123"] c=-  ← move ENG-123 to in review 
+✓ 30  5525ms  setIssueStatus ["issue": "ENG-142", "status": "done"] c=-  ← mark this ticket as done 
+✓ 31  3012ms  commentOnIssue ["text": "say the fix is deployed to staging", "issue": "ENG-98"] c=-  ← comment on ENG-98 saying the fix is deployed to staging 
+✓ 32  5658ms  commentOnIssue ["text": "Looks good to me", "issue": "ENG-142"] c=-  ← reply on the ticket: looks good to me 
+✓ 33  5879ms  startWorkingOn ["issue": "ENG-77", "text": "start working on ENG-77"] c=-  ← start working on ENG-77 
+✓ 34  6004ms  startWorkingOn ["issue": "ENG-77", "text": "Login bug on Safari"] c=-  ← let's pick up the Safari login bug 
+✗ 35  6523ms  readLastResponse ["issue": "ENG-142", "text": "The last comment on my auth ticket said: \'Fix token refresh in auth service.\'"] c=-  ← what did the last comment on my auth ticket say 
+✓ 36  5028ms  searchDocs ["query": "onboarding"] c=-  ← search the docs for onboarding 
+✓ 37  5620ms  searchDocs ["query": "notion page about the release process"] c=-  ← find the notion page about the release process 
+✓ 38  4598ms  agenda ["day": "today"] c=-  ← what's on my calendar today 
+✓ 39  3798ms  agenda ["day": "tomorrow"] c=-  ← do I have any meetings tomorrow 
+✓ 40  4487ms  agenda ["day": "today"] c=-  ← what's next on my schedule 
+✓ 41  5411ms  askAgent ["text": "can you add some leeway"] c=-  ← the token refresh fails when the clock skews by more than five minutes, can you add some leeway 
+✓ 42  2169ms  dictation ["text": "refactor the user service to use async await"] c=-  ← refactor the user service to use async await 
+✓ 43  1932ms  dictation ["text": "I think we should rename this function to fetch user"] c=-  ← I think we should rename this function to fetch user 
+✓ 44   808ms  dictation ["text": "add a unit test that covers the empty input case"] c=-  ← add a unit test that covers the empty input case 
+✗ 45  4666ms  unclear ["text": "why is this test flaky"] c=-  ← why is this test flaky 
+✗ 46  4347ms  switchTab ["tab": "docs"] c=-  ← next we need to update the changelog and bump the version 
+✗ 47  1580ms  openIssue ["text": "open a pull request when you\'re done", "issue": "ENG-142"] c=-  ← open a pull request when you're done 
+✗! 48  5107ms  approve ["text": "approve the PR once CI passes"] c=-  ← approve the PR once CI passes 
+✓ 49  5235ms  dictation ["text": "stop using force unwraps in the parser"] c=-  ← stop using force unwraps in the parser 
+✓ 50  1037ms  unclear ["text": "do the thing"] c=-  ← do the thing 
+✓ 51  6065ms  unclear [:] c=-  ← uh 
+✗ 52  4609ms  switchTab ["tab": "web-app"] c=-  ← the other one 
+✓ 53  5915ms  unclear ["issue": "ENG-142", "text": "move it", "tab": "api"] c=-  ← move it 
+✓ 54  2268ms  unclear ["issue": "ENG-142", "text": "can you check on that", "tab": "api"] c=-  ← can you check on that 
+✓ 55  6574ms  unclear ["issue": "ENG-142", "tab": "api"] c=-  ← status 
+✓ 56  3612ms  switchTab ["tab": "5"] c=-  ← switch to tab number five 
+✗ 57  1775ms  askAgent ["text": "what\'s the agent doing right now"] c=-  ← what's the agent doing right now 
+✓ 58   969ms  readLastResponse ["text": "what did Claude say"] c=-  ← read it 
+✓ 59  1894ms  approve ["text": "yes"] c=-  ← yes 
+✓ 60   808ms  switchTab ["tab": "Home"] c=-  ← go back to the home screen 
+✗ 61  5999ms  unclear [:] c=-  ← flip to the calendar 
+✗ 62  4189ms  switchTab ["tab": "web-app"] c=-  ← go one tab to the right 
+✓ 63  5202ms  repeatLast ["text": "can you repeat that"] c=-  ← can you repeat that 
+✓ 64  4974ms  approve ["text": "allow it"] c=-  ← sure, allow it 
+✗ 65  5653ms  unclear ["text": "block that command", "issue": "ENG-142", "tab": "api"] c=-  ← nope, block that command 
+✗ 66  4320ms  guardrailViolation  ← abort, abort 
+✓ 67  1040ms  readLastResponse ["text": "Claude\'s reply was: \'Permission granted. Running npm install now.\'"] c=-  ← what was Claude's reply 
+✓ 68  1316ms  whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "issue": "ENG-142", "tab": "api"] c=-  ← anything modified in this repo 
+✗ 69  7340ms  whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "tab": "api", "issue": "ENG-142"] c=-  ← let me see the changes in token tests 
+✗ 70  2443ms  searchDocs ["query": "Deploy pipeline flakes on staging"] c=-  ← bring up ENG-98 
+✓ 71   816ms  setIssueStatus ["status": "in progress", "issue": "ENG-77"] c=-  ← set ENG-77 to in progress 
+✓ 72  1850ms  commentOnIssue ["text": "I\'m blocked on the API keys", "issue": "ENG-123"] c=-  ← leave a note on ENG-123 that I'm blocked on the API keys 
+✓ 73   869ms  startWorkingOn ["text": "begin work on ENG-98", "issue": "ENG-98"] c=-  ← begin work on ENG-98 
+✓ 74  4654ms  searchDocs ["query": "rate limiting"] c=-  ← look up the docs on rate limiting 
+✓ 75  4373ms  agenda ["day": "Friday"] c=-  ← what meetings do I have on Friday 
+✓ 76  1733ms  dictation ["text": "make the retry count configurable through an environment variable"] c=-  ← make the retry count configurable through an environment variable 
+✗ 77  6455ms  unclear ["issue": "ENG-142", "text": "stop the build from caching node modules", "tab": "api"] c=-  ← stop the build from caching node modules 
+✓ 78  2714ms  dictation ["text": "write a migration for the users table"] c=-  ← next, write a migration for the users table 
+✓ 79  1724ms  unclear [:] c=-  ← hmm 
+✓ 80  2440ms  unclear ["text": "change it"] c=-  ← change it 
+✓ 81  1175ms  unclear ["text": "close ENG-142", "issue": "ENG-142", "tab": "api"] c=-  ← close ENG-142 
+✓ 82  2512ms  switchTab ["tab": "2"] c=-  ← open tab two 
+✗ 83  4526ms  searchDocs ["query": "deploys"] c=-  ← pull up ticket eng ninety eight 
+### r2-c-v2-norm-prewarm
+
+schema=c prompt=v2 prewarm=true stream=false permissive=false normalise=true runs=1 n=83 instructionTokens=1215
+
+| Metric | Value |
+|---|---|
+| Kind accuracy | 76% |
+| Kind + slots | 76% |
+| Dangerous errors (risky kind chosen wrongly) | 1 |
+| Errors thrown | 3 |
+| First call (incl. load) | 4733 ms |
+| Latency p50 / p95 / max (rest) | 4347 / 6455 / 8437 ms |
+
+| Set | n | kind | kind+slots | wrong action (not unclear) | dangerous |
+|---|---|---|---|---|---|
+| tuning 1–60 | 60 | 80% | 80% | 8 | 1 |
+| hold-out 61+ | 23 | 65% | 65% | 4 | 0 |
+| all | 83 | 76% | 76% | 12 | 1 |
+
+| Category | n | kind | kind+slots |
+|---|---|---|---|
+| ambiguous | 7 | 86% | 86% |
+| clean | 20 | 95% | 95% |
+| dictation | 5 | 80% | 80% |
+| dictation-trap | 4 | 25% | 25% |
+| holdout-ambiguous | 2 | 100% | 100% |
+| holdout-clean | 6 | 83% | 83% |
+| holdout-dictation | 3 | 67% | 67% |
+| holdout-loose | 11 | 55% | 55% |
+| holdout-spoken-form | 1 | 0% | 0% |
+| loose | 21 | 81% | 81% |
+| out-of-schema | 1 | 0% | 0% |
+| spoken-form | 2 | 50% | 50% |
+
+| Confidence | n | kind correct |
+|---|---|---|
+| [0.00, 0.50) | 0 | - |
+| [0.50, 0.80) | 0 | - |
+| [0.80, 0.95) | 0 | - |
+| [0.95, 1.00) | 0 | - |
+
+Failures:
+- 3 "switch to the API" → guardrailViolation (expected switchTab)
+- 7 "show me my tasks" → whereAmI ["issue": "ENG-142", "tab": "api"] (expected switchTab)
+- 14 "no don't let it do that" → unclear ["issue": "ENG-142", "text": "no don\'t let it do that", "tab": "api"] (expected deny)
+- 25 "diff of the readme" → guardrailViolation (expected showDiff)
+- 27 "pull up ticket eng one forty two" → searchDocs ["query": "ticket ENG-142"] (expected openIssue)
+- 35 "what did the last comment on my auth ticket say" → readLastResponse ["issue": "ENG-142", "text": "The last comment on my auth ticket said: \'Fix token refresh in auth service.\'"] (expected unclear|openIssue)
+- 45 "why is this test flaky" → unclear ["text": "why is this test flaky"] (expected dictation|askAgent)
+- 46 "next we need to update the changelog and bump the version" → switchTab ["tab": "docs"] (expected dictation|askAgent)
+- 47 "open a pull request when you're done" → openIssue ["text": "open a pull request when you\'re done", "issue": "ENG-142"] (expected dictation|askAgent)
+- 48 "approve the PR once CI passes" → approve ["text": "approve the PR once CI passes"] (expected dictation|askAgent|unclear) **dangerous**
+- 52 "the other one" → switchTab ["tab": "web-app"] (expected unclear)
+- 57 "what's the agent doing right now" → askAgent ["text": "what\'s the agent doing right now"] (expected readLastResponse|whereAmI)
+- 61 "flip to the calendar" → unclear [:] (expected switchTab)
+- 62 "go one tab to the right" → switchTab ["tab": "web-app"] (expected nextTab)
+- 65 "nope, block that command" → unclear ["text": "block that command", "issue": "ENG-142", "tab": "api"] (expected deny)
+- 66 "abort, abort" → guardrailViolation (expected interruptAgent|unclear)
+- 69 "let me see the changes in token tests" → whatChanged ["text": "Sources/Auth/AuthService.swift, Tests/AuthTests/TokenTests.swift, README.md", "tab": "api", "issue": "ENG-142"] (expected showDiff)
+- 70 "bring up ENG-98" → searchDocs ["query": "Deploy pipeline flakes on staging"] (expected openIssue)
+- 77 "stop the build from caching node modules" → unclear ["issue": "ENG-142", "text": "stop the build from caching node modules", "tab": "api"] (expected dictation|askAgent)
+- 83 "pull up ticket eng ninety eight" → searchDocs ["query": "deploys"] (expected openIssue)
+
+spoken-sonnet#0  4398ms 79tok  The README is very short. It has a title, "Spike repo", and one line saying the project codename is BLUEBIRD.
+spoken-sonnet#4  2720ms 185tok  I created notes.txt in the repo root with this haiku: My first draft had a line with too many syllables, so I rewrote it. The file has the corrected version, and it isn't committed.
+spoken-sonnet#5  3103ms 659tok  A process is a running program with its own isolated resources, while a thread is a unit of execution inside a process that shares most of its resources but has its own stack, registers, and thread-local storage.
+spoken-sonnet#6   525ms 90tok  There is 1 commit on the current branch: cfc22b5 init. The notes.txt file I created earlier isn't committed.
+spoken-sonnet#9  1267ms 40tok  decodingFailure
+spoken-sonnet#11   743ms 320tok  We read the README.md, created notes.txt, and ran git log. The only change to the repo is the uncommitted notes.txt.
+spoken-sonnet#14   568ms 63tok  I found no typo in README.md, so I made no changes. It reads "# Spike repo" and "The project codename is BLUEBIRD."
+permission-host#1   770ms 218tok  The rm README.md command was declined, so README.md is still there. Before the refusal, it was 48 bytes and contained '# Spike repo' and 'The project codename is BLUEBIRD.'
+todos#0  3382ms 181tok  I created three tasks (lint, test, ship). Lint is now in progress and test is marked completed. Ship is still pending. I stopped there as you asked, and I didn't run any other commands.
+### default-v2
+
+guardrails=default v2=true
+
+| Turn | Request | Prompt tok | ms | Words | On-device summary | Claude `<spoken>` |
+|---|---|---|---|---|---|---|
+| spoken-sonnet#0 | What does README.md say? Read it. | 79 | 4398 | 20 | The README is very short. It has a title, "Spike repo", and one line saying the project codename is BLUEBIRD. | The README is just two lines. It's titled Spike repo and says the project codename is BLUEBIRD. |
+| spoken-sonnet#4 | Create notes.txt containing a haiku about git. | 185 | 2720 | 36 | I created notes.txt in the repo root with this haiku: My first draft had a line with too many syllables, so I rewrote it. The file has the corrected version, and it isn't committed. | I created notes.txt with a git haiku about branches, commits, and detached HEAD. I fixed a syllable count on the second line, and the file isn't committed. |
+| spoken-sonnet#5 | Explain in detail the difference between a process and a thr | 659 | 3103 | 38 | A process is a running program with its own isolated resources, while a thread is a unit of execution inside a process that shares most of its resources but has its own stack, registers, and thread-local storage. | A process is a running program with its own isolated memory and resources. A thread is an execution path inside a process that shares its memory. Threads are cheaper but riskier. Processes are safer but costlier to communicate between. |
+| spoken-sonnet#6 | Run git log and tell me how many commits there are. | 90 | 524 | 20 | There is 1 commit on the current branch: cfc22b5 init. The notes.txt file I created earlier isn't committed. | There's just one commit, called init. The notes file I made earlier hasn't been committed yet. |
+| spoken-sonnet#9 | Give me a markdown table of 3 HTTP status codes and their me | 40 | 1266 | 0 | **decodingFailure** | Here's a table with three status codes: 200 means success, 404 means the resource wasn't found, and 500 means an internal server error. |
+| spoken-sonnet#11 | Summarise everything we've done in this session. | 320 | 742 | 23 | We read the README.md, created notes.txt, and ran git log. The only change to the repo is the uncommitted notes.txt. | We read the README, wrote a Swift reverse function, answered a math question, and listed CLI names. We also made a git haiku file, explained processes and threads, and checked the log and tests. Only the notes file is uncommitted. |
+| spoken-sonnet#14 | Fix the typo in README.md if there is one. | 63 | 567 | 22 | I found no typo in README.md, so I made no changes. It reads "# Spike repo" and "The project codename is BLUEBIRD." | I found no typos in the README, so I left it unchanged. |
+| permission-host#1 | Use the Bash tool to run exactly this command: rm README.md. | 218 | 770 | 30 | The rm README.md command was declined, so README.md is still there. Before the refusal, it was 48 bytes and contained '# Spike repo' and 'The project codename is BLUEBIRD.' | – |
+| todos#0 | Use your task tools to create a 3 item list (lint, test, shi | 181 | 3382 | 35 | I created three tasks (lint, test, ship). Lint is now in progress and test is marked completed. Ship is still pending. I stopped there as you asked, and I didn't run any other commands. | – |
+
+Latency p50 / max: 2720 / 4398 ms. Errors: 1.
+

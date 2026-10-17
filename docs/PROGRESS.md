@@ -12,12 +12,18 @@ P0-04 done (2026-10-17): Claude Code headless spike in `spikes/claude-code/` is 
 permissions use the in-band host control protocol, no MCP
 ([FINDINGS](../spikes/claude-code/FINDINGS.md), [ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md)).
 Real transcripts in `spikes/claude-code/fixtures/` (also input for P0-05 summarisation).
+P0-05 done (2026-10-17): Foundation Models intent spike in `spikes/intents/` is a **go as the
+guarded middle routing stage** (~70–80% on loose phrasings, ~0.8 s with prewarm; `unclear` →
+Claude/clarify; model-stage risky kinds always confirm)
+([FINDINGS](../spikes/intents/FINDINGS.md), [ADR 0003](decisions/0003-on-device-intent-routing.md)).
+Utterance set with hold-out for P2-05: `spikes/intents/utterances.json`. Deployment target is now
+macOS 26.4+.
 No production code yet (no root `Package.swift` or Makefile until P1-01).
 
 ## Next up
 
-**P0-05 — Foundation Models intent spike** (use P0-04 fixtures for the summarisation part), then
-P0-06 (non-voice synthesis, locks Phase 1; ADRs 0001/0002 to be reviewed there). Voice spikes P0-02/P0-03 (+ P0-07 synthesis) are deferred
+**P0-06 — Spike synthesis (non-voice)**: review ADRs 0001/0002/0003 with the user, decide
+third-party dependencies, confirm P2-05 thresholds proposed in P0-05, lock Phase 1. Voice spikes P0-02/P0-03 (+ P0-07 synthesis) are deferred
 until after P1-11 because they need the user at the machine.
 
 ## Work package status
@@ -30,7 +36,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P0-02 | Audio, permissions, recognition and synthesis spike | todo | Deferred to after P1-11 (user present) |
 | P0-03 | AirPods activation spike | todo | Deferred with P0-02 |
 | P0-04 | Claude Code headless integration spike | done | Go. ADR 0002 |
-| P0-05 | Foundation Models intent spike | todo | |
+| P0-05 | Foundation Models intent spike | done | Go (middle stage). ADR 0003 |
 | P0-06 | Spike synthesis (non-voice) | todo | P0-01/04/05 only |
 | P0-07 | Voice spike synthesis | todo | After P0-02/03; gates P2-01 |
 | P1-01 | Package scaffold and tooling | todo | |
@@ -98,12 +104,35 @@ to one or two lines; move anything architectural into an ADR._
   every turn; foreground `sleep N` in Bash is blocked (use python sleep in tests).
 - `initialize` response contains the account email — scrub fixtures before committing
   (`cc-spike scrub`).
+- Foundation Models: `tokenCount(for:)` needs macOS 26.4; `PrivateCloudComputeLanguageModel` and
+  `toolCallingMode` need macOS 27. Apple Intelligence was off on this Mac (`check` reports it).
+- Foundation Models guided generation: default guardrails reject some benign utterances ("switch
+  to the API") depending on schema; permissive guardrails don't help — treat as "no parse".
+- Foundation Models latency spikes 4–5× under background load (e.g. right after enabling Apple
+  Intelligence); compare variants back to back with a control run.
 - Swift 6: `await iterator.next()` on an iterator stored in a `@MainActor` class doesn't compile;
   use a local copy with `next(isolation: #isolation)`.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P0-05
+- User enabled Apple Intelligence (was off). Built `spikes/intents/` (`intent-spike`: two schemas
+  + a no-confidence variant, 5 prompt variants generated from a command catalog, tool-calling
+  variant, spoken issue-key normaliser, scoring with dangerous/wrong-action metrics, fixture-based
+  summariser v1/v2, context overflow probe). 83-utterance labelled set incl. 23 hold-out.
+- Results: flat schema ≫ enum-with-associated-values; clean 100%, ambiguous 100%, loose ~65–80%,
+  hold-out 70% (tuning +10 points on the tuning set, 0 on hold-out); one deterministic dangerous
+  error ("approve the PR once CI passes" → approve); p50 1.15 s, 0.8 s with prewarm; tools harmful
+  (loops to context overflow); confidence uncalibrated; guardrail false positives; on-device
+  summaries usable only as `<spoken>` fallback after pre-processing.
+- Decisions: [ADR 0003](decisions/0003-on-device-intent-routing.md) — guarded middle stage,
+  `unclear` as the confidence signal, Claude as second interpreter (P3-02), model-stage risky
+  kinds always confirm, raw utterance for dictation, context-scoped catalog, macOS 26.4+. DESIGN
+  §1/§3.4/§4.6/§8 #4, PLAN P2-05/P3-02 and CLAUDE.md updated.
+- Follow-ups: P0-06 confirms the P2-05 thresholds; P3-02 measures Claude on the utterance set;
+  `vocoder doctor` checks Apple Intelligence availability (P1-06).
 
 ### 2026-10-17 · P0-04
 - Built `spikes/claude-code/` (Swift: `ClaudeProcess` actor over stream-json pipes, `Session`

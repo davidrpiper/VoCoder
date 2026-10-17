@@ -1,0 +1,1455 @@
+{
+  "config" : {
+    "permissive" : false,
+    "prewarm" : false,
+    "prompt" : "context",
+    "repeatCount" : 1,
+    "schema" : "b",
+    "stream" : false
+  },
+  "date" : "2026-10-17T03:45:08Z",
+  "rows" : [
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "nextTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "nextTab",
+        "slots" : {
+          "tab" : "web-app"
+        }
+      },
+      "id" : 1,
+      "kindOK" : true,
+      "latencyMs" : 1123.091791,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "next tab",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "previousTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "previousTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 2,
+      "kindOK" : true,
+      "latencyMs" : 1120.210208,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "go to the previous tab",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "api"
+        }
+      },
+      "id" : 3,
+      "kindOK" : true,
+      "latencyMs" : 1089.952167,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "switch to the API",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "three"
+        }
+      },
+      "id" : 4,
+      "kindOK" : true,
+      "latencyMs" : 1120.748375,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "tab three",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "web-app"
+        }
+      },
+      "id" : 5,
+      "kindOK" : true,
+      "latencyMs" : 1117.365416,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "take me to the web app",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "infra"
+        }
+      },
+      "id" : 6,
+      "kindOK" : true,
+      "latencyMs" : 1143.216875,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "jump over to infra",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "searchDocs",
+        "slots" : {
+          "query" : "tasks"
+        }
+      },
+      "id" : 7,
+      "kindOK" : false,
+      "latencyMs" : 1072.337667,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "show me my tasks",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "whereAmI",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 8,
+      "kindOK" : true,
+      "latencyMs" : 1187.449917,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "where am I",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "whereAmI",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 9,
+      "kindOK" : true,
+      "latencyMs" : 1183.993167,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what tab is this",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "repeatLast"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "repeatLast",
+        "slots" : {
+          "issue" : "",
+          "tab" : "",
+          "text" : "say that again"
+        }
+      },
+      "id" : 10,
+      "kindOK" : true,
+      "latencyMs" : 1205.521125,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "say that again",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "repeatLast"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+          "issue" : "",
+          "status" : "",
+          "tab" : "",
+          "text" : "sorry what was that"
+        }
+      },
+      "id" : 11,
+      "kindOK" : false,
+      "latencyMs" : 1219.318291,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "sorry what was that",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "approve"
+      ],
+      "got" : {
+        "confidence" : 1,
+        "kind" : "approve",
+        "slots" : {
+
+        }
+      },
+      "id" : 12,
+      "kindOK" : true,
+      "latencyMs" : 1028.346542,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "approve",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "approve"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "approve",
+        "slots" : {
+
+        }
+      },
+      "id" : 13,
+      "kindOK" : true,
+      "latencyMs" : 1032.654791,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "yeah go ahead and let it run that",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "deny"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+          "issue" : "",
+          "status" : "",
+          "tab" : "",
+          "text" : "no don't let it do that"
+        }
+      },
+      "id" : 14,
+      "kindOK" : false,
+      "latencyMs" : 1293.785584,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "no don't let it do that",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "deny"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "deny",
+        "slots" : {
+          "issue" : "",
+          "status" : "",
+          "tab" : "",
+          "text" : "reject"
+        }
+      },
+      "id" : 15,
+      "kindOK" : true,
+      "latencyMs" : 1268.007334,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "reject",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "interruptAgent"
+      ],
+      "got" : {
+        "confidence" : 0.7,
+        "kind" : "unclear",
+        "slots" : {
+          "issue" : "",
+          "status" : "",
+          "tab" : "",
+          "text" : "cancel what Claude is doing"
+        }
+      },
+      "id" : 16,
+      "kindOK" : false,
+      "latencyMs" : 1266.254834,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "cancel what Claude is doing",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "interruptAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 17,
+      "kindOK" : false,
+      "latencyMs" : 1060.889084,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "hold on, kill that, stop the agent",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "readLastResponse",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api",
+          "text" : "token refresh in auth service"
+        }
+      },
+      "id" : 18,
+      "kindOK" : true,
+      "latencyMs" : 1320.739875,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what did Claude say",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "readLastResponse",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api",
+          "text" : "Fix token refresh in auth service"
+        }
+      },
+      "id" : 19,
+      "kindOK" : true,
+      "latencyMs" : 1327.8036670000001,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "read me its last answer",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "askAgent",
+        "dictation"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "askAgent",
+        "slots" : {
+          "text" : "tell Claude to add tests for the token refresh"
+        }
+      },
+      "id" : 20,
+      "kindOK" : true,
+      "latencyMs" : 1195.693708,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "tell Claude to add tests for the token refresh",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "askAgent",
+        "dictation"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "askAgent",
+        "slots" : {
+          "text" : "why the build is failing"
+        }
+      },
+      "id" : 21,
+      "kindOK" : true,
+      "latencyMs" : 1185.462042,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "ask the agent why the build is failing",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "whatChanged"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "whatChanged",
+        "slots" : {
+
+        }
+      },
+      "id" : 22,
+      "kindOK" : true,
+      "latencyMs" : 1041.445917,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what changed",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "whatChanged"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "whatChanged",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 23,
+      "kindOK" : true,
+      "latencyMs" : 1212.114792,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "which files did it touch",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "showDiff"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "showDiff",
+        "slots" : {
+          "file" : "Sources/Auth/AuthService.swift",
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 24,
+      "kindOK" : true,
+      "latencyMs" : 1348.521417,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "show me the diff for the auth service",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "showDiff"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "showDiff",
+        "slots" : {
+          "file" : "README.md",
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 25,
+      "kindOK" : true,
+      "latencyMs" : 1285.147333,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "diff of the readme",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "openIssue"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "openIssue",
+        "slots" : {
+          "issue" : "ENG-123"
+        }
+      },
+      "id" : 26,
+      "kindOK" : true,
+      "latencyMs" : 1088.262708,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "open ENG-123",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "spoken-form",
+      "dangerous" : false,
+      "expect" : [
+        "openIssue"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 27,
+      "kindOK" : false,
+      "latencyMs" : 1033.565625,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "pull up ticket eng one forty two",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "spoken-form",
+      "dangerous" : false,
+      "expect" : [
+        "openIssue"
+      ],
+      "got" : {
+        "confidence" : 0.7,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 28,
+      "kindOK" : false,
+      "latencyMs" : 1027.781208,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "go to issue E N G one two three",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "setIssueStatus"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "setIssueStatus",
+        "slots" : {
+          "issue" : "ENG-123",
+          "status" : "in review"
+        }
+      },
+      "id" : 29,
+      "kindOK" : true,
+      "latencyMs" : 1204.50725,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "move ENG-123 to in review",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "setIssueStatus"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "setIssueStatus",
+        "slots" : {
+          "issue" : "ENG-142",
+          "status" : "done"
+        }
+      },
+      "id" : 30,
+      "kindOK" : true,
+      "latencyMs" : 1174.9057090000001,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "mark this ticket as done",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "commentOnIssue"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "commentOnIssue",
+        "slots" : {
+          "issue" : "ENG-98",
+          "text" : "say the fix is deployed to staging"
+        }
+      },
+      "id" : 31,
+      "kindOK" : true,
+      "latencyMs" : 1222.746416,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "comment on ENG-98 saying the fix is deployed to staging",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "commentOnIssue"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "commentOnIssue",
+        "slots" : {
+          "issue" : "ENG-142",
+          "text" : "Looks good to me"
+        }
+      },
+      "id" : 32,
+      "kindOK" : true,
+      "latencyMs" : 1190.119167,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "reply on the ticket: looks good to me",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "startWorkingOn"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "startWorkingOn",
+        "slots" : {
+          "issue" : "ENG-77"
+        }
+      },
+      "id" : 33,
+      "kindOK" : true,
+      "latencyMs" : 1102.747417,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "start working on ENG-77",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "startWorkingOn"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "text" : "let's pick up the Safari login bug"
+        }
+      },
+      "id" : 34,
+      "kindOK" : false,
+      "latencyMs" : 1202.106791,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "let's pick up the Safari login bug",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "out-of-schema",
+      "dangerous" : false,
+      "expect" : [
+        "unclear",
+        "openIssue"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "readLastResponse",
+        "slots" : {
+          "issue" : "ENG-142",
+          "text" : "token refresh in auth service"
+        }
+      },
+      "id" : 35,
+      "kindOK" : false,
+      "latencyMs" : 1219.025417,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "what did the last comment on my auth ticket say",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "searchDocs"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "searchDocs",
+        "slots" : {
+          "query" : "onboarding"
+        }
+      },
+      "id" : 36,
+      "kindOK" : true,
+      "latencyMs" : 1084.206708,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "search the docs for onboarding",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "searchDocs"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "searchDocs",
+        "slots" : {
+          "query" : "notion page about the release process"
+        }
+      },
+      "id" : 37,
+      "kindOK" : true,
+      "latencyMs" : 1190.470792,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "find the notion page about the release process",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "agenda"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "agenda",
+        "slots" : {
+          "day" : "today"
+        }
+      },
+      "id" : 38,
+      "kindOK" : true,
+      "latencyMs" : 1114.048333,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what's on my calendar today",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "agenda"
+      ],
+      "got" : {
+        "confidence" : 0.7,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 39,
+      "kindOK" : false,
+      "latencyMs" : 1032.244292,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "do I have any meetings tomorrow",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "agenda"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "agenda",
+        "slots" : {
+          "day" : "",
+          "file" : "",
+          "issue" : "",
+          "query" : "",
+          "status" : "",
+          "tab" : "Calendar",
+          "text" : ""
+        }
+      },
+      "id" : 40,
+      "kindOK" : true,
+      "latencyMs" : 1348.19325,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "what's next on my schedule",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "text" : "add leeway to token refresh"
+        }
+      },
+      "id" : 41,
+      "kindOK" : true,
+      "latencyMs" : 1200.092875,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "the token refresh fails when the clock skews by more than five minutes, can you add some leeway",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "text" : "refactor the user service to use async await"
+        }
+      },
+      "id" : 42,
+      "kindOK" : true,
+      "latencyMs" : 1200.875916,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "refactor the user service to use async await",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "text" : "I think we should rename this function to fetch user"
+        }
+      },
+      "id" : 43,
+      "kindOK" : true,
+      "latencyMs" : 1199.756042,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "I think we should rename this function to fetch user",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "dictation",
+        "slots" : {
+          "text" : "add a unit test that covers the empty input case"
+        }
+      },
+      "id" : 44,
+      "kindOK" : true,
+      "latencyMs" : 1172.627792,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "add a unit test that covers the empty input case",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.7,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 45,
+      "kindOK" : false,
+      "latencyMs" : 1027.617083,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "why is this test flaky",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "nextTab",
+        "slots" : {
+          "tab" : "docs"
+        }
+      },
+      "id" : 46,
+      "kindOK" : false,
+      "latencyMs" : 1083.017167,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "next we need to update the changelog and bump the version",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "openIssue",
+        "slots" : {
+          "issue" : "ENG-142",
+          "text" : "open a pull request when you're done"
+        }
+      },
+      "id" : 47,
+      "kindOK" : false,
+      "latencyMs" : 1232.287333,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "open a pull request when you're done",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : true,
+      "expect" : [
+        "dictation",
+        "askAgent",
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "approve",
+        "slots" : {
+
+        }
+      },
+      "id" : 48,
+      "kindOK" : false,
+      "latencyMs" : 1028.146833,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "approve the PR once CI passes",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "dictation-trap",
+      "dangerous" : false,
+      "expect" : [
+        "dictation",
+        "askAgent"
+      ],
+      "got" : {
+        "confidence" : 0.7,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 49,
+      "kindOK" : false,
+      "latencyMs" : 1028.002209,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "stop using force unwraps in the parser",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 50,
+      "kindOK" : true,
+      "latencyMs" : 1000.346584,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "do the thing",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.1,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 51,
+      "kindOK" : true,
+      "latencyMs" : 1030.819,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "uh",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+          "day" : "",
+          "file" : "",
+          "issue" : "",
+          "query" : "",
+          "status" : "",
+          "tab" : "",
+          "text" : ""
+        }
+      },
+      "id" : 52,
+      "kindOK" : true,
+      "latencyMs" : 1285.144833,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "the other one",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.5,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 53,
+      "kindOK" : true,
+      "latencyMs" : 1000.359958,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "move it",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.7,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 54,
+      "kindOK" : true,
+      "latencyMs" : 1029.1735,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "can you check on that",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "unclear",
+        "whatChanged",
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "whatChanged",
+        "slots" : {
+          "issue" : "ENG-142",
+          "tab" : "api"
+        }
+      },
+      "id" : 55,
+      "kindOK" : true,
+      "latencyMs" : 1201.131292,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "status",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "5"
+        }
+      },
+      "id" : 56,
+      "kindOK" : true,
+      "latencyMs" : 1087.325417,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "switch to tab number five",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse",
+        "whereAmI"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "unclear",
+        "slots" : {
+
+        }
+      },
+      "id" : 57,
+      "kindOK" : false,
+      "latencyMs" : 1030.486125,
+      "run" : 1,
+      "slotsOK" : false,
+      "text" : "what's the agent doing right now",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "clean",
+      "dangerous" : false,
+      "expect" : [
+        "readLastResponse",
+        "repeatLast"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "readLastResponse",
+        "slots" : {
+
+        }
+      },
+      "id" : 58,
+      "kindOK" : true,
+      "latencyMs" : 1042.296916,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "read it",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "ambiguous",
+      "dangerous" : false,
+      "expect" : [
+        "approve",
+        "unclear"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "approve",
+        "slots" : {
+
+        }
+      },
+      "id" : 59,
+      "kindOK" : true,
+      "latencyMs" : 1028.245167,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "yes",
+      "tools" : [
+
+      ]
+    },
+    {
+      "category" : "loose",
+      "dangerous" : false,
+      "expect" : [
+        "switchTab"
+      ],
+      "got" : {
+        "confidence" : 0.9,
+        "kind" : "switchTab",
+        "slots" : {
+          "tab" : "Home"
+        }
+      },
+      "id" : 60,
+      "kindOK" : true,
+      "latencyMs" : 1084.926208,
+      "run" : 1,
+      "slotsOK" : true,
+      "text" : "go back to the home screen",
+      "tools" : [
+
+      ]
+    }
+  ]
+}

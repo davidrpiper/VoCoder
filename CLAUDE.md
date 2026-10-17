@@ -74,5 +74,5 @@ _Filled in by P1-01._ Expected: `make build`, `make test`, `make run`, `make sna
 
 ## Environment
 
-macOS 26+, Apple Silicon, Apple Intelligence enabled; Xcode 27 / Swift 6.4; FTXUI as a git
+macOS 26.4+ (ADR 0003), Apple Silicon, Apple Intelligence enabled; Xcode 27 / Swift 6.4; FTXUI as a git
 submodule in `Vendor/FTXUI`. Supported terminals: Terminal.app (baseline), Ghostty (recommended).
