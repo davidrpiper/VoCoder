@@ -39,3 +39,4 @@ Briefly, and why not.
 - [0004 — Third-party dependencies for Phase 1](0004-third-party-dependencies.md) (P0-06, Accepted)
 - [0005 — View DSL, focus tree and key routing](0005-view-dsl-focus-and-key-routing.md) (P1-03, Accepted)
 - [0006 — Module system, tab model split and fakes target](0006-module-system-and-tab-model.md) (P1-04, Accepted)
+- [0007 — Command system, keymap and keyboard overlays](0007-command-system-and-keymap.md) (P1-05, Accepted)

@@ -4,9 +4,9 @@ import VoCoderCore
 import VoCoderUIBridge
 
 /// Connects a root view to a renderer: renders it (again whenever an `@Observable` value it
-/// read changes), keeps focus in sync, and routes bridge events — keys through the key map to
-/// the focus path's action handlers, widget edits to their views. The run loop, signals and
-/// chrome belong to the app (P1-07).
+/// read changes), keeps focus in sync, and routes bridge events: keys to `onKey` (the
+/// `KeyboardController`, whose commands send `UIAction`s back through `perform(_:)`), widget
+/// edits to their views. The run loop, signals and chrome belong to the app (P1-07).
 @MainActor
 public final class UIHost {
   public let renderer: VCRenderer
@@ -14,17 +14,21 @@ public final class UIHost {
   public var theme: Theme {
     didSet { if theme != oldValue { invalidate() } }
   }
-  /// Temporary until P1-05 (ADR 0005).
-  public var keyMap = KeyMap.defaultBindings
-  /// Keys that map to no action or that no handler took (P1-05: the command keymap).
-  public var onUnhandledKey: (@MainActor (String) -> Bool)?
+  /// Every key the focused widget didn't consume, by its bridge name. Returns whether it was
+  /// handled.
+  public var onKey: (@MainActor (String) -> Bool)?
+  /// While true, no bridge widget gets typed keys: all of them come to `onKey` (the keys after
+  /// the leader, even with a text field focused).
+  public var suspendsWidgetFocus = false {
+    didSet { if suspendsWidgetFocus != oldValue { syncFocusedWidget() } }
+  }
   public var onResize: (@MainActor (_ width: Int, _ height: Int) -> Void)?
   public private(set) var size = (width: 0, height: 0)
   /// Set by `invalidate()`; a render is scheduled on the main actor.
   public private(set) var needsRender = true
   public private(set) var renderCount = 0
 
-  private let content: @MainActor () -> any View
+  private var content: @MainActor () -> any View
   private var widgetHandlers: [String: WidgetHandlers] = [:]
   private var renderScheduled = false
   private let log = Log(category: "ui")
@@ -40,6 +44,17 @@ public final class UIHost {
       self?.syncFocusedWidget()
       self?.invalidate()
     }
+  }
+
+  /// A host whose content is set later with `setContent` (when the content needs objects that
+  /// need the host, like a `KeyboardController`).
+  public convenience init(renderer: VCRenderer = VCRenderer(), theme: Theme = .automatic()) {
+    self.init(renderer: renderer, theme: theme) { EmptyView() }
+  }
+
+  public func setContent<Content: View>(_ content: @escaping @MainActor () -> Content) {
+    self.content = { content() }
+    invalidate()
   }
 
   /// Delivers the renderer's events to this host on the main actor, in order.
@@ -100,7 +115,7 @@ public final class UIHost {
   }
 
   private func syncFocusedWidget() {
-    let widget = focus.focusedWidget
+    let widget = suspendsWidgetFocus ? nil : focus.focusedWidget
     if renderer.focusedWidget != widget { renderer.focusedWidget = widget }
   }
 
@@ -127,8 +142,7 @@ public final class UIHost {
   /// A key as the bridge names it. Returns whether anything handled it.
   @discardableResult
   public func handleKey(_ key: String) -> Bool {
-    if let action = keyMap[key], perform(action) { return true }
-    return onUnhandledKey?(key) ?? false
+    onKey?(key) ?? false
   }
 
   /// Sends an action along the focus path, innermost first. Returns whether it was handled.
@@ -145,6 +159,11 @@ public final class UIHost {
       }
       return false
     }
+  }
+
+  /// The focus as plain ids, for command contexts.
+  public var focusSnapshot: FocusSnapshot {
+    FocusSnapshot(focused: focus.focused?.rawValue, path: focus.path.map(\.rawValue))
   }
 
   // MARK: Widgets

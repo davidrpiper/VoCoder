@@ -121,6 +121,15 @@ Terminals cannot see ⌘, so:
   palette; `?` shows contextual help.
 - Standard list navigation (`j/k`, arrows, `Enter`, `Esc`) in every list.
 - All bindings overridable in config.
+- How it works (P1-05, [ADR 0007](decisions/0007-command-system-and-keymap.md)): every key the
+  focused widget doesn't consume goes to the `KeyboardController`, which resolves it through the
+  `Keymap` (sequences such as `<leader> t n`, built from each command's bindings plus config
+  overrides) and runs the first *available* command bound to it. After the leader, keys go to the
+  keymap even when a text field has focus, and the which-key popup shows the next keys. Esc, a
+  key that continues nothing, or the leader again cancels. Leaving a text field: Tab/Shift-Tab,
+  Esc (`ui.cancel`) and the leader always reach the app. The palette ranks available commands by
+  fuzzy match and recency, prompts for missing parameters (choices or text), and runs the command
+  where the focus was before it opened. Help lists the available commands with their keys.
 
 ### 3.4 Voice interaction model
 
@@ -322,8 +331,10 @@ can be overridden process-wide. Each render also collects a **focus tree** (focu
 and scopes with stable `FocusID`s, `trap` scopes for modals); `FocusManager` keeps focus on the
 same leaf across renders or moves it to the nearest survivor. Keys map to generic `UIAction`s
 (move, page, first/last, activate, cancel, focus next/previous) that travel the focus path
-innermost first; P1-05's commands dispatch the same actions, so keys, palette and voice share
-one path. `vocoder ui-gallery` (hidden) shows the views live, with theme and colour-depth
+innermost first; the navigation commands (`list.down`, `ui.activate`, `focus.next`, …,
+[ADR 0007](decisions/0007-command-system-and-keymap.md)) send these actions, so keys, palette and
+voice share one path. Overlays (palette, help, which-key) are drawn in a `ZStack` with the
+bridge's `clearUnder` modifier (FTXUI `clear_under`). `vocoder ui-gallery` (hidden) shows the views live, with theme and colour-depth
 toggles.
 
 **Escape hatch:** "pop out" suspends the TUI (`App::WithRestoredIO`, exposed as
@@ -502,6 +513,8 @@ provider = "notion"
 
 [keys]
 leader = "ctrl+space"
+[keys.bindings]                   # replace a command's default keys; [] unbinds
+"tab.next" = ["<leader> n", "alt+n"]
 ```
 
 Secrets (Linear key, Notion token, Anthropic API key) live in the macOS Keychain, set via
@@ -559,6 +572,13 @@ How it works (P1-04, [ADR 0006](decisions/0006-module-system-and-tab-model.md)):
 - `AppCore` (Core) holds the loaded modules, the `@Observable` `AppState` (tabs, selection,
   attention items, issues) and the command registry; `start()` opens tabs and collects
   attention items, `stop()` closes them.
+- **Commands** ([ADR 0007](decisions/0007-command-system-and-keymap.md)): a `Command` declares
+  key bindings, voice phrases, parameters, risk tier and an availability predicate; it reports a
+  spoken result and an undo action through its `CommandContext`. The `CommandDispatcher` (owned by
+  `AppCore`) is the only way to run one. It validates availability and arguments, asks a
+  `CommandConfirmer` before outward commands, hands undo actions to an `UndoSink`, and knows the
+  UI's focus through a `FocusSnapshot`. Core's tab commands and the UI's navigation commands are
+  built-ins and are registered before (and win over) module commands.
 - Seams whose WP hasn't started are declared with identity (`Provider.id`) and capabilities
   only; `LanguageModel` is complete (ADR 0003 shape over a neutral flat `GenerationSchema`).
 - `vocoder --demo` loads only `DemoModule` (fake-backed), shown in a temporary dev shell until
@@ -602,14 +622,16 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
 
 ## 6. Testing strategy
 
-- **Core**: Swift Testing unit tests for module loading, app state, command registry, routing,
-  attention policy, provider mapping (with recorded API fixtures).
+- **Core**: Swift Testing unit tests for module loading, app state, command registry and
+  dispatcher, keymap resolution, fuzzy ranking, routing, attention policy, provider mapping (with
+  recorded API fixtures).
 - **Contracts**: every fake, stub, adapter and module runs its protocol's suite from
   `VoCoderTestSupport`; `ModuleTests` runs the module contract over every module target.
 - **UI**: snapshot tests rendering views to off-screen FTXUI screens (`assertSnapshot` in
   `VoCoderUITestSupport`: plain text, or ANSI at a chosen colour depth; goldens next to the test
   file, `make snapshot-update` rewrites them); focus and key routing driven through the
-  bridge's `injectInput:`.
+  bridge's `injectInput:` (keys go through the real keymap and commands; the palette, help and
+  which-key overlays have goldens).
 - **Voice routing**: table-driven tests from transcript text → expected command/intent.
 - **Recognition**: a small set of recorded audio fixtures run through SpeechAnalyzer (opt-in, slow).
 - **Agent**: stream-json fixtures replayed through `ClaudeCodeBackend`'s parser.

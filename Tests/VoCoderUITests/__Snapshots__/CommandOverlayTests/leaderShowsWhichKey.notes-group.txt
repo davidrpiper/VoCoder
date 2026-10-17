@@ -1,0 +1,24 @@
+tabs: alpha | beta | gamma · selected: alpha
+backdrop 0 backdrop 0 backdrop 0 backdrop 0 backdrop 0 backdrop 0 backdrop 0 bac
+backdrop 1 backdrop 1 backdrop 1 backdrop 1 backdrop 1 backdrop 1 backdrop 1 bac
+backdrop 2 backdrop 2 backdrop 2 backdrop 2 backdrop 2 backdrop 2 backdrop 2 bac
+backdrop 3 backdrop 3 backdrop 3 backdrop 3 backdrop 3 backdrop 3 backdrop 3 bac
+backdrop 4 backdrop 4 backdrop 4 backdrop 4 backdrop 4 backdrop 4 backdrop 4 bac
+backdrop 5 backdrop 5 backdrop 5 backdrop 5 backdrop 5 backdrop 5 backdrop 5 bac
+backdrop 6 backdrop 6 backdrop 6 backdrop 6 backdrop 6 backdrop 6 backdrop 6 bac
+backdrop 7 backdrop 7 backdrop 7 backdrop 7 backdrop 7 backdrop 7 backdrop 7 bac
+› one
+  two
+  three
+
+
+
+
+
+
+
+
+╭^Space n …────────────────────────────────────────────────────────────────────╮
+│p Post a note    c Count notes                                                │
+│Esc cancel                                                                    │
+╰──────────────────────────────────────────────────────────────────────────────╯

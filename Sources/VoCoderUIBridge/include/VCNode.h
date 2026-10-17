@@ -130,6 +130,9 @@ NS_SWIFT_SENDABLE
     NS_SWIFT_NAME(bordered(style:title:color:));
 /// Marks this node as the one an enclosing scroll frame keeps visible (e.g. a selected row).
 - (VCNode *)focusMarker;
+/// Blanks the cells under this node before drawing it, so it hides what a `dbox` drew below
+/// (overlays, popups).
+- (VCNode *)clearUnder;
 
 - (instancetype)init NS_UNAVAILABLE;
 @end

@@ -1,5 +1,6 @@
 // `vocoder ui-gallery` (hidden): the VoCoderUI views live in a real terminal, to check themes,
-// colour degradation and focus by eye. Development only; its keys aren't commands.
+// colour degradation and focus by eye. Development only; its keys are gallery commands, so the
+// palette, leader popup and help work here too.
 import ArgumentParser
 import Foundation
 import Observation
@@ -77,15 +78,30 @@ final class GalleryModel {
 final class UIGallery {
   private let model = GalleryModel()
   private let host: UIHost
+  private let keyboard: KeyboardController
   private let log = Log(category: "ui-gallery")
   private lazy var runLoop = TerminalRunLoop(renderer: host.renderer, log: log)
   private var timer: Timer?
 
   init(theme: Theme) {
     let model = model
-    host = UIHost(theme: theme) { GalleryView(model: model) }
+    let host = UIHost(theme: theme)
+    let dispatcher = CommandDispatcher(
+      state: AppState(), registry: CommandRegistry(Self.commands(model: model, host: host)))
+    keyboard = KeyboardController(
+      host: host, dispatcher: dispatcher, overrides: DemoApp.overrides,
+      quit: { [weak host] in host?.renderer.stop() })
+    let keyboard = keyboard
+    host.setContent { GalleryView(model: model).commandOverlays(keyboard) }
     model.themeName = theme.name
-    host.onUnhandledKey = { [unowned self] key in self.handleKey(key) }
+    // Show keys nothing handled.
+    let handle = host.onKey
+    host.onKey = { key in
+      if handle?(key) == true { return true }
+      model.lastAction = "unhandled \(key)"
+      return false
+    }
+    self.host = host
   }
 
   func run() {
@@ -100,33 +116,49 @@ final class UIGallery {
     log.info("ui gallery exited")
   }
 
-  /// "1"…"5", or F1…F5 (which also work while a text field has focus).
-  private func pageNumber(_ key: String) -> Int? {
-    let digits = key.hasPrefix("F") ? key.dropFirst() : Substring(key)
-    return Int(digits).flatMap { (1...GalleryModel.pages.count).contains($0) ? $0 : nil }
-  }
-
-  private func handleKey(_ key: String) -> Bool {
-    switch key {
-    case "q", "Ctrl-c":
-      host.renderer.stop()
-    case "t":
-      host.theme = host.theme == .dark ? .light : .dark
-      model.themeName = host.theme.name
-    case "c":
-      let order: [VCColorDepth] = [.trueColor, .palette256, .palette16, .monochrome]
-      let next = order[((order.firstIndex(of: model.colorDepth) ?? 0) + 1) % order.count]
-      VCRenderer.colorDepth = next
-      model.colorDepth = next
-    case "a" where model.page == 4:
-      model.logLines.append("log line \(model.logLines.count + 1)")
-    case let key where pageNumber(key) != nil:
-      model.page = pageNumber(key)! - 1
-    default:
-      model.lastAction = "unhandled \(key)"
-      return false
-    }
-    return true
+  private static func commands(model: GalleryModel, host: UIHost) -> [Command] {
+    let pages = GalleryModel.pages
+    return [
+      Command(id: "gallery.theme", title: "Toggle theme", category: "Gallery", keys: ["t"]) {
+        [weak host] _ in
+        guard let host else { return }
+        host.theme = host.theme == .dark ? .light : .dark
+        model.themeName = host.theme.name
+      },
+      Command(
+        id: "gallery.colors", title: "Cycle colour depth", category: "Gallery", keys: ["c"]
+      ) { _ in
+        let order: [VCColorDepth] = [.trueColor, .palette256, .palette16, .monochrome]
+        let next = order[((order.firstIndex(of: model.colorDepth) ?? 0) + 1) % order.count]
+        VCRenderer.colorDepth = next
+        model.colorDepth = next
+      },
+      Command(
+        id: "gallery.page", title: "Show page", category: "Gallery",
+        // F-keys also work while a text field has focus.
+        keys: pages.indices.flatMap { index -> [KeyBinding] in
+          let page: CommandArguments = ["page": .text("\(index + 1)")]
+          return [
+            KeyBinding(keys: "\(index + 1)", arguments: page),
+            KeyBinding(keys: "F\(index + 1)", arguments: page),
+          ]
+        },
+        params: [
+          CommandParameter(
+            "page", title: "Page",
+            kind: .choice { _ in
+              pages.enumerated().map { .init(value: "\($0.offset + 1)", title: $0.element) }
+            })
+        ]
+      ) { context in
+        if let page = context.arguments.integer("page") { model.page = page - 1 }
+      },
+      Command(
+        id: "gallery.addLogLine", title: "Add a log line", category: "Gallery", keys: ["a"],
+        isAvailable: { _ in model.page == 4 },
+        perform: { _ in model.logLines.append("log line \(model.logLines.count + 1)") }
+      ),
+    ]
   }
 }
 
@@ -150,8 +182,8 @@ private struct GalleryView: View {
           .foreground(.muted)
       }
       Text(
-        "1-5/F1-F5 page · Tab/Shift-Tab focus · j/k/PgUp/PgDn/g/G move · Enter · t theme · "
-          + "c colours · q/Ctrl-C quit"
+        "1-5/F1-F5 page · Tab focus · j/k/g/G move · t theme · c colours · ^P palette · "
+          + "? help · q quit"
       ).dim()
     }
   }

@@ -120,6 +120,11 @@ extension View {
     modified { node, _ in node.aligned(alignment.bridged) }
   }
 
+  /// Blanks what is drawn below this view in a `ZStack` (popups, overlays).
+  public func clearUnder() -> some View {
+    modified { node, _ in node.clearUnder() }
+  }
+
   /// An enclosing `ScrollView` keeps this view visible (e.g. the selected row).
   public func keepVisible(_ condition: Bool = true) -> some View {
     modified { node, _ in condition ? node.focusMarker() : node }

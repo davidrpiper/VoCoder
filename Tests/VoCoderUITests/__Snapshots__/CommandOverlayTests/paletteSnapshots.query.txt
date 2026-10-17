@@ -1,0 +1,24 @@
+tabs: alpha | beta | gamma · selected: alpha
+backdrop╭Commands──────────────────────────────────────────────────────╮op 0 bac
+backdrop│› tab                                                         │op 1 bac
+backdrop├──────────────────────────────────────────────────────────────┤op 2 bac
+backdrop│› Next tab                                    Tabs  ^Space t n│op 3 bac
+backdrop│  Previous tab                                Tabs  ^Space t p│op 4 bac
+backdrop│  Go to tab                                   Tabs  ^Space 1…9│op 5 bac
+backdrop│↑↓ select · Enter run · Esc close                             │op 6 bac
+backdrop╰──────────────────────────────────────────────────────────────╯op 7 bac
+› one
+  two
+  three
+
+
+
+
+
+
+
+
+
+
+
+ other

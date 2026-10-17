@@ -1,0 +1,24 @@
+tabs: alpha | beta | gamma · selected: alpha
+backdrop╭Go to tab › Tab───────────────────────────────────────────────╮op 0 bac
+backdrop│› Filter                                                      │op 1 bac
+backdrop├──────────────────────────────────────────────────────────────┤op 2 bac
+backdrop│› 1 alpha                                                     │op 3 bac
+backdrop│  2 beta                                                      │op 4 bac
+backdrop│  3 gamma                                                     │op 5 bac
+backdrop│↑↓ select · Enter run · Esc close                             │op 6 bac
+backdrop╰──────────────────────────────────────────────────────────────╯op 7 bac
+› one
+  two
+  three
+
+
+
+
+
+
+
+
+
+
+
+ other

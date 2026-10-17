@@ -1,6 +1,6 @@
 // A bare-bones shell over `AppState` for `vocoder --demo` until the real chrome (P1-07): tab
-// bar with badges, the selected tab, attention items, and the registered commands as a list
-// (Enter runs one). P1-07 replaces it.
+// bar with badges, the selected tab, attention items, and the modules' commands as a list
+// (Enter runs one through the keyboard controller). P1-07 replaces it.
 import VoCoderCore
 
 public struct DevShell: View {
@@ -38,7 +38,8 @@ public struct DevShell: View {
       if !state.issues.isEmpty {
         Text("⚠ " + state.issues.map(\.description).joined(separator: " · ")).foreground(.danger)
       }
-      Text("demo shell · 1-9 tab · Tab focus · j/k move · Enter run · q quit").dim()
+      Text("demo · ^Space leader · ^P palette · ? help · Tab focus · Enter run · q quit")
+        .dim()
     }
   }
 

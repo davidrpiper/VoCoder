@@ -272,6 +272,10 @@ key and palette; sessions resume after restart; terminal is always restored.
   P1-04 left a minimal `Command` (id, title, category, `perform(CommandContext)`), a
   `CommandRegistry` and `AppCore.run(_:)`; extend these (don't replace them) and route the dev
   shell's command list through the dispatcher ([ADR 0006](decisions/0006-module-system-and-tab-model.md)).
+  **Done** ([ADR 0007](decisions/0007-command-system-and-keymap.md)). Agreed at plan time:
+  `tab.next/previous/goto` moved here from P1-07; P1-05 defines `KeyBindingOverrides` and P1-06
+  parses config into it; outward commands run without confirmation from keys/palette until a
+  confirmer exists.
 
 ### P1-06 — Config, secrets and CLI
 - **Depends on:** P1-04
@@ -290,7 +294,13 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Acceptance:** invalid config produces actionable errors before the TUI starts; secrets never
   appear in logs; `vocoder doctor` reports each check with a fix hint.
 - **Design refs:** §4.9.
-- **Notes:** add a `theme = "auto" | "dark" | "light"` option (P1-03 defaults to `auto`:
+- **Notes:** `[keys]` (`leader`, `[keys.bindings]` command id → list of sequences, `[]`
+  unbinds) maps onto `KeyBindingOverrides.parse(leader:bindings:)` (its errors are config
+  errors), then `KeyboardController.rebuildKeymap(overrides:)`; `Keymap.issues` (unknown ids,
+  shadowed sequences) belong in `vocoder doctor`. Doctor should also warn that macOS binds
+  Ctrl-Space to "Select previous input source" when several input sources are enabled
+  (System Settings → Keyboard → Shortcuts → Input Sources), which swallows the leader.
+  Add a `theme = "auto" | "dark" | "light"` option (P1-03 defaults to `auto`:
   `Theme.automatic()` follows the macOS appearance).
   P1-04 hooks: `ModuleEnvironment.configSection` (`ConfigSectionReader`: parse a module's
   `ConfigSection` from TOML), `.enabled` (module ids from config), `.repos` (`RepoRoot`s);
@@ -307,7 +317,13 @@ key and palette; sessions resume after restart; terminal is always restored.
   (next/prev/goto n/goto by alias/close/reorder).
 - **Acceptance:** snapshot tests at 80×24, 120×40, 200×60; tab switching via keys and palette.
 - **Design refs:** §3.1.
-- **Notes:** the run loop, signal handling (incl. ignoring SIGINT while popped out) and the
+- **Notes:** tab next/previous/goto-by-number are commands since P1-05 (`TabCommands` in Core);
+  this WP adds close, reorder and go-to by alias. Compose the chrome with
+  `.commandOverlays(keyboard)` (palette, help, which-key); the hint bar can use
+  `KeyboardController.keyHint(for:)`; show `KeyboardController.lastFailure` as a toast; the
+  confirm dialog should implement `CommandConfirmer` (set on `AppCore.dispatcher`) and be
+  usable from keys and the palette. The real app sets up `KeyboardController` like `DemoApp`.
+  The run loop, signal handling (incl. ignoring SIGINT while popped out) and the
   pop-out spawn helper exist in `Sources/vocoder/` (`TerminalRunLoop`, shared by `bridge-demo`
   and `ui-gallery` since P1-03; spawn helper in `BridgeDemo.swift`); move them into the app
   proper here. Panels use `ContextReader` + `containsFocus` for focus borders (see the gallery). The
@@ -416,7 +432,9 @@ mirrored on screen.
   `withGenerationTimeout`, `FakeLanguageModel` and `LanguageModelContract` exist since P1-04
   (ADR 0006); this WP writes the Foundation Models adapter (neutral schema →
   `DynamicGenerationSchema`) and runs the contract against it. Compare against the spike's static
-  `@Generable` numbers.
+  `@Generable` numbers. Phrases, parameters (slots), risk tiers and availability come from
+  `Command` (P1-05); dispatch with `source: .voice` through `CommandDispatcher`, and prompt for
+  missing parameters like the palette does.
 - **Acceptance (hard gates, confirmed in P0-06):** 0 unconfirmed dangerous actions; wrong-action
   rate ≤10%; grammar stage <50 ms; model p50 ≤1.0 s with prewarm; routing table ≥95% on clean
   and ≥65% on loose and hold-out utterances, with the remaining misses ending in a clarifying
@@ -439,6 +457,9 @@ mirrored on screen.
   reversible commands; command-level undo implementations for existing commands; timeouts and
   safe defaults (no answer = cancel).
 - **Acceptance:** every command's tier enforced uniformly via the dispatcher; tests for each tier.
+- **Notes:** the hooks exist since P1-05: `CommandDispatcher.confirmer` (`CommandConfirmer`;
+  without one, outward commands from voice/brain are declined) and `.undoSink` (`UndoSink`,
+  fed by `CommandContext.offerUndo`). P1-07's dialog covers keys; this WP adds the voice flow.
 
 ### P2-08 — Agent voice integration
 - **Depends on:** P2-07, P1-10

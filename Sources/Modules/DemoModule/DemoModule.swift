@@ -31,18 +31,60 @@ public final class DemoModule: VoCoderModule {
 
     let attention = attention
     registry.add(commands: [
-      Command(id: "demo.ping", title: "Ping", category: "Demo") { _ in
+      Command(
+        id: "demo.ping", title: "Ping", category: "Demo", keys: ["<leader> d p"],
+        voicePhrases: ["ping"]
+      ) { context in
         tasksTab.pings += 1
         attention.post(
           AttentionItem(
             id: AttentionItemID("demo.ping.\(tasksTab.pings)"), source: attention.id,
             priority: .soon, title: "Ping \(tasksTab.pings)"))
+        context.say("Ping \(tasksTab.pings)")
       },
-      Command(id: "demo.cycleBadge", title: "Cycle repo badge", category: "Demo") { _ in
+      Command(
+        id: "demo.cycleBadge", title: "Cycle repo badge", category: "Demo",
+        keys: ["<leader> d b"]
+      ) { _ in
         repoTab.cycleBadge()
       },
-      Command(id: "demo.clearAttention", title: "Clear attention", category: "Demo") { context in
-        for item in context.state.attention { context.state.dismissAttention(item.id) }
+      Command(
+        id: "demo.clearAttention", title: "Clear attention", category: "Demo",
+        keys: ["<leader> d c"], voicePhrases: ["clear attention"], risk: .reversible
+      ) { context in
+        let cleared = context.state.attention
+        for item in cleared { context.state.dismissAttention(item.id) }
+        context.offerUndo(
+          UndoAction(title: "Restore \(cleared.count) attention items") { [state = context.state] in
+            for item in cleared { state.post(item) }
+          })
+      },
+      Command(
+        id: "demo.note", title: "Post a note", category: "Demo",
+        params: [CommandParameter("text", title: "Note")]
+      ) { context in
+        let text = context.arguments.text("text") ?? ""
+        tasksTab.notes += 1
+        attention.post(
+          AttentionItem(
+            id: AttentionItemID("demo.note.\(tasksTab.notes)"), source: attention.id,
+            priority: .ambient, title: text))
+      },
+      Command(
+        id: "demo.selectIssue", title: "Select a demo issue", category: "Demo",
+        params: [
+          CommandParameter(
+            "issue", title: "Issue",
+            kind: .choice { _ in
+              tasksTab.issues.map { .init(value: $0.0, title: "\($0.0) \($0.1)") }
+            })
+        ]
+      ) { context in
+        guard let key = context.arguments.text("issue"),
+          let index = tasksTab.issues.firstIndex(where: { $0.0 == key })
+        else { return }
+        tasksTab.list.selection = index
+        context.state.select(tasksTab.id)
       },
     ])
     registry.add(attentionSource: attention)
@@ -90,6 +132,7 @@ final class DemoTasksTab: ViewTab {
   let id: TabID = "demo.tasks"
   let title = "Tasks"
   var pings = 0
+  var notes = 0
   let list = ListState()
   let issues = [
     ("DEMO-1", "Wire the module system", "Done"),

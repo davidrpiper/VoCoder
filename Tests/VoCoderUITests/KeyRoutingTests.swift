@@ -1,5 +1,6 @@
 import Observation
 import Testing
+import VoCoderCore
 import VoCoderUI
 
 @MainActor
@@ -34,15 +35,22 @@ struct FormView: View {
   }
 }
 
+/// Keys → keymap → navigation commands → `UIAction`s along the focus path.
 @MainActor
 @Suite struct KeyRoutingTests {
   let form = Form()
-  let host: UIHost
+  let host = UIHost(theme: .dark)
+  let keyboard: KeyboardController
 
   init() {
     let form = form
-    host = UIHost(theme: .dark) { FormView(form: form) }
-    host.onUnhandledKey = { key in
+    let keyboard = KeyboardController(
+      host: host, dispatcher: CommandDispatcher(state: AppState()), quit: {})
+    self.keyboard = keyboard
+    host.setContent { FormView(form: form).commandOverlays(keyboard) }
+    let handle = host.onKey
+    host.onKey = { key in
+      if handle?(key) == true { return true }
       form.unhandled.append(key)
       return true
     }
@@ -93,19 +101,43 @@ struct FormView: View {
     #expect(form.unhandled.isEmpty)
   }
 
-  @Test func unmappedAndUnhandledKeysReachTheFallback() {
+  @Test func unboundKeysFallThrough() {
     host.focus.focus("list")
-    host.type("\u{1B}[C")  // ArrowRight: mapped, but nothing handles it
+    host.type("\u{1B}[C")  // ArrowRight: bound to ui.right, which nothing here acts on
     host.type("q")
-    #expect(form.unhandled == ["ArrowRight", "q"])
+    #expect(form.unhandled == ["q"])
   }
 
-  @Test func keyMapIsReplaceable() {
+  @Test func overridesReplaceDefaultBindings() {
     host.focus.focus("list")
-    host.keyMap = KeyMap(["n": .moveDown])
+    keyboard.rebuildKeymap(overrides: KeyBindingOverrides(bindings: ["list.down": ["n"]]))
     host.type("n")
     host.type("j")
     #expect(form.list.selection == 1)
     #expect(form.unhandled == ["j"])
+  }
+
+  @Test func leaderSequencesRunCommands() {
+    host.type("\0")  // Ctrl-Space
+    #expect(keyboard.pending.map(\.name) == ["Ctrl-Space"])
+    host.type("?")  // reaches the keymap, not the focused field
+    #expect(keyboard.pending.isEmpty)
+    #expect(keyboard.isHelpVisible)
+    #expect(host.text(of: "name") == "")
+    #expect(host.focus.focused == CommandOverlays.helpScrollID)
+    host.type("\u{1B}")  // Esc closes help
+    #expect(!keyboard.isHelpVisible)
+    #expect(host.focus.focused == "name")
+  }
+
+  @Test func escCancelsAPendingSequenceWithoutRunningCancel() {
+    host.type("\0")
+    host.type("\u{1B}")
+    #expect(keyboard.pending.isEmpty)
+    #expect(form.cancelled == 0)
+    host.type("\0")
+    host.type("z")  // continues nothing: swallowed
+    #expect(keyboard.pending.isEmpty)
+    #expect(form.unhandled.isEmpty)
   }
 }

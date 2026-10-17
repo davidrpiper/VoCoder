@@ -18,7 +18,7 @@
 │• Ping 1                     ││  Ping                               demo.ping │
 │· Demo module loaded         ││› Cycle repo badge             demo.cycleBadge │
 │                             ││  Clear attention          demo.clearAttention │
-│                             ││                                               │
-│                             ││                                               │
+│                             ││  Post a note                        demo.note │
+│                             ││  Select a demo issue         demo.selectIssue │
 ╰─────────────────────────────╯╰───────────────────────────────────────────────╯
-demo shell · 1-9 tab · Tab focus · j/k move · Enter run · q quit
+demo · ^Space leader · ^P palette · ? help · Tab focus · Enter run · q quit

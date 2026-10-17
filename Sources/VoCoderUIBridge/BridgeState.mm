@@ -145,6 +145,7 @@ F::Element Apply(F::Element el, const VCDecorator &d) {
       return F::dbox({el, F::vbox({title, F::filler()})});
     }
     case VCDecorator::Type::FocusMarker: return el | F::focus;
+    case VCDecorator::Type::ClearUnder: return el | F::clear_under;
   }
   return el;
 }

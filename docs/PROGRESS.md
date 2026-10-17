@@ -46,19 +46,30 @@ protocols with capabilities, full `LanguageModel` (ADR 0003 shape). New `VoCoder
 contract suites in `VoCoderTestSupport`, `DemoModule`, `ModuleTests`, `vocoder --demo` on a
 temporary `DevShell`, `make check-deps` in `make lint`
 ([ADR 0006](decisions/0006-module-system-and-tab-model.md)).
+P1-05 done (2026-10-17): command system. `Command` has key bindings, voice phrases, parameters,
+risk tier, availability, spoken result and undo (via `CommandContext.say`/`offerUndo`).
+`CommandDispatcher` (in `AppCore`) validates, confirms outward commands, and has an undo hook and
+MRU list. `KeyChord`/`KeySequence`/`Keymap`/`KeyResolver` handle multi-key sequences and the
+leader; `KeyBindingOverrides` are ready for P1-06. Also: `FuzzyMatcher`/`CommandSearch`, Core
+`TabCommands` (next/prev/goto 1…9), UI `NavigationCommands` (list/focus/activate/cancel/palette/
+help/quit) and `KeyboardController` (replaces `KeyMap.defaultBindings`). Overlays: which-key,
+palette with parameter prompts, help (`.commandOverlays`). New bridge `clearUnder`. The demo and
+the gallery run entirely on commands ([ADR 0007](decisions/0007-command-system-and-keymap.md)).
 
 ## Next up
 
-**P1-05 — Command system, keymap, leader key, palette.** Extend P1-04's minimal `Command` /
-`CommandRegistry` / `AppCore.run` and replace the temporary `KeyMap.defaultBindings` with
-commands (see the PLAN notes). P1-03b (markdown-lite renderer + bridge `flow` node) is
-independent and can be done before or after; it is needed by P1-10. P1-06 can also start now
-(it depends only on P1-04).
+**P1-07 — App chrome** (critical path; unblocked by P1-05). See the PLAN notes: tab bar, voice
+and hint bars, modal system (its confirm dialog is the `CommandConfirmer`), toasts
+(`KeyboardController.lastFailure`), Home placeholder, close/reorder/alias tab commands. It
+replaces `DevShell`/`DemoApp`'s shell. P1-06 (config/CLI, including parsing `[keys]` into
+`KeyBindingOverrides`), P1-03b (markdown renderer), P1-08 and P1-09 are also unblocked and could
+go first.
 Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed
 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to change
 (helper-app risk). Optional user eyeball checks: `make run ARGS=bridge-demo` and
 `make run ARGS=ui-gallery` / `make run ARGS=--demo` in Terminal.app and Ghostty (`t` toggles theme, `c` cycles colour
-depth; pty tests cover behaviour, not real-terminal looks).
+depth; pty tests cover behaviour, not real-terminal looks). In particular, check that
+`Ctrl-Space` reaches the app and isn't taken by the macOS input-source shortcut.
 
 ## Work package status
 
@@ -78,7 +89,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-03 | Swift UI DSL, focus and snapshot testing | done | ADR 0005; markdown → P1-03b |
 | P1-03b | Markdown-lite renderer | todo | Split from P1-03; adds bridge `flow` node |
 | P1-04 | Core architecture and module system | done | ADR 0006; `vocoder --demo` |
-| P1-05 | Command system, keymap, leader key, palette | todo | |
+| P1-05 | Command system, keymap, leader key, palette | done | ADR 0007; tab next/prev/goto pulled in |
 | P1-06 | Config, secrets and CLI | todo | |
 | P1-07 | App chrome | todo | |
 | P1-08 | Git module | todo | |
@@ -182,10 +193,55 @@ to one or two lines; move anything architectural into an ADR._
   first `render()` reach no handler. Render first (tests and `DemoApp` do).
 - `package` access works across targets of this package, test targets included; used for
   Core-only APIs that modules must go through `VoCoderUI` for (`TabFactory` init).
+- macOS binds Ctrl-Space to "Select previous input source" when several input sources are
+  enabled; the terminal then never sees the leader. `Alt-1…9`/`Ctrl-P` still work.
+- Two `init` overloads that differ only in a closure's return type (`Void` vs a value) are
+  ambiguous for multi-statement closures. Hence `Command.perform` returns `Void` and the outcome
+  goes through the context.
+- Trailing-closure forward scan: with two defaulted closure parameters, a trailing closure
+  binds to the *first* (`isAvailable`), not `perform`. Make the last one required, or label it.
+  swift-format also rejects a closure argument plus a trailing closure in Sources.
+- `Task.immediate` (macOS 26) runs a command synchronously up to its first suspension: key
+  presses keep their order, and tests can assert right after `type(...)`.
+- FTXUI size constraints don't act on a `dbox` child at the root, and `clear_under` then clears
+  the whole width. Overlays wrap their box in `hbox`/`vbox` with fillers. Borders touching
+  borders below merge (`┴`).
+- FTXUI's output is diff-based: a pty test can't grep a whole redrawn line after a small
+  change; check for state changes instead.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-05
+- Decisions (user, at plan time, as recommended): move `tab.next/previous/goto 1…9` here from
+  P1-07; P1-05 defines `KeyBindingOverrides`, P1-06 parses config into it; outward commands run
+  without confirmation from keys/palette until a confirmer exists. Recorded with the rest in
+  [ADR 0007](decisions/0007-command-system-and-keymap.md).
+- Core (`Sources/VoCoderCore/Commands/`): `Command` (moved from `App/`, extended),
+  `RiskTier`, `CommandSource`, `CommandOutcome`, `UndoAction`, `FocusSnapshot`,
+  `CommandContext.say/offerUndo`, `CommandRegistry.prepend`; `CommandParameter`/`CommandValue`/
+  `CommandArguments`; `CommandDispatcher` + `CommandConfirmer`/`UndoSink`; `KeyChord`,
+  `KeySequence`, `KeyBinding`, `Keymap`, `KeyBindingOverrides`, `KeyResolver`; `FuzzyMatcher`,
+  `CommandSearch`; `TabCommands`. `AppCore` owns the dispatcher (tab built-ins first, module
+  collisions reported).
+- UI: `NavigationCommands`, `KeyboardController` (keymap, leader, `Task.immediate`, palette
+  stages, help, `keyHint`), `PaletteModel`, `CommandOverlays` (which-key, palette, help);
+  `UIHost.onKey`, `suspendsWidgetFocus`, `focusSnapshot`, `setContent`; `clearUnder()`
+  modifier. `KeyMap`/`keyMap`/`onUnhandledKey` removed.
+- Bridge: `-[VCNode clearUnder]` (FTXUI `clear_under`) + test.
+- App: `DemoApp`/`ui-gallery` on `KeyboardController` (gallery dev keys are commands; `q`
+  added to quit via overrides); `DemoModule` commands have keys (`<leader> d …`), phrases,
+  a reversible command with undo, and text/choice parameter commands.
+- Tests: Core +22 (chords, keymap, resolver, overrides, conflicts, fuzzy ranking, dispatcher,
+  tab commands); UI key routing reworked through commands (+2) and `CommandOverlayTests` (10, 6
+  goldens: which-key ×2, palette ×3, help); `DemoModuleTests` +1 (leader, palette, prompts, quit;
+  2 goldens).
+- Verified: clean build 0 warnings, `make lint` clean, `make test` all runs pass,
+  `make pty-test` 11/11, `vocoder --demo` driven in a pty (leader popup, `d` group, Esc, Ctrl-P,
+  query, parameter prompt → note posted, `?` help, `q` quits cleanly). Not done: eyeballing
+  in Terminal.app/Ghostty (optional; includes the Ctrl-Space input-source check).
+- Next: P1-07 (P1-06, P1-03b, P1-08, P1-09 also unblocked).
 
 ### 2026-10-17 · P1-04
 - Decisions (user, at plan time, all as recommended): tab model in Core with `ViewTab` in UI

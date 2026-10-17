@@ -1,0 +1,24 @@
+ 1 demo-repo ◐  2 Tasks 1
+────────────────────────────────────────────────────────────────────────────────
+╭Demo tasks────────────────────────────────────────────────────────────────────╮
+│  DEMO-1 Wire the module system                                          Done │
+│  DEMO-2 Command palette                                                 Todo │
+│› DEMO-3 App chrome                                                      Todo │
+│  DEMO-4 Repo tab                                                     Backlog │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭Attention (3)────────────────╮╭Commands───────────────────────────────────────╮
+│· hello                      ││› Ping                               demo.ping │
+│• Ping 1                     ││  Cycle repo badge             demo.cycleBadge │
+│· Demo module loaded         ││  Clear attention          demo.clearAttention │
+│                             ││  Post a note                        demo.note │
+│                             ││  Select a demo issue         demo.selectIssue │
+╰─────────────────────────────╯╰───────────────────────────────────────────────╯
+demo · ^Space leader · ^P palette · ? help · Tab focus · Enter run · q quit

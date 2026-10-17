@@ -184,4 +184,8 @@
   return [self copyAdding:{.type = VCDecorator::Type::FocusMarker}];
 }
 
+- (VCNode *)clearUnder {
+  return [self copyAdding:{.type = VCDecorator::Type::ClearUnder}];
+}
+
 @end

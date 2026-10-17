@@ -58,7 +58,7 @@ typedef NS_ENUM(NSInteger, VCNodeKind) {
 
 /// A modifier, applied in the order it was added.
 struct VCDecorator {
-  enum class Type { Style, Foreground, Background, Flex, Width, Height, Align, Border, FocusMarker };
+  enum class Type { Style, Foreground, Background, Flex, Width, Height, Align, Border, FocusMarker, ClearUnder };
   Type type;
   NSInteger a = 0;
   NSInteger b = 0;

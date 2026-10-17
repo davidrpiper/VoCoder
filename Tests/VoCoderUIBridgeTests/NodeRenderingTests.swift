@@ -10,6 +10,15 @@ import VoCoderUIBridge
     #expect(render(.dbox([.text("aaaa"), .text("b")])) == lines("baaa"))
   }
 
+  @Test func clearUnderHidesWhatIsBelow() {
+    let below = VCNode.text("aaaa")
+    // The popup's box is 3 cells wide but its text paints only one. (Size constraints only act
+    // inside a container.)
+    let box = VCNode.hbox([.text("b"), .filler()]).width(.equal, 3)
+    #expect(render(.dbox([below, .hbox([box, .filler()])])) == lines("baaa"))
+    #expect(render(.dbox([below, .hbox([box.clearUnder(), .filler()])])) == lines("b  a"))
+  }
+
   @Test func paragraphWrapsToWidth() {
     let text = "the quick brown fox jumps over the lazy dog"
     #expect(

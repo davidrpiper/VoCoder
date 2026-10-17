@@ -1,0 +1,24 @@
+tabs: alpha | beta | gamma · selected: alpha
+backdrop╭Help──────────────────────────────────────────────────────────╮op 0 bac
+backdrop│App                                                           │op 1 bac
+backdrop│  Command palette                                ^P, ^Space p │op 2 bac
+backdrop│  Help                                            ?, ^Space ? │op 3 bac
+backdrop│  Quit                                           ^Space q, ^C │op 4 bac
+backdrop│Tabs                                                          │op 5 bac
+backdrop│  Next tab                                         ^Space t n │op 6 bac
+backdrop│  Previous tab                                     ^Space t p │op 7 bac
+› one   │  Go to tab                               ^Space 1…9, Alt-1…9 │
+  two   │Notes                                                         │
+  three │  Post a note                                      ^Space n p │
+        │  Count notes                                      ^Space n c │
+        │  Only on the list                                            │
+        │Navigation                                                    │
+        │  Move up                                                k, ↑ │
+        │  Move down                                              j, ↓ │
+        │  Page up                                          PageUp, ^U │
+        │  Page down                                      PageDown, ^D │
+        │  Go to first                                         g, Home │
+        ├──────────────────────────────────────────────────────────────┤
+        │^P palette · ^Space leader · j/k scroll · Esc close           │
+        ╰──────────────────────────────────────────────────────────────╯
+ other
