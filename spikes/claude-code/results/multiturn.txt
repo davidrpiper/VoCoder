@@ -1,0 +1,8 @@
+== multiturn (haiku) 2026-10-17T02:16:28Z
+initialize response keys: ["account", "agents", "analytics_disabled", "available_output_styles", "capabilities", "claude_code_version", "commands", "current_permission_mode", "fast_mode_disabled_reason", "fast_mode_state", "feedback_mode", "ide_rc_auto_enable_gate", "models", "output_style", "pid", "remote_control_auto_connect_default", "remote_control_auto_enable", "remote_control_auto_on_by_default", "remote_control_available", "session_state", "user_output_styles_dir"]
+turn 'Reply with exactly: one' → 'one' first-text 976 ms, result 987 ms, num_turns 1
+turn 'What did you reply last time? One word.' → 'One' first-text 807 ms, result 825 ms, num_turns 1
+turn 'Reply with exactly: three' → 'three' first-text 881 ms, result 888 ms, num_turns 1
+queued: 'alpha' (871 ms, queued_turn_count int(0)), 'beta' (1629 ms, queued_turn_count int(0))
+session 85a55c92-a808-43a0-982e-7d1bd5016af1, exit 0
+== multiturn done in 5993 ms

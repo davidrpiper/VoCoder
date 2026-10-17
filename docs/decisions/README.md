@@ -34,3 +34,4 @@ Briefly, and why not.
 ## Index
 
 - [0001 — FTXUI via SwiftPM + ObjC++ bridge: validated, with key/signal rules](0001-ftxui-objc-bridge.md) (P0-01, Accepted)
+- [0002 — Claude Code via stream-json, permissions over the host control protocol](0002-claude-code-stream-json-host-permissions.md) (P0-04, Accepted)

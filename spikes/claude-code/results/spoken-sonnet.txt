@@ -1,0 +1,18 @@
+== spoken (sonnet) 2026-10-17T02:24:40Z
+  ✓ What does README.md say? Read it. → 17 words: The README is just two lines. It's titled Spike repo and says the project codename is BLUEBIRD.
+  ✓ Write a Swift function that reverses a s → 24 words: Here's a Swift function that reverses a string using the built-in reversed method. It works on characters, so emoji and accented letters sta
+  ✓ What's 17 times 23? → 7 words: Seventeen times twenty-three is three hundred ninety-one.
+  ✓ List three ideas for naming a CLI tool. → 26 words: Three naming ideas: name it after its function, use a metaphor or animal, or abbreviate and combine words. Check for collisions on package r
+  ✓ Create notes.txt containing a haiku abou → 27 words: I created notes.txt with a git haiku about branches, commits, and detached HEAD. I fixed a syllable count on the second line, and the file i
+  ✓ Explain in detail the difference between → 39 words: A process is a running program with its own isolated memory and resources. A thread is an execution path inside a process that shares its me
+  ✓ Run git log and tell me how many commits → 16 words: There's just one commit, called init. The notes file I made earlier hasn't been committed yet.
+  ✓ Read the file does-not-exist.swift. → 23 words: That file doesn't exist in the repo, so there was nothing to read. If you meant a different file, tell me the name.
+  ✓ Refactor nothing; just say whether this  → 19 words: No, there are no tests. The repo only contains the README, plus the uncommitted notes file I created earlier.
+  ✓ Give me a markdown table of 3 HTTP statu → 23 words: Here's a table with three status codes: 200 means success, 404 means the resource wasn't found, and 500 means an internal server error.
+  ✓ ok → 11 words: Got it. Let me know what you'd like to do next.
+  ✓ Summarise everything we've done in this  → 40 words: We read the README, wrote a Swift reverse function, answered a math question, and listed CLI names. We also made a git haiku file, explained
+  ✓ Write a bash one-liner that counts lines → 29 words: Here's a one-liner that uses find to gather all markdown files and pipes them to word count for the total lines. A variant using wc directly
+  ✓ Is it safe to force-push to main? Short  → 29 words: Generally no. Force-pushing to main rewrites shared history and can wipe out other people's work. Only do it on a solo repo or in an emergen
+  ✓ Fix the typo in README.md if there is on → 12 words: I found no typos in the README, so I left it unchanged.
+spoken[sonnet]: present 15/15, last 15, multiple 0, with symbols 0, words median 23 max 40; turn latency median 2964 ms
+== spoken done in 55089 ms

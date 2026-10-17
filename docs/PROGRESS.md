@@ -7,13 +7,17 @@
 
 P0-01 done (2026-10-17): FTXUI v7.0.3 is a git submodule at `Vendor/FTXUI`; the bridge spike in
 `spikes/ftxui-bridge/` is a **go** ([FINDINGS](../spikes/ftxui-bridge/FINDINGS.md),
-[ADR 0001](decisions/0001-ftxui-objc-bridge.md)). No production code yet (no root `Package.swift`
-or Makefile until P1-01).
+[ADR 0001](decisions/0001-ftxui-objc-bridge.md)).
+P0-04 done (2026-10-17): Claude Code headless spike in `spikes/claude-code/` is a **go**;
+permissions use the in-band host control protocol, no MCP
+([FINDINGS](../spikes/claude-code/FINDINGS.md), [ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md)).
+Real transcripts in `spikes/claude-code/fixtures/` (also input for P0-05 summarisation).
+No production code yet (no root `Package.swift` or Makefile until P1-01).
 
 ## Next up
 
-**P0-04 — Claude Code headless integration spike**, then P0-05 (either order), then P0-06
-(non-voice synthesis, locks Phase 1). Voice spikes P0-02/P0-03 (+ P0-07 synthesis) are deferred
+**P0-05 — Foundation Models intent spike** (use P0-04 fixtures for the summarisation part), then
+P0-06 (non-voice synthesis, locks Phase 1; ADRs 0001/0002 to be reviewed there). Voice spikes P0-02/P0-03 (+ P0-07 synthesis) are deferred
 until after P1-11 because they need the user at the machine.
 
 ## Work package status
@@ -25,7 +29,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P0-01 | FTXUI + ObjC++ bridge build spike | done | Go. ADR 0001 |
 | P0-02 | Audio, permissions, recognition and synthesis spike | todo | Deferred to after P1-11 (user present) |
 | P0-03 | AirPods activation spike | todo | Deferred with P0-02 |
-| P0-04 | Claude Code headless integration spike | todo | |
+| P0-04 | Claude Code headless integration spike | done | Go. ADR 0002 |
 | P0-05 | Foundation Models intent spike | todo | |
 | P0-06 | Spike synthesis (non-voice) | todo | P0-01/04/05 only |
 | P0-07 | Voice spike synthesis | todo | After P0-02/03; gates P2-01 |
@@ -87,10 +91,34 @@ to one or two lines; move anything architectural into an ADR._
   off-screen rendering for tests.
 - Alt-digits need Option-as-Meta/Alt (off by default in Terminal.app and Ghostty); Ghostty sends
   CSI-u for Ctrl-I.
+- Spawning `claude` from a process started inside Claude Code inherits `CLAUDECODE`/
+  `CLAUDE_CODE_*` env vars → nested-session behaviour; strip them.
+- `claude -p` without `--permission-prompt-tool stdio` silently denies anything that would prompt.
+- Claude Code starts turns by itself when a backgrounded task finishes, and emits `system/init`
+  every turn; foreground `sleep N` in Bash is blocked (use python sleep in tests).
+- `initialize` response contains the account email — scrub fixtures before committing
+  (`cc-spike scrub`).
+- Swift 6: `await iterator.next()` on an iterator stored in a `@MainActor` class doesn't compile;
+  use a local copy with `next(isolation: #isolation)`.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P0-04
+- Built `spikes/claude-code/` (Swift: `ClaudeProcess` actor over stream-json pipes, `Session`
+  turn consumer, hand-rolled MCP stdio permission server + Unix socket, 8 scripted scenarios,
+  `catalog`/`scrub` tools). 15 scrubbed transcripts in `fixtures/`, reports in `results/`.
+- Results: go. Multi-turn and queued turns work (~0.9 s Haiku turn); permissions answered
+  in-band via `--permission-prompt-tool stdio` (`can_use_tool` control requests: allow, deny,
+  edited input, session rules) and via MCP; interrupt → result in 7–18 ms; resume incl. after
+  SIGKILL; `<spoken>` 45/45 across Haiku/Sonnet/Opus.
+- Decisions: [ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md) — host control
+  protocol instead of MCP for permissions; no MCP SDK dependency; richer `PermissionDecision`
+  (session-scoped "always" by default); continuous event stream incl. unsolicited turns; todos
+  from Task* tools. DESIGN §4.4/§8 and PLAN P1-09 + dependency table updated.
+- Follow-ups: P1-09 copies fixtures into test resources and pins a minimum Claude Code version;
+  P1-06 config option for loading the user's MCP servers; `vocoder doctor` reports CLI version.
 
 ### 2026-10-17 · P0-01
 - Added FTXUI v7.0.3 submodule at `Vendor/FTXUI`; built `spikes/ftxui-bridge/` (SwiftPM C++20

@@ -1,0 +1,18 @@
+== spoken (opus) 2026-10-17T02:24:40Z
+  ✓ What does README.md say? Read it. → 16 words: The README is very short. It's titled Spike repo and says the project codename is Bluebird.
+  ✓ Write a Swift function that reverses a s → 16 words: Here's a one-line Swift function that reverses a string. It handles emoji and accented characters correctly.
+  ✓ What's 17 times 23? → 7 words: Seventeen times twenty-three is three hundred ninety-one.
+  ✓ List three ideas for naming a CLI tool. → 17 words: Three ideas: chirp, nest, and perch. All are short, easy to type, and fit the Bluebird codename.
+  ✓ Create notes.txt containing a haiku abou → 20 words: I created the notes file with a haiku about branches drifting apart, merge conflicts blooming, and rebasing to start again.
+  ✓ Explain in detail the difference between → 39 words: A process is an isolated running program with its own memory. A thread is a path of execution inside a process that shares memory with its s
+  ✓ Run git log and tell me how many commits → 15 words: There's just one commit, called init. The notes file from earlier hasn't been committed yet.
+  ✓ Read the file does-not-exist.swift. → 14 words: That file doesn't exist. The repo only has the README and the notes file.
+  ✓ Refactor nothing; just say whether this  → 15 words: No, this repo has no tests. It only has the README and the notes file.
+  ✓ Give me a markdown table of 3 HTTP statu → 23 words: Two hundred means OK, the request worked. Four oh four means the resource wasn't found. Five hundred means something broke on the server.
+  ✓ ok → 8 words: Okay. Let me know what you'd like next.
+  ✓ Summarise everything we've done in this  → 34 words: We read the README, wrote a Swift reverse function, did some math, brainstormed CLI names, added a git haiku file, explained processes and t
+  ✓ Write a bash one-liner that counts lines → 25 words: Here's a one-liner that finds all markdown files and counts their lines with w c. It handles spaces in file names and prints a total.
+  ✓ Is it safe to force-push to main? Short  → 27 words: Usually not, because it rewrites history other people may depend on. If you have to, make sure nobody else uses the branch and use force wit
+  ✓ Fix the typo in README.md if there is on → 16 words: There's no typo in the README. Both lines are spelled correctly, so I didn't change anything.
+spoken[opus]: present 15/15, last 15, multiple 0, with symbols 0, words median 16 max 39; turn latency median 3558 ms
+== spoken done in 63748 ms

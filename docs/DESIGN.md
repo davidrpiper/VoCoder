@@ -304,20 +304,41 @@ protocol AgentBackend {
 }
 
 protocol AgentSession: AnyObject {
-    var events: AsyncStream<AgentEvent> { get }   // text, toolUse, toolResult, todos,
-                                                  // permissionRequest, spokenSummary, turnEnd, error
+    var events: AsyncStream<AgentEvent> { get }   // sessionStarted, status, text, textDelta,
+                                                  // toolUse, toolResult, todos, permissionRequest,
+                                                  // backgroundTask, usage, spokenSummary, turnEnd, error
     func send(_ prompt: String) async throws
     func respond(to request: PermissionRequest, _ decision: PermissionDecision) async throws
     func interrupt() async
 }
+
+// allowOnce · allowEdited(input) · allowForSession · allowAlways (repo settings, explicit only)
+// · deny(message)
+enum PermissionDecision { … }
 ```
 
 - **`ClaudeCodeBackend`** spawns
-  `claude -p --input-format stream-json --output-format stream-json --verbose` in the repo
-  directory, with `--append-system-prompt` (the `<spoken>` summary instruction) and
-  `--permission-prompt-tool` routed to a VoCoder-provided MCP tool, so permission requests arrive
-  as `AgentEvent.permissionRequest` and are answered by keyboard or voice. Sessions are resumable
-  (`--resume`). Uses the existing Claude Code login. **[spike]**
+  `claude -p --input-format stream-json --output-format stream-json --verbose
+  --permission-prompt-tool stdio --permission-mode manual --tools <explicit list>` in the repo
+  directory, with `--append-system-prompt` (the `<spoken>` summary instruction). Uses the existing
+  Claude Code login. Validated by P0-04 ([ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md);
+  event schema in `spikes/claude-code/FINDINGS.md`).
+  - **Permissions** arrive in-band as `can_use_tool` control requests on stdout (tool, input,
+    description, suggested rules, blocked path) and are answered on stdin. Each becomes
+    `AgentEvent.permissionRequest` and is answered by keyboard or voice. "Always allow" defaults to
+    a session-scoped rule; persisting to the repo's `.claude/settings.local.json` is an explicit
+    choice. No MCP server is involved.
+  - **Interrupt** is a control request (`interrupt`); the turn ends with an aborted `result` and the
+    process stays alive. **Resume**: `--resume <session-id>`, persisted per repo tab.
+  - **The event stream is continuous.** Claude Code starts turns on its own (e.g. when a background
+    task finishes) and re-emits `system/init` every turn. Turns sent while one is running are
+    queued.
+  - **Todos** come from the `TaskCreate`/`TaskUpdate` tools (enabled via `--tools`; there is no
+    `TodoWrite` headless).
+  - **Spawn hygiene:** strip inherited `CLAUDECODE`/`CLAUDE_CODE_*`/`CLAUDE_PID`/`AI_AGENT` env
+    vars; drain stderr to the log; fail pending control requests when stdout closes; require a
+    minimum Claude Code version (from `init`). Loading the user's own MCP servers
+    (`--strict-mcp-config` or not) is a config option.
 - **Stubs**: `CodexBackend`, `GeminiBackend` conform to the protocol and throw
   `AgentError.notImplemented`, keeping the abstraction honest.
 - One `AgentSession` per repo tab initially; multiple sessions per repo later.
@@ -530,7 +551,7 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
 | 2 | Are TCC permissions + embedded Info.plist sufficient for Speech/EventKit from a CLI? | Spike (b) |
 | 3 | AEC quality for barge-in with AirPods and built-in speakers | Spike (b) |
 | 4 | Recognition and intent latency targets: <300 ms grammar, <1 s intent | Spikes (b), (e) |
-| 5 | Permission prompt round-trip via `--permission-prompt-tool` in stream-json mode | Spike (d) |
+| 5 | Permission prompt round-trip via `--permission-prompt-tool` in stream-json mode | ✅ Resolved: in-band host control protocol, no MCP ([ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md)) |
 | 6 | Building FTXUI as a SwiftPM C++ target cleanly (no CMake) | ✅ Resolved: works, no `unsafeFlags` ([ADR 0001](decisions/0001-ftxui-objc-bridge.md)) |
 | 7 | Music playback vs. play/pause activation conflict | Spike (c); config option |
 | 8 | HFP audio quality drop while listening on AirPods | Accept for PTT; built-in-mic option |

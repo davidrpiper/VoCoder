@@ -1,0 +1,4 @@
+== partial (haiku) 2026-10-17T02:23:54Z
+stream_event kinds: [(key: "content_block_delta/input_json_delta", value: 13), (key: "content_block_delta/text_delta", value: 2), (key: "content_block_start", value: 2), (key: "content_block_stop", value: 2), (key: "message_delta", value: 2), (key: "message_start", value: 2), (key: "message_stop", value: 2)]
+first text 2617 ms (full assistant message), result 2634 ms; reply: The project codename is BLUEBIRD.
+== partial done in 4183 ms

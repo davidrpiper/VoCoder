@@ -1,0 +1,35 @@
+== permission-host (haiku) 2026-10-17T02:17:10Z
+  [allow] can_use_tool Bash input={"command":"echo approved > a.txt","description":"Write \"approved\" into a.txt"} → allow (tool_result +89 ms)
+    request keys: ["blocked_path", "description", "display_name", "input", "permission_suggestions", "subtype", "tool_name", "tool_use_id"]
+  [allow] tools: ["Bash(echo approved > a.txt)"] results: ["ok: (Bash completed with no output)"]
+  [allow] reply: I ran `echo approved > a.txt` in the working directory. It completed with no output, as expected. I didn't read the file back to confirm its contents. (2502 ms) permission_denials: []
+  a.txt = approved ⏎ 
+  [deny] can_use_tool Bash input={"command":"rm README.md","description":"Delete README.md"} → deny (tool_result +4 ms)
+    request keys: ["blocked_path", "description", "display_name", "input", "permission_suggestions", "subtype", "tool_name", "tool_use_id"]
+  [deny] tools: ["Bash(ls -l README.md && head -n 20 README.md)", "Bash(rm README.md)"] results: ["ok: -rw-r--r--@ 1 user  wheel  48 17 Oct 12:47 README.md\n# Spike repo\n\nThe project codename is BLUEBIRD.", "ERR: The user declined this from VoCoder."]
+  [deny] reply: The `rm README.md` command was declined ("The user declined this from VoCoder"), so I didn't retry or work around it. README.md is still there. Before the refusal I checked it: it's 48 bytes and contains "# Spike repo" a (6309 ms) permission_denials: [{"tool_input":{"command":"rm README.md","description":"Delete README.md"},"tool_name":"Bash","tool_use_id":"toolu_01RTTm5zejYFpR6XNhkZCbnC"}]
+  README.md exists: true
+  [modify] can_use_tool Write input={"content":"original","file_path":"/private/tmp/claude-501/-Users-user-projects-VoCoder/3a2c08d4-9431-4d05-ab04-315af04 → allow (tool_result +9 ms)
+    request keys: ["description", "display_name", "input", "permission_suggestions", "subtype", "tool_name", "tool_use_id"]
+  [modify] tools: ["Write(/REPO/permission-host/b.txt)"] results: ["ok: File created successfully at: /private/tmp/claude-501/-Users-user-projects-VoCoder/3a2c08d4-9431-4d05-ab04-315af041d842"]
+  [modify] reply: I created `b.txt` in the working directory with the content `original`. (2085 ms) permission_denials: []
+  b.txt = modified by VoCoder ⏎ 
+  [always] can_use_tool Bash input={"command":"echo one > c.txt","description":"Write \"one\" into c.txt"} → allow (tool_result +29 ms)
+    request keys: ["blocked_path", "description", "display_name", "input", "permission_suggestions", "subtype", "tool_name", "tool_use_id"]
+  [always] tools: ["Bash(echo one > c.txt)"] results: ["ok: (Bash completed with no output)"]
+  [always] reply: I ran `echo one > c.txt`, and it completed with no output. I didn't read the file back to confirm its contents. (2124 ms) permission_denials: []
+  [always-repeat] can_use_tool Bash input={"command":"echo one > c.txt","description":"Write \"one\" into c.txt again"} → deny (tool_result +2 ms)
+    request keys: ["blocked_path", "description", "display_name", "input", "permission_suggestions", "subtype", "tool_name", "tool_use_id"]
+  [always-repeat] tools: ["Bash(echo one > c.txt)"] results: ["ERR: should not have been asked"]
+  [always-repeat] reply: The command `echo one > c.txt` failed with the error "should not have been asked." I haven't retried or worked around it. The first run of the same command completed, so `c.txt` should already contain `one`, but I haven' (2932 ms) permission_denials: [{"tool_input":{"command":"echo one > c.txt","description":"Write \"one\" into c.txt again"},"tool_name":"Bash","tool_use_id":"toolu_01NdazC3sVxAAPiLF7zu8TcL"}]
+  prompts on repeat: 1
+  settings.local.json: { ⏎   "permissions": { ⏎     "allow": [ ⏎       "Bash(echo one *)" ⏎     ] ⏎   } ⏎ } ⏎ 
+  [session] can_use_tool Bash input={"command":"touch d.txt","description":"Create empty d.txt"} → allow (tool_result +25 ms)
+    request keys: ["blocked_path", "description", "display_name", "input", "permission_suggestions", "subtype", "tool_name", "tool_use_id"]
+  [session] tools: ["Bash(touch d.txt)"] results: ["ok: (Bash completed with no output)"]
+  [session] reply: I ran `touch d.txt`, and it completed with no output. The file should now exist and be empty, but I haven't checked it. (2372 ms) permission_denials: []
+  [session-repeat] tools: ["Bash(touch d.txt)"] results: ["ok: (Bash completed with no output)"]
+  [session-repeat] reply: I ran `touch d.txt` a second time, and it completed with no output. `touch` only updates the file's timestamp when the file already exists, so `d.txt` is still empty. (2632 ms) permission_denials: []
+  prompts on repeat: 0; settings file written: false
+exit 0
+== permission-host done in 22183 ms

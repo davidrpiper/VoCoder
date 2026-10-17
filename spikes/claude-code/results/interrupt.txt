@@ -1,0 +1,7 @@
+== interrupt (haiku) 2026-10-17T02:23:38Z
+tool interrupt: response {"request_id":"vc-2","response":{"still_queued":[]},"subtype":"success"}; result subtype=error_during_execution is_error=bool(true) terminal_reason=string("aborted_tools") stop_reason=string("tool_use"); interrupt→result 18 ms; tool results ["ERR: The user doesn\'t want to proceed with this tool use. The tool use was rejected (eg. if it was a file edit, the new_strin"]
+text interrupt: after 10 deltas total; result subtype=error_during_execution is_error=bool(true) terminal_reason=string("aborted_streaming"); interrupt→result 7 ms; text chars in assistant messages 62
+after interrupts: 'still here' (1326 ms)
+idle interrupt response: {"request_id":"vc-4","response":{"still_queued":[]},"subtype":"success"}
+SIGINT mid-turn: exit status 0 after 550 ms
+== interrupt done in 10100 ms

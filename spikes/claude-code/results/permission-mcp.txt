@@ -1,0 +1,9 @@
+== permission-mcp (haiku) 2026-10-17T02:17:38Z
+  [allow] mcp args keys=["input", "tool_name", "tool_use_id"] tool=Bash → allow
+  [allow] tools: ["Bash(echo via-mcp > a.txt)"] results: ["ok: (Bash completed with no output)"] reply: I ran `echo via-mcp > a.txt` as requested. It completed with no output, which is expected because the output was redirected into `a.txt` in the working director (3577 ms)
+  [deny] mcp args keys=["input", "tool_name", "tool_use_id"] tool=Bash → deny
+  [deny] tools: ["Bash(ls -la README.md && git ls-files --error-unmatch README.md)", "Bash(rm README.md)"] results: ["ok: -rw-r--r--@ 1 user  wheel  48 17 Oct 12:47 README.md\nREADME.md", "ERR: Declined via MCP."] reply: The `rm README.md` command was declined ("Declined via MCP"), so I did not retry it. `README.md` is still there. It's a tracked file, 48 bytes, and I checked it (4849 ms)
+  a.txt = via-mcp ⏎ , README exists: true
+  host can_use_tool requests seen (should be 0): 0; startup 9033 ms total
+exit 0
+== permission-mcp done in 9709 ms

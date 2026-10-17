@@ -1,0 +1,6 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"Reply with exactly: one","role":"user"},"type":"user"}
+{"message":{"content":"What did you reply last time? One word.","role":"user"},"type":"user"}
+{"message":{"content":"Reply with exactly: three","role":"user"},"type":"user"}
+{"message":{"content":"Reply with exactly: alpha","role":"user"},"type":"user"}
+{"message":{"content":"Reply with exactly: beta","role":"user"},"type":"user"}

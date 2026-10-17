@@ -276,8 +276,11 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Goal:** `AgentBackend`/`AgentSession` protocols and the Claude Code implementation.
 - **Scope:** protocols + `AgentEvent` model (per P0-04 schema); `ClaudeCodeBackend` process
   management (spawn, stdin/stdout streaming, stderr to log, termination, crash restart);
-  stream-json parser tested against spike fixtures; permission MCP bridge (subcommand mode +
-  Unix socket, per P0-04); resume/session persistence; interrupt; `<spoken>` extraction;
+  stream-json parser tested against spike fixtures (`spikes/claude-code/fixtures`, copied into
+  test resources); permissions via the in-band `can_use_tool` control protocol (no MCP, per
+  ADR 0002) incl. session-scoped "always allow"; env stripping; minimum Claude Code version check;
+  unsolicited turns (background tasks); todos from Task* tools; resume/session persistence;
+  interrupt; `<spoken>` extraction;
   `CodexBackend`/`GeminiBackend` stubs; fake backend scripting events for UI tests; contract
   test suite.
 - **Acceptance:** fixture replays produce expected event sequences; live smoke test (manual,
@@ -522,7 +525,7 @@ To be confirmed in P0-06; recorded as ADRs.
 | TUI rendering | FTXUI (vendored submodule) | Decided |
 | CLI parsing | swift-argument-parser | Likely |
 | TOML | a pure-Swift TOML library vs. a small hand-written parser | Decide in P0-06 (avoid anything needing C++ interop) |
-| MCP server (permission tool) | official Swift MCP SDK vs. minimal hand-rolled JSON-RPC | Decide from P0-04 |
+| MCP server (permission tool) | official Swift MCP SDK vs. minimal hand-rolled JSON-RPC | Decided: none needed — host control protocol ([ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md)) |
 | GraphQL (Linear) | hand-written queries over URLSession | Likely (no codegen) |
 | Snapshot testing | custom helper (render-to-string) | Likely |
 | Logging | `os.Logger` + small file sink | Likely |

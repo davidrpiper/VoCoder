@@ -1,0 +1,7 @@
+== resume (haiku) 2026-10-17T02:20:02Z
+first session 85aaf1dc-4545-486f-b5b3-8b5e690a8e47, exit 0
+resumed: init session_id 85aaf1dc-4545-486f-b5b3-8b5e690a8e47 (same: true); reply 'PINEAPPLE-42' ok=true; start→result 1833 ms
+result session_id 85aaf1dc-4545-486f-b5b3-8b5e690a8e47
+after SIGKILL mid-turn: reply 'MANGO-7' ok=true
+unknown id: result=<none> exit=1 stderr=No conversation found with session ID: d2b51441-1ce3-4abd-90d0-9d9ea1f836a7 ⏎ 
+== resume done in 16676 ms

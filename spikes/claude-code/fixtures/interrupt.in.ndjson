@@ -1,0 +1,9 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"Use the Bash tool (foreground, not background) to run exactly: python3 -c 'import time; time.sleep(30); print(\"finished\")'","role":"user"},"type":"user"}
+{"response":{"request_id":"cb95634d-f62e-491c-8ddd-981a7f541110","response":{"behavior":"allow","updatedInput":{"command":"python3 -c 'import time; time.sleep(30); print(\"finished\")'","description":"Sleep 30 seconds then print finished","run_in_background":false}},"subtype":"success"},"type":"control_response"}
+{"request":{"subtype":"interrupt"},"request_id":"vc-2","type":"control_request"}
+{"message":{"content":"Write a 500 word story about a lighthouse. No tools.","role":"user"},"type":"user"}
+{"request":{"subtype":"interrupt"},"request_id":"vc-3","type":"control_request"}
+{"message":{"content":"Reply with exactly: still here","role":"user"},"type":"user"}
+{"request":{"subtype":"interrupt"},"request_id":"vc-4","type":"control_request"}
+{"message":{"content":"Write a 500 word story about a fox. No tools.","role":"user"},"type":"user"}
