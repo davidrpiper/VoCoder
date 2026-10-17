@@ -7,7 +7,7 @@ struct VoCoderCommand: ParsableCommand {
     commandName: "vocoder",
     abstract: "Voice-first TUI workspace.",
     version: BuildInfo.fromMainBundle()?.displayString ?? "unknown (no embedded Info.plist)",
-    subcommands: [BridgeDemoCommand.self]
+    subcommands: [BridgeDemoCommand.self, UIGalleryCommand.self]
   )
 
   func run() throws {

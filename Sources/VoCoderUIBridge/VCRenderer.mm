@@ -35,6 +35,46 @@ int FitHeight(ftxui::Element &el, int width) {
   return std::max(1, height);
 }
 
+ftxui::Terminal::Color ToFTXUI(VCColorDepth depth) {
+  switch (depth) {
+    case VCColorDepthMonochrome: return ftxui::Terminal::Palette1;
+    case VCColorDepthPalette16: return ftxui::Terminal::Palette16;
+    case VCColorDepthPalette256: return ftxui::Terminal::Palette256;
+    case VCColorDepthTrueColor: return ftxui::Terminal::TrueColor;
+  }
+  return ftxui::Terminal::TrueColor;
+}
+
+VCColorDepth FromFTXUI(ftxui::Terminal::Color color) {
+  switch (color) {
+    case ftxui::Terminal::Palette1: return VCColorDepthMonochrome;
+    case ftxui::Terminal::Palette16: return VCColorDepthPalette16;
+    case ftxui::Terminal::Palette256: return VCColorDepthPalette256;
+    case ftxui::Terminal::TrueColor: return VCColorDepthTrueColor;
+  }
+  return VCColorDepthTrueColor;
+}
+
+// Plain text of `screen`: trailing spaces trimmed, one "\n" per row.
+NSString *VCPlainText(ftxui::Screen &screen) {
+  std::string out;
+  for (int y = 0; y < screen.dimy(); ++y) {
+    std::string line;
+    // Mirrors Screen::ToString: empty cells are spaces; the cell after a full-width glyph is
+    // skipped.
+    bool previousFullwidth = false;
+    for (int x = 0; x < screen.dimx(); ++x) {
+      const std::string &c = screen.CellAt(x, y).character;
+      if (!previousFullwidth) line += c.empty() ? std::string(" ") : c;
+      previousFullwidth = c.size() > 1 && ftxui::string_width(c) == 2;
+    }
+    while (!line.empty() && line.back() == ' ') line.pop_back();
+    out += line;
+    out += '\n';
+  }
+  return VCToNS(out);
+}
+
 }  // namespace
 
 namespace {
@@ -108,6 +148,16 @@ std::mutex gColorPinMutex;
 
 - (NSUInteger)framesDrawn {
   return _state->framesDrawn.load();
+}
+
++ (VCColorDepth)colorDepth {
+  std::lock_guard<std::mutex> pin(gColorPinMutex);
+  return FromFTXUI(ftxui::Terminal::ColorSupport());
+}
+
++ (void)setColorDepth:(VCColorDepth)colorDepth {
+  std::lock_guard<std::mutex> pin(gColorPinMutex);
+  ftxui::Terminal::SetColorSupport(ToFTXUI(colorDepth));
 }
 
 // MARK: Tree
@@ -256,38 +306,34 @@ std::mutex gColorPinMutex;
 
 - (NSString *)renderToStringWidth:(NSInteger)width height:(NSInteger)height ansi:(BOOL)ansi {
   // Pin true colour for ANSI output so snapshots don't depend on the environment ($COLORTERM,
-  // no tty). FTXUI applies colour support while building, so pin around the whole render.
-  std::unique_lock<std::mutex> pin(gColorPinMutex, std::defer_lock);
-  if (ansi) pin.lock();
+  // no tty).
+  if (ansi) return [self renderToStringWidth:width height:height colorDepth:VCColorDepthTrueColor];
+  ftxui::Screen screen = [self renderScreenWidth:width height:height];
+  return VCPlainText(screen);
+}
+
+- (NSString *)renderToStringWidth:(NSInteger)width
+                           height:(NSInteger)height
+                       colorDepth:(VCColorDepth)depth {
+  // FTXUI applies colour support while building, so pin it around the whole render.
+  std::lock_guard<std::mutex> pin(gColorPinMutex);
   auto support = ftxui::Terminal::ColorSupport();
-  if (ansi) ftxui::Terminal::SetColorSupport(ftxui::Terminal::TrueColor);
+  ftxui::Terminal::SetColorSupport(ToFTXUI(depth));
+  ftxui::Screen screen = [self renderScreenWidth:width height:height];
+  NSString *out = VCToNS(screen.ToString());
+  ftxui::Terminal::SetColorSupport(support);
+  return out;
+}
+
+- (ftxui::Screen)renderScreenWidth:(NSInteger)width height:(NSInteger)height {
   ftxui::Element el = _root->BuildTree();
   int w = int(std::max<NSInteger>(1, width));
   int h = height > 0 ? int(height) : FitHeight(el, w);
   auto screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(w), ftxui::Dimension::Fixed(h));
   ftxui::Render(screen, el);
-  if (ansi) {
-    NSString *out = VCToNS(screen.ToString());
-    ftxui::Terminal::SetColorSupport(support);
-    return out;
-  }
-  std::string out;
-  for (int y = 0; y < screen.dimy(); ++y) {
-    std::string line;
-    // Mirrors Screen::ToString: empty cells are spaces; the cell after a full-width glyph is
-    // skipped.
-    bool previousFullwidth = false;
-    for (int x = 0; x < screen.dimx(); ++x) {
-      const std::string &c = screen.CellAt(x, y).character;
-      if (!previousFullwidth) line += c.empty() ? std::string(" ") : c;
-      previousFullwidth = c.size() > 1 && ftxui::string_width(c) == 2;
-    }
-    while (!line.empty() && line.back() == ' ') line.pop_back();
-    out += line;
-    out += '\n';
-  }
-  return VCToNS(out);
+  return screen;
 }
+
 
 - (void)injectInput:(NSString *)input {
   std::vector<ftxui::Event> events;

@@ -56,6 +56,8 @@ let package = Package(
     .target(name: "VoCoderUI", dependencies: ["VoCoderCore", "VoCoderUIBridge"]),
     .target(name: "VoCoderVoice", dependencies: ["VoCoderCore"]),
     .target(name: "VoCoderTestSupport", dependencies: ["VoCoderCore"]),
+    // Snapshot helper for view tests; separate so Core tests don't link FTXUI.
+    .target(name: "VoCoderUITestSupport", dependencies: ["VoCoderUI", "VoCoderUIBridge"]),
 
     // Modules (DESIGN §4.10): depend on Core (and UI for tabs), never on each other.
     .target(name: "GitModule", dependencies: ["VoCoderCore"], path: "Sources/Modules/GitModule"),
@@ -98,7 +100,11 @@ let package = Package(
 
     .testTarget(name: "VoCoderCoreTests", dependencies: ["VoCoderCore", "VoCoderTestSupport"]),
     .testTarget(name: "VoCoderUIBridgeTests", dependencies: ["VoCoderUIBridge"]),
-    .testTarget(name: "VoCoderUITests", dependencies: ["VoCoderUI", "VoCoderUIBridge"]),
+    .testTarget(
+      name: "VoCoderUITests",
+      dependencies: ["VoCoderUI", "VoCoderUIBridge", "VoCoderUITestSupport"],
+      exclude: ["__Snapshots__"]
+    ),
     .testTarget(name: "VoCoderVoiceTests", dependencies: ["VoCoderVoice"]),
   ],
   cxxLanguageStandard: .cxx20

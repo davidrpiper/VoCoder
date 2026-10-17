@@ -122,6 +122,12 @@ NS_SWIFT_SENDABLE
 - (VCNode *)bordered;
 - (VCNode *)borderedWithStyle:(VCBorderStyle)style title:(nullable NSString *)title
     NS_SWIFT_NAME(bordered(style:title:));
+/// A border (and title) drawn in `color`; the content's colours are untouched. A nil `color`
+/// is the same as `bordered(style:title:)`.
+- (VCNode *)borderedWithStyle:(VCBorderStyle)style
+                        title:(nullable NSString *)title
+                        color:(nullable VCColor *)color
+    NS_SWIFT_NAME(bordered(style:title:color:));
 /// Marks this node as the one an enclosing scroll frame keeps visible (e.g. a selected row).
 - (VCNode *)focusMarker;
 

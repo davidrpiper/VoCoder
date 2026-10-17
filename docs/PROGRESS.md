@@ -31,15 +31,23 @@ input/menu/scroll frame, `runSuspended:` pop-out, off-screen render, testing-onl
 `injectInput:`, SIGTRAP terminal restore). 45 bridge tests in `VoCoderUIBridgeTests`; hidden
 `vocoder bridge-demo` + `make pty-test` (11 pty checks incl. on-screen == off-screen). The app
 itself still has no TUI (`vocoder` prints a placeholder line) until P1-07.
+P1-03 done (2026-10-17): `VoCoderUI` view DSL (`View` + `@ViewBuilder`, built-in views and
+modifiers, `@Observable`-driven `UIHost`), themes (dark/light, `auto`), focus tree +
+`FocusManager`, `UIAction` responder chain with a temporary key map, `ListView`/`TableView`/
+`ScrollView`/`TextField`, `VoCoderUITestSupport.assertSnapshot`, hidden `vocoder ui-gallery`
+([ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)). Markdown renderer split off as
+P1-03b.
 
 ## Next up
 
-**P1-03 — Swift UI DSL, focus and snapshot testing** (`VoCoderUI`; builds on `VCNode` and
-`renderToString`, which fits content when `height` <= 0 and renders ANSI with true colour).
-P1-04 can run in parallel. Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11
-(user confirmed 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to
-change (helper-app risk). Optional: user eyeball check of `make run ARGS=bridge-demo` in
-Terminal.app and Ghostty (pty tests cover behaviour, not real-terminal quirks).
+**P1-04 — Core architecture and module system** (`VoCoderCore`). P1-03b (markdown-lite renderer +
+bridge `flow` node) is independent and can be done before or after; it is needed by P1-10.
+P1-05 replaces the temporary `KeyMap.defaultBindings` with commands (see the PLAN note).
+Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed
+2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to change
+(helper-app risk). Optional user eyeball checks: `make run ARGS=bridge-demo` and
+`make run ARGS=ui-gallery` in Terminal.app and Ghostty (`t` toggles theme, `c` cycles colour
+depth; pty tests cover behaviour, not real-terminal looks).
 
 ## Work package status
 
@@ -56,7 +64,8 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P0-07 | Voice spike synthesis | todo | After P0-02/03; gates P2-01 |
 | P1-01 | Package scaffold and tooling | done | `unsafeFlags` only on the executable (plist) |
 | P1-02 | UI bridge | done | `make pty-test`; manual terminal check optional |
-| P1-03 | Swift UI DSL, focus and snapshot testing | todo | |
+| P1-03 | Swift UI DSL, focus and snapshot testing | done | ADR 0005; markdown → P1-03b |
+| P1-03b | Markdown-lite renderer | todo | Split from P1-03; adds bridge `flow` node |
 | P1-04 | Core architecture and module system | todo | |
 | P1-05 | Command system, keymap, leader key, palette | todo | |
 | P1-06 | Config, secrets and CLI | todo | |
@@ -143,12 +152,46 @@ to one or two lines; move anything architectural into an ADR._
 - FTXUI's input parser reports 1-based mouse coordinates; `App` subtracts the origin.
   `injectInput:` does the same off-loop.
 - Swift: `"\r\n"` is a single `Character`, so `prefix { $0 != "\r" }` never stops.
+- FTXUI `size(…, EQUAL/LESS_THAN, n)` clips its child's box to n+2 cells, not n: it can't
+  confine a decorator's paint area. Use a `vbox`/`hbox` with a filler instead.
+- FTXUI `color(Color::Default)` is transparent (alpha 0) and blends, so it can't reset an outer
+  colour; colour decorators paint their whole box before drawing the child.
+- `@ViewBuilder` bodies: a primitive's `body: Never` needs an explicit `return fatalError()`,
+  or the builder transform applies; the builder enum must be `@MainActor`.
+- `withObservationTracking`'s `onChange` fires synchronously in `willSet` on the mutating
+  thread; the host invalidates directly when that is the main thread (tests rely on it).
 - pty test teardown must kill the wrapper's whole process group (`killpg`): killing only the
   `sh` wrapper orphans the demo, which never gets SIGHUP because the test still holds the pty.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-03
+- Split at plan time (user): markdown-lite renderer → new P1-03b. Decisions (user): temporary
+  default key map replaced by commands in P1-05; new `VoCoderUITestSupport` target; theme
+  default `auto`; hidden `vocoder ui-gallery`.
+- `VoCoderUI`: `View`/`ViewBuilder`/`ViewGroup`, `RenderContext`/`ContextReader`; views `Text`,
+  `Paragraph`, `VStack`/`HStack`/`ZStack`, `Spacer`, `Divider`, `Gauge`, `Spinner`, `TabBar`,
+  `Grid`, `TextField`, `ScrollView` (+`ScrollState`), `ListView` (+`ListState`), `TableView`;
+  modifiers (style, colours, border with title/colour, frame, flex, centred, `keepVisible`);
+  `Theme`/`ThemeRole`/`Appearance`; `FocusID`, `FocusTree`, `FocusManager` (nearest-survivor
+  fallback, scope memory, trap scopes with return, deferred focus), `Focusable`, `focusScope`;
+  `UIAction` + `KeyMap.defaultBindings`; `UIHost` (observation-driven coalesced renders, event
+  routing, immediate widget-focus sync).
+- Bridge: `bordered(style:title:color:)` (colours frame and title only), `VCRenderer.colorDepth`
+  (class property) and `renderToString(width:height:colorDepth:)`; 2 new bridge tests.
+- `vocoder`: `TerminalRunLoop` (signals + run loop) extracted from `bridge-demo`, used by both;
+  `ui-gallery` (pages Theme/List/Table/Form/Layout; `t` theme, `c` colour depth, F1–F5 pages).
+- Tests: 41 UI tests (DSL, theme incl. 256-colour distinctness, focus, key routing via
+  `injectInput:`, lists/tables/scroll, host observation, snapshot helper) with 14 goldens.
+- Docs: [ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md); DESIGN §4.1/§4.2/§6;
+  PLAN P1-03 notes, new P1-03b, P1-05/P1-06/P1-07 notes.
+- Verified: clean build 0 warnings, `make lint` clean, `make test` (all runs pass),
+  `make pty-test` 11/11 (after the run-loop extraction), gallery smoke-tested in a pty (pages,
+  activation, form submit, theme/colour toggles, quit). Not done: eyeballing the gallery in
+  Terminal.app/Ghostty (optional).
+- Next: P1-04 (P1-03b any time before P1-10).
 
 ### 2026-10-17 · P1-02
 - Bridge split into `VCColor`/`VCNode`/`VCEvent`/`VCKeyDecoder`/`VCRenderer` `.mm` files plus

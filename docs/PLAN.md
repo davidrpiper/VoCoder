@@ -55,6 +55,7 @@ P0-06 ─ P1-01 ─┬─ P1-02 ─ P1-03 ─┬─ P1-07 ─ P1-10 ─ P1-11
                ├─ P1-06 ─────────────────────┤
                ├─ P1-08 ─────────────────────┤
                └─ P1-09 ─────────────────────┘
+P1-03 ─ P1-03b ─ P1-10 (markdown renderer; parallel with P1-04…P1-07)
 P1-11 ─ P0-02 ─ P0-03 ─ P0-07 (voice spikes, deferred; need the user present)
 P0-07 ─ P2-01 ─ P2-02 ─┬─ P2-05 ─ P2-06 ─ P2-07 ─ P2-08 ─ P2-09
         P2-03 ─────────┤
@@ -214,12 +215,27 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Goal:** Ergonomic Swift way to build views, plus focus management and test harness.
 - **Scope:** `View` protocol + result builder producing nodes; theme/styles (light/dark,
   semantic colours, degrade to 256 colours); focus tree with stable `FocusID`s, focus traversal,
-  focus-scoped key handling; list/table views with selection; markdown-lite text renderer
-  (headings, code blocks, lists, emphasis) for agent output and docs; snapshot test helper
-  (`assertSnapshot(view, size:)`, golden files under `Tests/__Snapshots__`,
-  `make snapshot-update`).
+  focus-scoped key handling; list/table views with selection; snapshot test helper
+  (`assertSnapshot(view, size:)`, golden files in `Tests/<target>/__Snapshots__`,
+  `make snapshot-update`); hidden `vocoder ui-gallery` for checking themes in real terminals.
 - **Acceptance:** sample views snapshot-tested; focus traversal unit-tested.
 - **Design refs:** §2.2, §4.2.
+- **Notes:** split at the start (user, 2026-10-17): the markdown-lite renderer moved to P1-03b.
+  Key handling is a responder chain of generic `UIAction`s with a temporary default key map
+  that P1-05 replaces ([ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)).
+
+### P1-03b — Markdown-lite renderer (`VoCoderUI`)
+- **Depends on:** P1-03
+- **Goal:** Render agent output and docs readably.
+- **Scope:** markdown-lite → views: headings, fenced code blocks (code background, no wrap),
+  bulleted/numbered lists (nested), block quotes, rules, inline `**bold**`, `*italic*`,
+  `` `code` ``, links shown as text. Styled inline text must still wrap, which the bridge can't
+  do yet (`paragraph` takes plain text): add a `flow` node (FTXUI `hflow`) to the bridge, with
+  bridge tests, and split text into styled words in Swift. Hand-written parser (ADR 0004).
+- **Acceptance:** snapshot tests for each construct at two widths and both themes; wrapping of
+  styled text; malformed input (unclosed fences/emphasis) renders as text, never crashes.
+- **Design refs:** §3.2 (agent output, docs), §4.2.
+- **Notes:** needed by P1-10 (agent conversation) and P5-02; can run in parallel with P1-04.
 
 ### P1-04 — Core architecture and module system (`VoCoderCore`)
 - **Depends on:** P1-01
@@ -248,6 +264,11 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Acceptance:** every built-in navigation action is a command; palette and leader find it;
   unit tests for keymap resolution and fuzzy ranking; snapshot tests for popups.
 - **Design refs:** §2.1, §3.3.
+- **Notes:** P1-03 left a temporary `KeyMap.defaultBindings` (key → `UIAction`) in `UIHost`;
+  replace it with commands (`list.next`, `list.pageDown`, `focus.next`, `ui.activate`,
+  `ui.cancel`, …) that call `UIHost.perform(_:)`, and hook the keymap in at
+  `UIHost.onUnhandledKey` / key handling ([ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)).
+  Leaving a text field (it consumes printable keys) needs a command bound to Esc or the leader.
 
 ### P1-06 — Config, secrets and CLI
 - **Depends on:** P1-04
@@ -266,6 +287,8 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Acceptance:** invalid config produces actionable errors before the TUI starts; secrets never
   appear in logs; `vocoder doctor` reports each check with a fix hint.
 - **Design refs:** §4.9.
+- **Notes:** add a `theme = "auto" | "dark" | "light"` option (P1-03 defaults to `auto`:
+  `Theme.automatic()` follows the macOS appearance).
 
 ### P1-07 — App chrome
 - **Depends on:** P1-03, P1-05
@@ -277,8 +300,9 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Acceptance:** snapshot tests at 80×24, 120×40, 200×60; tab switching via keys and palette.
 - **Design refs:** §3.1.
 - **Notes:** the run loop, signal handling (incl. ignoring SIGINT while popped out) and the
-  pop-out spawn helper exist in `Sources/vocoder/BridgeDemo.swift` (P1-02); move them into the
-  app proper here. Keep `bridge-demo` while `make pty-test` uses it, or port the pty test to the
+  pop-out spawn helper exist in `Sources/vocoder/` (`TerminalRunLoop`, shared by `bridge-demo`
+  and `ui-gallery` since P1-03; spawn helper in `BridgeDemo.swift`); move them into the app
+  proper here. Panels use `ContextReader` + `containsFocus` for focus borders (see the gallery). Keep `bridge-demo` while `make pty-test` uses it, or port the pty test to the
   real app and delete the demo.
 
 ### P1-08 — Git module

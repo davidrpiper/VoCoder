@@ -108,6 +108,42 @@ import VoCoderUIBridge
     #expect(ansi.contains("[1m") && ansi.contains("[4m"))
   }
 
+  @Test func coloredBorderLeavesContentDefault() {
+    let renderer = VCRenderer()
+    renderer.setRoot(
+      .hbox([
+        VCNode.text("x").bordered(style: .rounded, title: "T", color: .named(.red)),
+        VCNode.text("y").foreground(.named(.green)).bordered(
+          style: .light, title: nil, color: .named(.blue)),
+      ]))
+    #expect(
+      renderer.renderToString(width: 6, height: 3, ansi: false)
+        == lines("╭T╮┌─┐", "│x││y│", "╰─╯└─┘"))
+    let rows = renderer.renderToString(width: 6, height: 3, ansi: true).split(separator: "\r\n")
+    #expect(rows[0].contains("[31m") && rows[0].contains("[34m"))
+    // Middle row: the border colour stops before the content; content keeps its own colour.
+    #expect(rows[1].contains("│\u{1B}[39m\u{1B}[49mx") && rows[1].contains("[32m\u{1B}[49my"))
+    let long = VCRenderer()
+    long.setRoot(VCNode.text("x").bordered(style: .light, title: "Long title", color: .named(.red)))
+    #expect(
+      long.renderToString(width: 6, height: 3, ansi: false) == lines("┌Long┐", "│x   │", "└────┘"))
+  }
+
+  @Test func colorDepthDegradesColors() {
+    let renderer = VCRenderer()
+    renderer.setRoot(VCNode.text("a").foreground(.rgb(255, 135, 0)))
+    let truecolor = renderer.renderToString(width: 1, height: 1, colorDepth: .trueColor)
+    let palette256 = renderer.renderToString(width: 1, height: 1, colorDepth: .palette256)
+    let palette16 = renderer.renderToString(width: 1, height: 1, colorDepth: .palette16)
+    #expect(truecolor.contains("[38;2;255;135;0m"))
+    #expect(palette256.contains("[38;5;208m"))
+    #expect(!palette16.contains("[38;"))
+    // The process-wide setting is restored afterwards.
+    let before = VCRenderer.colorDepth
+    _ = renderer.renderToString(width: 1, height: 1, colorDepth: .monochrome)
+    #expect(VCRenderer.colorDepth == before)
+  }
+
   @Test func wideCharacters() {
     #expect(render(.text("café 日本 x")) == lines("café 日本 x"))
     #expect(render(.hbox([.text("日本"), .text("|")])) == lines("日本|"))

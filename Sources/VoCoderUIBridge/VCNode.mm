@@ -170,7 +170,14 @@
 }
 
 - (VCNode *)borderedWithStyle:(VCBorderStyle)style title:(NSString *)title {
-  return [self copyAdding:{.type = VCDecorator::Type::Border, .a = style, .title = [title copy]}];
+  return [self borderedWithStyle:style title:title color:nil];
+}
+
+- (VCNode *)borderedWithStyle:(VCBorderStyle)style title:(NSString *)title color:(VCColor *)color {
+  return [self copyAdding:{.type = VCDecorator::Type::Border,
+                           .a = style,
+                           .color = color,
+                           .title = [title copy]}];
 }
 
 - (VCNode *)focusMarker {

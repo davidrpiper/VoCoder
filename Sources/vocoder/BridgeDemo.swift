@@ -46,9 +46,10 @@ final class BridgeDemo {
   private var selectedRow = 0
   private var submitted = ""
   private var keyLog: [String] = []
-  private var poppedOut = false
-  private var done = false
-  private var signalSources: [DispatchSourceSignal] = []
+  private var poppedOut = false {
+    didSet { runLoop.ignoresInterrupt = poppedOut }
+  }
+  private lazy var runLoop = TerminalRunLoop(renderer: renderer, log: log)
   private var timers: [Timer] = []
 
   init(mouse: Bool, still: Bool, dumpPath: String?, crashAfter: Double?) {
@@ -60,15 +61,10 @@ final class BridgeDemo {
 
   /// Runs the main run loop until the TUI exits.
   func run() {
-    installSignalHandlers()
     renderer.onEvent = { [self] event in
       DispatchQueue.main.async { MainActor.assumeIsolated { self.handle(event) } }
     }
-    renderer.onExit = { [self] in
-      DispatchQueue.main.async { MainActor.assumeIsolated { self.done = true } }
-    }
     update()
-    renderer.start()
     log.info("bridge demo started")
     if !still {
       schedule(every: 0.1) { demo in
@@ -79,30 +75,9 @@ final class BridgeDemo {
     if let crashAfter {
       schedule(after: crashAfter) { _ in fatalError("bridge-demo: deliberate crash") }
     }
-    while !done {
-      _ = RunLoop.main.run(mode: .default, before: Date(timeIntervalSinceNow: 0.1))
-    }
+    runLoop.run()
     for timer in timers { timer.invalidate() }
     log.info("bridge demo exited cleanly")
-  }
-
-  // MARK: Signals (ADR 0001)
-
-  private func installSignalHandlers() {
-    for sig in [SIGINT, SIGTERM, SIGHUP] {
-      signal(sig, SIG_IGN)
-      let source = DispatchSource.makeSignalSource(signal: sig, queue: .main)
-      source.setEventHandler { [self] in
-        MainActor.assumeIsolated {
-          // While popped out, the child shares our process group: its Ctrl-C reaches us too.
-          if sig == SIGINT && self.poppedOut { return }
-          self.log.info("signal \(sig): stopping")
-          self.renderer.stop()
-        }
-      }
-      source.resume()
-      signalSources.append(source)
-    }
   }
 
   // MARK: Events

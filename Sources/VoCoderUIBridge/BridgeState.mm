@@ -127,11 +127,23 @@ F::Element Apply(F::Element el, const VCDecorator &d) {
         case VCAlignmentCenterVertically: return el | F::vcenter;
         default: return el | F::center;
       }
-    case VCDecorator::Type::Border:
-      if (d.title.length) {
-        return F::window(F::text(VCToStd(d.title)), el, ToBorderStyle(d.a));
+    case VCDecorator::Type::Border: {
+      F::BorderStyle style = ToBorderStyle(d.a);
+      if (!d.color) {
+        return d.title.length ? F::window(F::text(VCToStd(d.title)), el, style)
+                              : el | F::borderStyled(style);
       }
-      return el | F::borderStyled(ToBorderStyle(d.a));
+      // A colour decorator would also colour the content, and window() has no colour; draw a
+      // coloured border and lay the title over its top edge where window() puts it.
+      F::Color color = [d.color ftxuiColor];
+      el = el | F::borderStyled(style, color);
+      if (!d.title.length) return el;
+      auto gap = [] { return F::text("") | F::size(F::WIDTH, F::EQUAL, 1); };
+      F::Element title =
+          F::hbox({gap(), F::text(VCToStd(d.title)) | F::xflex_shrink | F::color(color), gap()});
+      // vbox + filler keeps the title's box (and its colour) to one row; size() doesn't clip.
+      return F::dbox({el, F::vbox({title, F::filler()})});
+    }
     case VCDecorator::Type::FocusMarker: return el | F::focus;
   }
   return el;

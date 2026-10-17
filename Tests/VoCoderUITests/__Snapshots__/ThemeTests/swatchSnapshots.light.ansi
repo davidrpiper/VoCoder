@@ -1,0 +1,13 @@
+text               sample         
+muted             [38;2;118;118;118m[49m sample [39m[48;2;118;118;118m      [39m[49m  
+accent            [38;2;0;95;175m[49m sample [39m[48;2;0;95;175m      [39m[49m  
+success           [38;2;0;135;0m[49m sample [39m[48;2;0;135;0m      [39m[49m  
+warning           [38;2;175;95;0m[49m sample [39m[48;2;175;95;0m      [39m[49m  
+danger            [38;2;215;0;0m[49m sample [39m[48;2;215;0;0m      [39m[49m  
+info              [38;2;0;135;135m[49m sample [39m[48;2;0;135;135m      [39m[49m  
+border            [38;2;178;178;178m[49m sample [39m[48;2;178;178;178m      [39m[49m  
+focus             [38;2;0;95;175m[49m sample [39m[48;2;0;95;175m      [39m[49m  
+selection         [38;2;175;215;255m[49m sample [39m[48;2;175;215;255m      [39m[49m  
+selectionText      sample         
+inactiveSelection [38;2;228;228;228m[49m sample [39m[48;2;228;228;228m      [39m[49m  
+codeBackground    [38;2;238;238;238m[49m sample [39m[48;2;238;238;238m      [39m[49m  

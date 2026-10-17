@@ -230,6 +230,7 @@ Sources/
   VoCoderUIBridge/             ObjC++ (.mm) bridge; public headers are plain Objective-C
   VoCoderCore/                 Swift: domain types, protocols, registries, commands, attention, brain
   VoCoderTestSupport/          fakes + protocol contract test suites (test-only)
+  VoCoderUITestSupport/        `assertSnapshot` for views (test-only; keeps FTXUI out of Core tests)
   VoCoderVoice/                Swift: audio capture, recognition, synthesis, earcons, activation
   VoCoderUI/                   Swift: node-tree DSL, focus, chrome, generic Home/Tasks/Docs tabs
   Modules/                     one target per module (§4.10)
@@ -239,10 +240,11 @@ Sources/
     LinearModule/
     NotionModule/
   vocoder/                     executable: composition root, CLI, module list, run loop
+                               (+ hidden dev subcommands `bridge-demo`, `ui-gallery`)
 Tests/
   VoCoderCoreTests/            Swift Testing
   VoCoderUIBridgeTests/        bridge tests through the public ObjC API (render, widgets, keys)
-  VoCoderUITests/              snapshot tests (render to off-screen ftxui::Screen → text)
+  VoCoderUITests/              DSL/focus/key-routing tests; snapshot goldens in __Snapshots__/<TestFile>/
   VoCoderVoiceTests/           routing tests over transcript fixtures; recognition over audio fixtures
 scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` in a pty)
 spikes/                        throwaway Phase 0 experiments
@@ -263,7 +265,7 @@ Objective-C gives us blocks ↔ closures, `NSString`, ARC, and zero special flag
 
 - Swift builds an immutable **node tree** each update from a small vocabulary: `vbox`, `hbox`,
   `dbox`, `text`, `paragraph`, `border`, `separator`, `table`, `gauge`, `spinner`, `scrollFrame`,
-  `tabBar`, `filler`, plus style (colour, bold, dim, inverted), border, size, alignment and flex
+  `tabBar`, `filler`, plus style (colour, bold, dim, inverted), border (optionally coloured without colouring the content), size, alignment and flex
   modifiers. Modifiers apply in call order. Colours keep the requested value (16/256/RGB) and
   are converted while building, because FTXUI degrades a colour to the terminal's support when
   it is constructed.
@@ -305,6 +307,20 @@ only) feeds raw terminal bytes through FTXUI's parser, so key and widget handlin
 without a terminal. `make pty-test` drives the hidden `vocoder bridge-demo` in a pseudo-terminal
 with a small VT emulator: exits, signals, resize, keys, mouse, pop-out, crash restore, and
 on-screen output identical to the off-screen render.
+
+**Swift side (`VoCoderUI`, [ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)):**
+views are `@MainActor` value types with a `@ViewBuilder` `body` (`VStack`, `HStack`, `Text`,
+`Paragraph`, `Grid`, `ListView`, `TableView`, `ScrollView`, `TextField`, … plus modifiers that
+apply in call order); state lives in `@Observable` view models, and `UIHost` re-renders when
+anything a render read changes. Colours are semantic theme roles (dark/light built-ins, `auto`
+follows the macOS appearance); the bridge degrades them to the terminal's colour depth, which
+can be overridden process-wide. Each render also collects a **focus tree** (focusable leaves
+and scopes with stable `FocusID`s, `trap` scopes for modals); `FocusManager` keeps focus on the
+same leaf across renders or moves it to the nearest survivor. Keys map to generic `UIAction`s
+(move, page, first/last, activate, cancel, focus next/previous) that travel the focus path
+innermost first; P1-05's commands dispatch the same actions, so keys, palette and voice share
+one path. `vocoder ui-gallery` (hidden) shows the views live, with theme and colour-depth
+toggles.
 
 **Escape hatch:** "pop out" suspends the TUI (`App::WithRestoredIO`, exposed as
 `-[VCRenderer runSuspended:]`) to run an interactive program (e.g. `claude`, `$EDITOR`,
@@ -563,7 +579,10 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
 
 - **Core**: Swift Testing unit tests for command registry, routing, attention policy, provider
   mapping (with recorded API fixtures).
-- **UI**: snapshot tests rendering node trees to off-screen FTXUI screens.
+- **UI**: snapshot tests rendering views to off-screen FTXUI screens (`assertSnapshot` in
+  `VoCoderUITestSupport`: plain text, or ANSI at a chosen colour depth; goldens next to the test
+  file, `make snapshot-update` rewrites them); focus and key routing driven through the
+  bridge's `injectInput:`.
 - **Voice routing**: table-driven tests from transcript text → expected command/intent.
 - **Recognition**: a small set of recorded audio fixtures run through SpeechAnalyzer (opt-in, slow).
 - **Agent**: stream-json fixtures replayed through `ClaudeCodeBackend`'s parser.

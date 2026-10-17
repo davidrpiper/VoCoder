@@ -6,6 +6,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// How many colours the terminal shows. FTXUI degrades richer colours to this.
+typedef NS_ENUM(NSInteger, VCColorDepth) {
+  VCColorDepthMonochrome = 0,
+  VCColorDepthPalette16,
+  VCColorDepthPalette256,
+  VCColorDepthTrueColor,
+};
+
 /// Returned by `integerValueForWidget:` for an unknown widget id.
 static const NSInteger VCNoValue = NSNotFound;
 
@@ -32,6 +40,10 @@ NS_SWIFT_SENDABLE
 @property(atomic, readonly, getter=isRunning) BOOL running;
 /// Frames drawn by the loop so far (diagnostics; shows redraw coalescing).
 @property(atomic, readonly) NSUInteger framesDrawn;
+/// Process-wide colour support, detected from `$TERM`, `$COLORTERM` and `$TERM_PROGRAM`.
+/// Setting it overrides the detection (e.g. to preview a 256-colour terminal); set it before
+/// building trees, because colours are degraded while a tree is built.
+@property(class, atomic) VCColorDepth colorDepth;
 
 /// Swap the tree and request a redraw. Redraws coalesce: at most one is pending.
 - (void)setRoot:(VCNode *)root;
@@ -69,6 +81,11 @@ NS_SWIFT_SENDABLE
 /// with true colour so it doesn't depend on the environment. `height` <= 0 fits the content.
 - (NSString *)renderToStringWidth:(NSInteger)width height:(NSInteger)height ansi:(BOOL)ansi
     NS_SWIFT_NAME(renderToString(width:height:ansi:));
+/// ANSI off-screen render with colours degraded to `depth`, independent of `colorDepth`.
+- (NSString *)renderToStringWidth:(NSInteger)width
+                           height:(NSInteger)height
+                       colorDepth:(VCColorDepth)depth
+    NS_SWIFT_NAME(renderToString(width:height:colorDepth:));
 /// **Testing only.** Feed raw terminal input through FTXUI's parser as if typed. While the
 /// loop runs the events are posted to it; otherwise they are handled synchronously on the
 /// calling thread and `onEvent` fires before this returns. A trailing lone ESC is flushed.
