@@ -1,0 +1,36 @@
+# VoCoder build entry points. See README.md.
+SWIFT ?= swift
+FORMAT_PATHS := Package.swift Sources Tests
+LOG_FILE := $(HOME)/Library/Logs/VoCoder/vocoder.log
+
+.PHONY: build test run snapshot-update fmt lint logs clean
+
+build:
+	$(SWIFT) build
+
+test:
+	$(SWIFT) test
+	@# Smoke check: the executable carries its embedded Info.plist.
+	@$(SWIFT) run -q vocoder --version | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+ \([0-9]+\)$$' \
+	  || { echo "vocoder --version: embedded Info.plist missing" >&2; exit 1; }
+
+run:
+	$(SWIFT) run vocoder $(ARGS)
+
+# Regenerate UI snapshot goldens; review the diff before committing.
+snapshot-update:
+	VOCODER_SNAPSHOT_UPDATE=1 $(SWIFT) test --filter VoCoderUITests
+
+fmt:
+	$(SWIFT) format format --in-place --parallel --recursive $(FORMAT_PATHS)
+
+lint:
+	$(SWIFT) format lint --strict --parallel --recursive $(FORMAT_PATHS)
+
+logs:
+	@mkdir -p "$(dir $(LOG_FILE))" && touch "$(LOG_FILE)"
+	tail -F "$(LOG_FILE)"
+
+clean:
+	$(SWIFT) package clean
+	rm -rf .build

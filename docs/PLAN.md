@@ -186,7 +186,9 @@ key and palette; sessions resume after restart; terminal is always restored.
   `spikes/ftxui-bridge/Package.swift` (excludes enumerated, no `component/loop.cpp`, no
   `unsafeFlags`); dependencies swift-argument-parser and TOMLDecoder per
   [ADR 0004](decisions/0004-third-party-dependencies.md), `Package.resolved` committed; `make fmt`/
-  `make lint` use the toolchain's `swift format`.
+  `make lint` use the toolchain's `swift format`. The `vocoder` executable alone uses
+  `linkerSettings: .unsafeFlags` for `-sectcreate __TEXT __info_plist` (user-approved 2026-10-17;
+  allowed because it is the root package).
 - **Acceptance:** clean clone → `git submodule update --init && make build test` works.
 
 ### P1-02 — UI bridge (`VoCoderUIBridge`)

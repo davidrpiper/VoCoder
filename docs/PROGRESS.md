@@ -21,11 +21,16 @@ macOS 26.4+.
 P0-06 done (2026-10-17): ADRs 0001–0003 confirmed; dependencies decided
 ([ADR 0004](decisions/0004-third-party-dependencies.md): swift-argument-parser + TOMLDecoder only);
 P2-05 hard gates vs stretch goals set; `vocoder doctor` added to P1-06. Phase 1 is locked.
-No production code yet (no root `Package.swift` or Makefile until P1-01).
+P1-01 done (2026-10-17): root `Package.swift` with all DESIGN §4.1 targets (modules are empty
+placeholder targets), `Makefile`, `.swift-format`, embedded Info.plist (version lives there;
+`vocoder --version` reads it via `Bundle.main`), logging facility in Core (`Log` → `os.Logger` +
+rotating `FileLogSink` at `~/Library/Logs/VoCoder/`). `VoCoderUIBridge` has only a build probe
+(`VCBuildInfo`); the TUI does not exist yet (`vocoder` prints a placeholder line).
 
 ## Next up
 
-**P1-01 — Package scaffold and tooling** (see its Notes in PLAN.md and ADR 0004). Voice spikes
+**P1-02 — UI bridge** (`VoCoderUIBridge`; port from `spikes/ftxui-bridge/` per ADR 0001 and its
+PLAN notes; replace the `VCBuildInfo` probe). P1-04 can run in parallel. Voice spikes
 P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed 2026-10-17). Keep the
 embedded-Info.plist and voice service boundaries easy to change (helper-app risk).
 
@@ -42,7 +47,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P0-05 | Foundation Models intent spike | done | Go (middle stage). ADR 0003 |
 | P0-06 | Spike synthesis (non-voice) | done | ADR 0004; Phase 1 locked |
 | P0-07 | Voice spike synthesis | todo | After P0-02/03; gates P2-01 |
-| P1-01 | Package scaffold and tooling | todo | |
+| P1-01 | Package scaffold and tooling | done | `unsafeFlags` only on the executable (plist) |
 | P1-02 | UI bridge | todo | |
 | P1-03 | Swift UI DSL, focus and snapshot testing | todo | |
 | P1-04 | Core architecture and module system | todo | |
@@ -113,12 +118,30 @@ to one or two lines; move anything architectural into an ADR._
   to the API") depending on schema; permissive guardrails don't help — treat as "no parse".
 - Foundation Models latency spikes 4–5× under background load (e.g. right after enabling Apple
   Intelligence); compare variants back to back with a control run.
+- `swift test` runs each test target as its own run; grep the per-run "Test run with" lines, not
+  just the last one. Log tests use temp dirs via `FileLogSink(directory:)`, never the real log.
 - Swift 6: `await iterator.next()` on an iterator stored in a `@MainActor` class doesn't compile;
   use a local copy with `next(isolation: #isolation)`.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-01
+- Root package: `CFTXUI` (spike settings), `VoCoderUIBridge` (probe rendering off-screen),
+  `VoCoderCore`, `VoCoderUI`, `VoCoderVoice`, `VoCoderTestSupport`, five module targets under
+  `Sources/Modules/`, `vocoder` executable (swift-argument-parser), three test targets.
+  TOMLDecoder attached to Core (unused until P1-06). `Package.resolved` committed.
+- Logging: `Log(category:)` writes to unified log (subsystem `dev.vocoder`) and the shared sink
+  installed by `Log.bootstrap`; sink rotates at 5 MB keeping 3 files, local ISO 8601 timestamps,
+  `Mutex`-guarded synchronous writes. Tests cover format, level filter, rotation, append,
+  concurrency.
+- Info.plist embedded via `-sectcreate` (`unsafeFlags` on the executable, user-approved);
+  bundle id `dev.vocoder.VoCoder`, mic/speech/calendar usage strings; `make test` smoke-checks
+  `vocoder --version`. Plist edits do trigger a relink.
+- Verified: clean build 0 warnings, `make lint` clean, clean clone → `git submodule update --init
+  && make build test` passes.
+- Next: P1-02.
 
 ### 2026-10-17 · P0-06
 - Reviewed ADRs 0001–0003 with the user; 0002/0003 now plain Accepted. Checked candidate

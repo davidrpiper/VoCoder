@@ -69,8 +69,11 @@ The project is built over many sessions. Context is carried by the docs above, n
 
 ## Commands
 
-_Filled in by P1-01._ Expected: `make build`, `make test`, `make run`, `make snapshot-update`,
-`make fmt`, `make lint`, `make logs`.
+- `make build` / `make test` (Swift Testing + `vocoder --version` smoke check) / `make run ARGS=…`
+- `make snapshot-update` — regenerate UI goldens, then review the diff
+- `make fmt` / `make lint` — toolchain `swift format` (`.swift-format`: 2 spaces, 100 columns)
+- `make logs` — tail `~/Library/Logs/VoCoder/vocoder.log` (log via `Log(category:)` in Core)
+- `make clean`; fresh clone needs `git submodule update --init` first
 
 ## Environment
 
