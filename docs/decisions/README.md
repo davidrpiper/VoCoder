@@ -41,3 +41,4 @@ Briefly, and why not.
 - [0006 — Module system, tab model split and fakes target](0006-module-system-and-tab-model.md) (P1-04, Accepted)
 - [0007 — Command system, keymap and keyboard overlays](0007-command-system-and-keymap.md) (P1-05, Accepted)
 - [0008 — App chrome, command prompts and modals](0008-app-chrome-prompts-and-modals.md) (P1-07, Accepted)
+- [0009 — Config validation, Keychain secrets and `vocoder doctor`](0009-config-secrets-and-doctor.md) (P1-06, Accepted)

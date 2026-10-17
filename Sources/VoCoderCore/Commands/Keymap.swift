@@ -14,18 +14,27 @@ public struct KeyBindingOverrides: Sendable, Equatable {
     self.bindings = bindings
   }
 
+  /// A config value that doesn't parse; `command` is nil for the leader.
+  public struct ParseError: Error, Sendable, Equatable, CustomStringConvertible {
+    public let command: String?
+    public let message: String
+
+    public var description: String { "\(command ?? "leader"): \(message)" }
+  }
+
   /// From config values (`leader = "ctrl+space"`, `"tab.next" = ["<leader> n"]`). Parts that
   /// don't parse are left out and described in `errors`.
   public static func parse(leader: String?, bindings: [String: [String]])
-    -> (overrides: KeyBindingOverrides, errors: [String])
+    -> (overrides: KeyBindingOverrides, errors: [ParseError])
   {
     var overrides = KeyBindingOverrides()
-    var errors: [String] = []
+    var errors: [ParseError] = []
     if let leader {
       if let chord = KeyChord(leader) {
         overrides.leader = chord
       } else {
-        errors.append("leader: '\(leader)' is not a key (try \"ctrl+space\")")
+        errors.append(
+          ParseError(command: nil, message: "'\(leader)' is not a key (try \"ctrl+space\")"))
       }
     }
     for (command, texts) in bindings.sorted(by: { $0.key < $1.key }) {
@@ -35,7 +44,9 @@ public struct KeyBindingOverrides: Sendable, Equatable {
           sequences.append(sequence)
         } else {
           errors.append(
-            "\(command): '\(text)' is not a key sequence (e.g. \"ctrl+p\", \"<leader> t n\")")
+            ParseError(
+              command: command,
+              message: "'\(text)' is not a key sequence (e.g. \"ctrl+p\", \"<leader> t n\")"))
         }
       }
       overrides.bindings[CommandID(command)] = sequences

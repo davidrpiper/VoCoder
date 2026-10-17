@@ -58,13 +58,38 @@ public enum SecretStoreContract {
     let key = SecretKey(module: "contract-test", name: "token-\(UUID().uuidString)")
     defer { try? store.removeSecret(for: key) }
     #expect(try store.secret(for: key) == nil, sourceLocation: sourceLocation)
+    #expect(try !store.hasSecret(for: key), sourceLocation: sourceLocation)
     try store.setSecret("first", for: key)
     #expect(try store.secret(for: key) == "first", sourceLocation: sourceLocation)
+    #expect(try store.hasSecret(for: key), sourceLocation: sourceLocation)
+    let other = SecretKey(module: key.module, name: key.name + "-other")
+    #expect(
+      try store.secret(for: other) == nil, "keys are separate", sourceLocation: sourceLocation)
     try store.setSecret("second", for: key)
     #expect(try store.secret(for: key) == "second", "overwrite", sourceLocation: sourceLocation)
     try store.removeSecret(for: key)
     #expect(try store.secret(for: key) == nil, "remove", sourceLocation: sourceLocation)
+    #expect(try !store.hasSecret(for: key), "remove", sourceLocation: sourceLocation)
     try store.removeSecret(for: key)  // removing a missing secret is not an error
+  }
+}
+
+/// A doctor check has an identity and a title, and never leaves the user without a way out:
+/// warnings and failures carry a message and a fix hint.
+public enum DoctorCheckContract {
+  public static func verify(
+    _ check: any DoctorCheck, sourceLocation: SourceLocation = #_sourceLocation
+  ) async {
+    ProviderContract.verify(check, sourceLocation: sourceLocation)
+    #expect(!check.title.isEmpty, "check \(check.id) has no title", sourceLocation: sourceLocation)
+    let result = await check.run()
+    #expect(
+      !result.message.isEmpty, "check \(check.id) gave no message", sourceLocation: sourceLocation)
+    if result.status >= .warning {
+      #expect(
+        !(result.hint ?? "").isEmpty, "check \(check.id): \(result.status) without a fix hint",
+        sourceLocation: sourceLocation)
+    }
   }
 }
 

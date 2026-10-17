@@ -102,3 +102,21 @@ public final class InMemorySecretStore: SecretStore {
     secrets.withLock { _ = $0.removeValue(forKey: key) }
   }
 }
+
+/// A doctor check with a fixed result.
+public struct FakeDoctorCheck: DoctorCheck {
+  public let id: ProviderID
+  public let title: String
+  public let result: DoctorResult
+
+  public init(
+    id: ProviderID = "fake-check", title: String = "Fake check",
+    result: DoctorResult = .ok("fine")
+  ) {
+    self.id = id
+    self.title = title
+    self.result = result
+  }
+
+  public func run() async -> DoctorResult { result }
+}

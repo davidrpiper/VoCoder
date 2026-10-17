@@ -21,4 +21,11 @@ enum CompiledModules {
 
   /// `vocoder --demo`: fake-backed modules only, no accounts or network.
   static let demo: [any VoCoderModule.Type] = [DemoModule.self]
+
+  /// Every compiled-in module: their ids are the config's module sections.
+  static var known: [any VoCoderModule.Type] { all + demo }
+
+  static func named(_ id: String) -> (any VoCoderModule.Type)? {
+    known.first { $0.id.rawValue == id }
+  }
 }

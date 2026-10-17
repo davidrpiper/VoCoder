@@ -2,8 +2,9 @@ import Testing
 import VoCoderCore
 
 /// Rules every module follows: a stable id, a clean start with an empty environment (no config,
-/// no secrets — the app must start without accounts), no rejected contributions, and tab
-/// factories that make valid tabs with unique ids.
+/// no secrets — the app must start without accounts), no rejected contributions, tab
+/// factories that make valid tabs with unique ids, and well-formed secret declarations.
+/// Doctor checks run their own contract (`DoctorCheckContract`, async).
 @MainActor
 public enum ModuleContract {
   public static func verify(
@@ -38,6 +39,15 @@ public enum ModuleContract {
         Issue.record("tab factory \(factory.id) threw \(error)", sourceLocation: sourceLocation)
       }
     }
+    let secretNames = type.secrets.map(\.name)
+    #expect(
+      Set(secretNames).count == secretNames.count, "duplicate secret names",
+      sourceLocation: sourceLocation)
+    for spec in type.secrets {
+      let valid = !spec.name.isEmpty && !spec.title.isEmpty && !spec.help.isEmpty
+      #expect(
+        valid, "secret '\(spec.name)' needs a name, title and help", sourceLocation: sourceLocation)
+    }
     for command in registry.commands {
       #expect(
         !command.title.isEmpty, "command \(command.id) has no title", sourceLocation: sourceLocation
@@ -58,6 +68,7 @@ public enum ModuleContract {
     all += registry.speechRecognizers as [any Provider]
     all += registry.speechSynthesizers as [any Provider]
     all += registry.languageModels as [any Provider]
+    all += registry.doctorChecks as [any Provider]
     return all
   }
 }

@@ -1,5 +1,6 @@
 // Themes map semantic roles to colours (DESIGN §3.1). Views use roles; only themes pick values.
 import Foundation
+import VoCoderCore
 
 /// A semantic colour role.
 public enum ThemeRole: String, Sendable, CaseIterable {
@@ -63,6 +64,17 @@ public struct Theme: Sendable, Equatable {
   /// The built-in theme matching the macOS appearance (`auto`, the default).
   public static func automatic(defaults: UserDefaults = .standard) -> Theme {
     builtIn(.system(defaults: defaults))
+  }
+
+  /// The config's `[ui] theme`.
+  public static func preferred(
+    _ preference: ThemePreference, defaults: UserDefaults = .standard
+  ) -> Theme {
+    switch preference {
+    case .auto: automatic(defaults: defaults)
+    case .dark: .dark
+    case .light: .light
+    }
   }
 
   // Picked to stay distinct after FTXUI degrades them to the 256-colour palette (tested).

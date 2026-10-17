@@ -65,22 +65,33 @@ built-in `HomeTab` (attention inbox, problems). Core: `CommandPrompter` on `Comm
 moved into `VoCoderUI`. `DevShell`/`DemoApp` are gone: plain `vocoder` now runs the TUI (Home
 only until P1-06 brings config), `--demo` the same chrome over `DemoModule`
 ([ADR 0008](decisions/0008-app-chrome-prompts-and-modals.md)).
+P1-06 done (2026-10-17): config, secrets and CLI. `ConfigLoader` (Core `Config/`) reads
+`~/.config/vocoder/config.toml` (`--config`, `$VOCODER_CONFIG`). Sections: `[[repo]]`, `[keys]`,
+`[ui] theme`, `[modules] disabled`, plus per-module `[<id>]` sections through `ConfigSection`.
+Every error is collected with file:line, key path and a hint, and **any error stops startup**
+before the TUI. `KeychainSecretStore` (`dev.vocoder.<module>`), and modules declare
+`SecretSpec`s (Linear, Notion). CLI: `vocoder auth <module>`, `config init|check`, `doctor`.
+`DoctorCheck` is an extension point: Core checks (config, modules, keymap, secrets), UI terminal
+checks (terminal, Option-as-Meta, Ctrl-Space input-source shortcut), app Apple Intelligence,
+and Claude Code's CLI version check. `[claude-code] mcp_servers` is ready for P1-09
+([ADR 0009](decisions/0009-config-secrets-and-doctor.md)).
 
 ## Next up
 
-**P1-06 — Config, secrets and CLI** (unblocked; recommended next). Plain `vocoder` now runs the
-TUI with an `InMemorySecretStore` and no config: P1-06 swaps in the Keychain store, config
-(repos, enabled modules, `[keys]` → `AppShell(…, overrides:)`, theme) and `vocoder doctor` (see
-the PLAN notes). Then P1-08 (git) and P1-09 (agent backend), P1-03b (markdown renderer), and
-P1-10 (repo tab) once those are in. All of P1-06/P1-08/P1-09/P1-03b are unblocked and
-independent.
+**P1-07b — Real-terminal UI checks (Terminal.app)** (new; proposed by the user this session).
+Recommended next *when the user is at the desk*: the first run needs three macOS permission
+grants (Automation, Accessibility, Screen Recording) and takes keyboard focus. Otherwise do
+**P1-09** (agent backend; config section and CLI check are ready), **P1-08** (git) or
+**P1-03b** (markdown renderer). All four are unblocked and independent. P1-10 (repo tab) needs
+P1-08, P1-09, P1-03b and, ideally, P1-07b.
 Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed
 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to change
-(helper-app risk). Optional user eyeball checks: `make run` / `make run ARGS=--demo` (and
-`ARGS=ui-gallery`, `ARGS=bridge-demo`) in Terminal.app and Ghostty (pty tests cover behaviour,
-not real-terminal looks: tab bar highlight, badge colours, toast and dialog placement). In
-particular, check that `Ctrl-Space` reaches the app and isn't taken by the macOS input-source
-shortcut.
+(helper-app risk). Optional user checks:
+- `vocoder auth linear` with a dummy value, then `vocoder doctor`. Expect a Keychain
+  access dialog only when a *value* is read after a rebuild, which nothing does yet.
+- `make run` / `ARGS=--demo` in Terminal.app and Ghostty.
+- `vocoder doctor` from Ghostty: it should warn that `macos-option-as-alt` is off, since this
+  Mac's Ghostty config doesn't set it.
 
 ## Work package status
 
@@ -101,8 +112,9 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-03b | Markdown-lite renderer | todo | Split from P1-03; adds bridge `flow` node |
 | P1-04 | Core architecture and module system | done | ADR 0006; `vocoder --demo` |
 | P1-05 | Command system, keymap, leader key, palette | done | ADR 0007; tab next/prev/goto pulled in |
-| P1-06 | Config, secrets and CLI | todo | |
+| P1-06 | Config, secrets and CLI | done | ADR 0009; `vocoder doctor` |
 | P1-07 | App chrome | done | ADR 0008; `vocoder` runs the TUI |
+| P1-07b | Real-terminal UI checks (Terminal.app) | todo | New; first run needs the user (permissions) |
 | P1-08 | Git module | todo | |
 | P1-09 | Agent backend and Claude Code module | todo | |
 | P1-10 | Repo tab | todo | |
@@ -228,10 +240,55 @@ to one or two lines; move anything architectural into an ADR._
   `posix_spawn_file_actions_addchdir`.
 - `FocusManager`: a focus request (`focus(id)`) into a trap scope that appears in the same render
   must still record the trap's return focus (fixed in P1-07; modals rely on it).
+- TOMLDecoder reports some type mismatches as its own `TOMLError` (`(Line n) Type mismatch at
+  table key 'k': expected string.`), not `DecodingError`; a list's mismatch type prints as
+  `UnkeyedDecodingContainer`. `ConfigLoader` handles both.
+- The ad-hoc-signed `vocoder` changes identity every build: reading a Keychain item's *value*
+  created by an older build may show a macOS access dialog. Attribute lookups (`hasSecret`) and
+  writes don't. The data-protection keychain needs entitlements a SwiftPM CLI lacks.
+- swift-argument-parser: a `ValidationError` thrown from `run()` prints the root command's
+  usage; throw a plain `CustomStringConvertible` error for setup problems.
+- The pty test's `Screen` truncates lines at its width; check long stderr text in `demo.raw`.
+- The pty harness sets `VOCODER_CONFIG` to a missing file per run, so the user's config never
+  leaks into tests; pass `env={"VOCODER_CONFIG": …}` to use one.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-06
+- Decisions (user, at plan time, as recommended): every config error (module sections too)
+  stops startup; modules are on unless in `[modules] disabled`; real-Keychain contract test
+  opt-in, run once this session (passed, nothing left behind, no prompt); theme in
+  `[ui] theme`. Recorded in [ADR 0009](decisions/0009-config-secrets-and-doctor.md).
+- User asked about automated UI screenshot tests in a real Terminal.app window. Feasible, with
+  three one-time permissions. Added as **P1-07b** to PLAN (scope, acceptance, needs the user on
+  first run).
+- Core: `Config/` (`TOMLDocument` wrapper, `ConfigError` + `ConfigPath` + line locator +
+  suggestions, `AppConfig`, `ThemePreference`, `ConfigLoader`, `ConfigTemplate`),
+  `Secrets/` (`KeychainSecretStore`, `KeychainError`, `SecretSetup`), `Doctor/` (`DoctorCheck`,
+  `DoctorResult`, `ClosureDoctorCheck`, `Doctor.run` with timeout, `DoctorReport.rendered`,
+  `CoreDoctorChecks`). `VoCoderModule.secrets` + `SecretSpec`; `ConfigSection.keys`;
+  `SecretStore.hasSecret`; registry `doctorChecks`; `KeyBindingOverrides.ParseError`
+  (structured, for config locations).
+- UI: `TerminalDoctorChecks` + `TerminalEnvironment.current()` (reads Terminal.app profile,
+  Ghostty config, symbolic hotkeys, input sources); `Theme.preferred(_:)`.
+- Modules: `ClaudeCodeModule` config section + `ClaudeCLICheck` + `CLIVersion`; Linear/Notion
+  declare secrets. Fakes/contracts: `FakeDoctorCheck`, `DoctorCheckContract`, `SecretStoreContract`
+  covers `hasSecret`, `ModuleContract` checks secret specs and includes doctor checks.
+- App: root `--config`; config errors printed to stderr, exit 1 before the TUI; Keychain store;
+  overrides and theme into the shell; "No config file" toast. `auth`, `config init|check`,
+  `doctor` (loads modules through `AppShell` off-screen, spins the main run loop while checks
+  run).
+- Tests: Core +23 (`ConfigTests` 12, `DoctorTests` 8, `SecretTests` 3 + opt-in Keychain);
+  UI +6 (`TerminalDoctorTests`); ModuleTests +6 (`ClaudeCodeModuleTests`). `make pty-test`
+  15/15 (+2: config reaches the app via a `[keys] leader`, invalid config reported before the
+  TUI); the harness is hermetic about config now.
+- Verified: build 0 warnings, `make lint` clean, `make test` all runs pass, `make pty-test`
+  15/15, `vocoder doctor` on this Mac (2 warnings: no config file, Linear/Notion secrets not
+  set; Claude CLI 2.1.302 found), `config init/check`, `auth` errors. Not done: `vocoder auth`
+  storing a real value interactively (user, optional).
+- Next: P1-07b if the user is present, otherwise P1-09 / P1-08 / P1-03b.
 
 ### 2026-10-17 · P1-07
 - Decisions (user, at plan time, as recommended): outward-command confirm dialog starts on

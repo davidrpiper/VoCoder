@@ -196,7 +196,11 @@ class Demo:
         self.after = os.path.join(self.tmp.name, "after")
         self.master, self.slave = pty.openpty()
         self._winsize(width, height)
-        child_env = dict(os.environ, TERM="xterm-256color", **(env or {}))
+        # Hermetic: never the user's config (a missing file means defaults).
+        child_env = dict(
+            os.environ, TERM="xterm-256color", VOCODER_CONFIG=os.path.join(self.tmp.name, "config.toml")
+        )
+        child_env.update(env or {})
         for key in list(child_env):
             if key.startswith("CLAUDE") or key == "TERM_PROGRAM":
                 child_env.pop(key)
@@ -520,10 +524,53 @@ def _(binary):
     app = Demo(binary, command=())
     try:
         app.wait_for(lambda s: "1 Home" in s and "Getting around" in s, what="Home tab")
+        app.wait_for(lambda s: "No config file" in s, what="no-config toast")
         app.send("\x00q")
         assert_clean_exit(app, app.wait_exit())
     finally:
         app.close()
+
+
+@check("app: config reaches the app ([keys] leader replaces Ctrl-Space)")
+def _(binary):
+    tmp = tempfile.TemporaryDirectory()
+    config = os.path.join(tmp.name, "config.toml")
+    with open(config, "w") as f:
+        f.write('[keys]\nleader = "ctrl+b"\n[ui]\ntheme = "light"\n')
+    app = Demo(binary, command=(), env={"VOCODER_CONFIG": config})
+    try:
+        app.wait_for(lambda s: "1 Home" in s, what="Home tab")
+        assert "No config file" not in app.screen.text(), "config not found"
+        app.send("\x00")  # Ctrl-Space is no longer the leader: no which-key popup
+        assert "1…9" not in app.screen.text(), "Ctrl-Space still opens the leader popup"
+        app.send("\x02")
+        app.wait_for(lambda s: "1…9" in s, what="which-key popup on Ctrl-B")
+        app.send("q")
+        assert_clean_exit(app, app.wait_exit())
+    finally:
+        app.close()
+        tmp.cleanup()
+
+
+@check("app: an invalid config is reported before the TUI starts")
+def _(binary):
+    tmp = tempfile.TemporaryDirectory()
+    config = os.path.join(tmp.name, "bad.toml")
+    with open(config, "w") as f:
+        f.write('[ui]\ntheme = "solar"\n[keys]\nleader = "hyper"\n')
+    app = Demo(binary, command=("--config", config))
+    try:
+        code = app.wait_exit()
+        text = app.raw.decode(errors="replace")  # the screen truncates long lines
+        assert code == 1, f"exit code {code}"
+        assert not app.screen.entered_alt, "the TUI started"
+        assert "2 problems in" in text, text
+        assert "bad.toml:2: ui.theme: unknown theme 'solar'" in text, text
+        assert "bad.toml:4: keys.leader:" in text, text
+        assert app.modes_restored(), "tty modes changed"
+    finally:
+        app.close()
+        tmp.cleanup()
 
 
 def main():

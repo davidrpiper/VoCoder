@@ -44,11 +44,17 @@ public struct RepoRoot: Sendable, Equatable {
   public var name: String { url.lastPathComponent }
 }
 
-/// Where secrets live (the Keychain from P1-06). Never log values read from it.
+/// Where secrets live (`KeychainSecretStore` in the app). Never log values read from it.
 public protocol SecretStore: Sendable {
   func secret(for key: SecretKey) throws -> String?
   func setSecret(_ value: String, for key: SecretKey) throws
   func removeSecret(for key: SecretKey) throws
+  /// Whether a secret is set, without reading it (`vocoder doctor`; no Keychain prompt).
+  func hasSecret(for key: SecretKey) throws -> Bool
+}
+
+extension SecretStore {
+  public func hasSecret(for key: SecretKey) throws -> Bool { try secret(for: key) != nil }
 }
 
 /// A secret's address: the owning module and a name within it (`linear` / `api-key`).

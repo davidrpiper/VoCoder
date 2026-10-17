@@ -50,11 +50,11 @@ Later    Jira, Confluence, Slack, more agents, multi-session repos
 ```
 P0-01 ─┬─ P0-04
        └─ P0-05 ──────────────── P0-06 (synthesis of non-voice spikes; locks Phase 1)
-P0-06 ─ P1-01 ─┬─ P1-02 ─ P1-03 ─┬─ P1-07 ─ P1-10 ─ P1-11
-               ├─ P1-04 ─ P1-05 ─┘          ▲
-               ├─ P1-06 ─────────────────────┤
-               ├─ P1-08 ─────────────────────┤
-               └─ P1-09 ─────────────────────┘
+P0-06 ─ P1-01 ─┬─ P1-02 ─ P1-03 ─┬─ P1-07 ─ P1-07b ─ P1-10 ─ P1-11
+               ├─ P1-04 ─ P1-05 ─┘                   ▲
+               ├─ P1-06 ──────────────────────────────┤
+               ├─ P1-08 ──────────────────────────────┤
+               └─ P1-09 ──────────────────────────────┘
 P1-03 ─ P1-03b ─ P1-10 (markdown renderer; parallel with P1-04…P1-07)
 P1-11 ─ P0-02 ─ P0-03 ─ P0-07 (voice spikes, deferred; need the user present)
 P0-07 ─ P2-01 ─ P2-02 ─┬─ P2-05 ─ P2-06 ─ P2-07 ─ P2-08 ─ P2-09
@@ -310,6 +310,14 @@ key and palette; sessions resume after restart; terminal is always restored.
   Since P1-07, plain `vocoder` runs the TUI (`VoCoderApp` → `AppShell`) with an
   `InMemorySecretStore` and no config: replace both here (Keychain store, `environment.repos`,
   enabled modules, `[keys]` overrides into `AppShell(…, overrides:)`, theme).
+  **Done** ([ADR 0009](decisions/0009-config-secrets-and-doctor.md)). Agreed at plan time:
+  every config error (module sections included) stops startup; modules are on unless listed in
+  `[modules] disabled`; theme lives in `[ui] theme`; the real-Keychain contract test is opt-in
+  (`VOCODER_KEYCHAIN_TESTS=1`). Also added: `DoctorCheck` extension point (+ fake, contract),
+  `SecretSpec` declarations on modules (Linear `api-key`, Notion `token`),
+  `SecretStore.hasSecret` (no Keychain prompt), `[claude-code] mcp_servers`, a Claude CLI
+  doctor check (provisional minimum 2.1.302), `--config`/`$VOCODER_CONFIG`, and pty checks for
+  an invalid config and for config reaching the app.
 
 ### P1-07 — App chrome
 - **Depends on:** P1-03, P1-05
@@ -342,6 +350,28 @@ key and palette; sessions resume after restart; terminal is always restored.
   `TerminalSession` in `VoCoderUI` (run loop + `popOut`). `bridge-demo` stays; `make pty-test`
   also smoke-tests `vocoder --demo` and `vocoder`.
 
+### P1-07b — Real-terminal UI checks (Terminal.app)
+- **Depends on:** P1-07 (P1-06 for a hermetic `--config`)
+- **Goal:** Automatically check what the pty tests can't: how the UI really looks and which keys
+  really arrive in a real terminal.
+- **Scope:** opt-in `make term-test` (never part of `make test`): `osascript` opens a Terminal.app
+  window at a fixed size (rows × columns) running `vocoder --demo` (and `ui-gallery`) with a
+  temporary config. It sends keys through System Events, including a real Ctrl-Space (catches
+  the input-source shortcut) and Alt-digits. It reads the text with `contents of tab` and
+  compares it with the off-screen render, and captures the window with `screencapture -l
+  <window id>`. Assertions sample pixel colours at known cell positions (cell size = window size
+  ÷ grid): tab-bar highlight, badge colours, dialog and toast placement, light and dark themes.
+  Screenshots are kept in a results folder for review. Full-image diffs are not used because
+  font smoothing and the cursor make them brittle.
+- **Acceptance:** one command runs the checks and leaves Terminal as it found it (window
+  closed). Failures name the check and the saved screenshot. The README documents the one-time
+  permissions.
+- **Needs the user present (first run):** macOS permission grants for Automation (Terminal),
+  Accessibility (System Events keystrokes) and Screen Recording (`screencapture`) for the
+  terminal or `claude` process running the script. The run takes keyboard focus while it runs.
+- **Notes:** Ghostty has no comparable scripting interface and stays a manual check. Proposed by
+  the user 2026-10-17 (during P1-06); do it before P1-10 so the repo tab gets these checks too.
+
 ### P1-08 — Git module
 - **Depends on:** P1-04
 - **Goal:** Repo state for repo tabs.
@@ -366,6 +396,11 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Acceptance:** fixture replays produce expected event sequences; live smoke test (manual,
   documented) completes an approved tool call.
 - **Design refs:** §4.4.
+- **Notes (from P1-06):** `ClaudeCodeModule` already has its config section
+  (`ClaudeCodeConfig.mcpServers`: `none` → `--strict-mcp-config` with no servers, `user` → load
+  the user's servers) and the doctor check `ClaudeCLICheck` with a provisional
+  `minimumCLIVersion` of 2.1.302. Confirm or raise it with the replay tests, and reuse its env
+  stripping (`CLAUDECODE`, `CLAUDE_CODE_*`) for the session process.
 
 ### P1-10 — Repo tab
 - **Depends on:** P1-07, P1-08, P1-09
@@ -450,7 +485,9 @@ mirrored on screen.
   `DynamicGenerationSchema`) and runs the contract against it. Compare against the spike's static
   `@Generable` numbers. Phrases, parameters (slots), risk tiers and availability come from
   `Command` (P1-05); dispatch with `source: .voice` through `CommandDispatcher`, and prompt for
-  missing parameters like the palette does.
+  missing parameters like the palette does. The Foundation Models module also takes over
+  `vocoder doctor`'s Apple Intelligence check (`DoctorCommand.appleIntelligence` in the
+  executable since P1-06) as a module doctor check.
 - **Acceptance (hard gates, confirmed in P0-06):** 0 unconfirmed dangerous actions; wrong-action
   rate ≤10%; grammar stage <50 ms; model p50 ≤1.0 s with prewarm; routing table ≥95% on clean
   and ≥65% on loose and hold-out utterances, with the remaining misses ending in a clarifying

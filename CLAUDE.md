@@ -75,8 +75,13 @@ The project is built over many sessions. Context is carried by the docs above, n
 - `make snapshot-update` — regenerate UI goldens, then review the diff
 - `make fmt` / `make lint` — toolchain `swift format` (`.swift-format`: 2 spaces, 100 columns);
   `lint` also runs `make check-deps` (target dependency rules, `scripts/check-deps.py`)
-- `make run` — the app (no config until P1-06: Home only); `make run ARGS=--demo` — the app on
-  fake modules (`DemoModule`), no accounts needed
+- `make run` — the app (config `~/.config/vocoder/config.toml`, or `ARGS="--config <file>"` /
+  `$VOCODER_CONFIG`); `make run ARGS=--demo` — the app on fake modules (`DemoModule`), no
+  accounts needed
+- `vocoder config init|check`, `vocoder auth <module>` (Keychain), `vocoder doctor` (setup
+  checks); invalid config stops startup (ADR 0009)
+- `VOCODER_KEYCHAIN_TESTS=1 make test` also runs the Keychain contract against the real login
+  keychain (items under `dev.vocoder.test.*`, removed afterwards)
 - `make logs` — tail `~/Library/Logs/VoCoder/vocoder.log` (log via `Log(category:)` in Core)
 - `make clean`; fresh clone needs `git submodule update --init` first
 

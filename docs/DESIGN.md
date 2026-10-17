@@ -502,14 +502,10 @@ socket. Adopt it only if spikes show the single-process approach is fragile.
 
 ### 4.9 Configuration and secrets
 
-`~/.config/vocoder/config.toml`:
+`~/.config/vocoder/config.toml` (or `--config`, or `$VOCODER_CONFIG`). `vocoder config init`
+writes a commented template:
 
 ```toml
-[voice]
-input_device = "AirPods"          # or "built-in"
-voice = "premium:Zoe"
-airpods_activation = "single"     # single | double | off
-
 [[repo]]
 path = "~/projects/VoCoder"
 aliases = ["vocoder", "the app"]
@@ -517,29 +513,48 @@ aliases = ["vocoder", "the app"]
 [[repo]]
 path = "~/work/acme-api-server-v2"
 aliases = ["the api", "api server"]
-linear_teams = ["ENG"]            # used by "start working on …"
+linear_teams = ["ENG"]            # extra keys are for modules ("start working on …", P4-04)
 
-[tasks]
-provider = "linear"
-[tasks.status_map]
-"In Review" = "review"
-
-[docs]
-provider = "notion"
+[ui]
+theme = "auto"                    # auto | dark | light
 
 [keys]
 leader = "ctrl+space"
 [keys.bindings]                   # replace a command's default keys; [] unbinds
 "tab.next" = ["<leader> n", "alt+n"]
+
+[modules]
+disabled = []                     # compiled-in modules that shouldn't load
+
+[claude-code]                     # each module's section is named by its id
+mcp_servers = "none"              # none | user (ADR 0002)
+
+# Reserved for their work packages:
+[voice]                           # P2: input_device, voice, airpods_activation
+[tasks]                           # P4: provider = "linear", [tasks.status_map]
+[docs]                            # P5: provider = "notion"
 ```
 
-Secrets (Linear key, Notion token, Anthropic API key) live in the macOS Keychain, set via
-`vocoder auth <provider>`.
+How it works ([ADR 0009](decisions/0009-config-secrets-and-doctor.md)):
 
-The config is parsed with TOMLDecoder and the CLI built with swift-argument-parser, the only
-third-party Swift packages ([ADR 0004](decisions/0004-third-party-dependencies.md)).
-`vocoder doctor` checks the environment (Apple Intelligence, Claude Code version, terminal and
-Option-as-Meta, config, secrets) with module-contributed checks.
+- Core types the core sections. Each module decodes its own `[<module-id>]` section through its
+  `ConfigSection`, which can list its keys so typos are caught.
+- **Any config error stops startup**, before the TUI takes the terminal: syntax, types, unknown
+  sections and keys ("did you mean"), missing repo directories, duplicate aliases, bad key
+  sequences, module sections. Every error is listed with file:line, key path and a fix.
+  `vocoder config check` shows the same list. A missing file means defaults.
+- **Secrets** (Linear key, Notion token, later the Anthropic API key) live in the macOS Keychain:
+  generic passwords, service `dev.vocoder.<module>`. Modules declare them (`SecretSpec`);
+  `vocoder auth <module>` asks for them with echo off. Secret values are never logged.
+- **`vocoder doctor`** runs Core's, the app's and the modules' `DoctorCheck`s and prints one
+  line each, with a fix hint for anything not ok (exit 1 on a failure). The checks cover: config,
+  terminal, Option-as-Meta, the Ctrl-Space input-source shortcut, Apple Intelligence, module
+  problems, key-binding conflicts, missing secrets, and module checks such as the Claude Code CLI
+  version.
+
+The config is parsed with TOMLDecoder (behind one internal type) and the CLI is built with
+swift-argument-parser. These are the only third-party Swift packages
+([ADR 0004](decisions/0004-third-party-dependencies.md)).
 
 ### 4.10 Extension points and the module system
 
@@ -551,6 +566,7 @@ compiled in, and config decides which are enabled.
 protocol VoCoderModule {
     static var id: ModuleID { get }                    // "linear", "notion", "claude-code", …
     static var configSection: ConfigSection.Type? { get }
+    static var secrets: [SecretSpec] { get }           // asked for by `vocoder auth <id>`
     init(context: ModuleContext) throws                // config, secrets, logger, services
 
     func register(into registry: inout ModuleRegistry) // contributes the items below
@@ -572,13 +588,15 @@ protocol VoCoderModule {
 | `ActivationSource` | voice | keyboard PTT, global hotkey, AirPods | wake word, head gestures |
 | `SpeechRecognizer` / `SpeechSynthesizer` | voice | Apple SpeechAnalyzer / AVSpeechSynthesizer | alternative engines |
 | `LanguageModel` | brain | Foundation Models, Claude API | other models |
+| `DoctorCheck` | doctor checks | core, app, Claude Code CLI | every integration (API reachability, auth) |
 
 How it works (P1-04, [ADR 0006](decisions/0006-module-system-and-tab-model.md)):
 
 - `ModuleLoader` creates the enabled modules in list order with a `ModuleContext` (parsed config
-  section, `SecretStore`, `Log`, read-only `ServiceContainer`). A failed init, bad config
-  section, duplicate id or rejected contribution is a `ModuleIssue`: logged, shown by
-  `vocoder doctor`, never fatal.
+  section, `SecretStore`, `Log`, read-only `ServiceContainer`). A failed init, duplicate id or
+  rejected contribution is a `ModuleIssue`: logged, shown by `vocoder doctor`, never fatal.
+  Config section errors are caught earlier and stop startup (§4.9,
+  [ADR 0009](decisions/0009-config-secrets-and-doctor.md)).
 - `ModuleRegistry` keeps one typed list per extension point; ids are unique per point (first
   wins) and every contribution is attributed to its module.
 - **Tabs are split**: Core owns the `Tab` model (id, title, aliases, `TabBadge`, lifecycle) and

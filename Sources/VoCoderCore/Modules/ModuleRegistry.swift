@@ -6,6 +6,7 @@ public enum ExtensionPoint: String, Sendable, CaseIterable {
   case speechRecognizers = "speech recognizers"
   case speechSynthesizers = "speech synthesizers"
   case languageModels = "language models"
+  case doctorChecks = "doctor checks"
 }
 
 /// Everything the enabled modules contributed, in registration order. Ids are unique per
@@ -27,6 +28,7 @@ public struct ModuleRegistry {
   public private(set) var speechRecognizers: [any SpeechRecognizer] = []
   public private(set) var speechSynthesizers: [any SpeechSynthesizer] = []
   public private(set) var languageModels: [any LanguageModel] = []
+  public private(set) var doctorChecks: [any DoctorCheck] = []
 
   /// Rejected contributions.
   public private(set) var issues: [ModuleIssue] = []
@@ -93,6 +95,10 @@ public struct ModuleRegistry {
   }
   public mutating func add(languageModel: any LanguageModel) {
     add(languageModel, id: languageModel.id.rawValue, to: .languageModels, at: \.languageModels)
+  }
+
+  public mutating func add(doctorCheck: any DoctorCheck) {
+    add(doctorCheck, id: doctorCheck.id.rawValue, to: .doctorChecks, at: \.doctorChecks)
   }
 
   private mutating func add<Value>(

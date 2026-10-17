@@ -155,9 +155,10 @@ private func chords(_ names: String...) -> [KeyChord] { names.map { KeyChord($0)
     #expect(overrides.bindings["tab.next"] == [KeySequence(parsing: "<leader> n")!])
     #expect(overrides.bindings["list.down"] == [])
     #expect(errors.count == 1)
-    #expect(errors.first?.contains("ctrl+tab+x") == true)
+    #expect(errors.first?.command == "tab.next")
+    #expect(errors.first?.description.contains("ctrl+tab+x") == true)
     let (_, leaderErrors) = KeyBindingOverrides.parse(leader: "hyper", bindings: [:])
-    #expect(leaderErrors.count == 1)
+    #expect(leaderErrors.map { $0.command } == [nil])
   }
 
   @Test func conflictsAreReported() {
