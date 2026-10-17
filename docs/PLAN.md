@@ -48,15 +48,15 @@ Later    Jira, Confluence, Slack, more agents, multi-session repos
 ### Dependency graph (WP level)
 
 ```
-P0-01 ─┬─ P0-02 ─ P0-03
-       ├─ P0-04
-       └─ P0-05 ──────────────── P0-06 (synthesis; needs all spikes)
+P0-01 ─┬─ P0-04
+       └─ P0-05 ──────────────── P0-06 (synthesis of non-voice spikes; locks Phase 1)
 P0-06 ─ P1-01 ─┬─ P1-02 ─ P1-03 ─┬─ P1-07 ─ P1-10 ─ P1-11
                ├─ P1-04 ─ P1-05 ─┘          ▲
                ├─ P1-06 ─────────────────────┤
                ├─ P1-08 ─────────────────────┤
                └─ P1-09 ─────────────────────┘
-P1-11 ─ P2-01 ─ P2-02 ─┬─ P2-05 ─ P2-06 ─ P2-07 ─ P2-08 ─ P2-09
+P1-11 ─ P0-02 ─ P0-03 ─ P0-07 (voice spikes, deferred; need the user present)
+P0-07 ─ P2-01 ─ P2-02 ─┬─ P2-05 ─ P2-06 ─ P2-07 ─ P2-08 ─ P2-09
         P2-03 ─────────┤
         P2-04 ─────────┘
 P2-09 ─ P3-01 ─ P3-02 ─┬─ P3-03 ─ P3-04
@@ -90,7 +90,8 @@ measurements, gotchas, go/no-go, and recommended changes to DESIGN.md.
   `unsafeFlags` (fine for local builds); check how FTXUI handles Ctrl-Space.
 
 ### P0-02 — Audio, permissions, recognition and synthesis spike
-- **Depends on:** —
+- **Depends on:** — (**scheduled after P1-11**: needs the user at the machine for permission
+  prompts, speech and AirPods; deferred 2026-10-17)
 - **Goal:** Prove a terminal-launched binary can capture mic audio with echo cancellation,
   transcribe on-device with SpeechAnalyzer, speak with AVSpeechSynthesizer, and be interrupted.
 - **Scope:** embedded Info.plist (`-sectcreate`); permission prompts for mic and speech
@@ -106,7 +107,7 @@ measurements, gotchas, go/no-go, and recommended changes to DESIGN.md.
   speech-recognition authorization is needed for SpeechAnalyzer; what breaks without Info.plist.
 
 ### P0-03 — AirPods activation spike
-- **Depends on:** P0-02 (reuses its audio pipeline)
+- **Depends on:** P0-02 (reuses its audio pipeline); scheduled with P0-02 after P1-11
 - **Goal:** Determine whether AirPods stem presses can start/stop listening from a CLI process.
 - **Scope:** become Now Playing (`MPNowPlayingInfoCenter`) and receive `MPRemoteCommandCenter`
   play/pause and next-track commands; `AVAudioApplication` input-mute handler during capture;
@@ -145,12 +146,21 @@ measurements, gotchas, go/no-go, and recommended changes to DESIGN.md.
   fallback.
 - **Design refs:** §3.4, §4.6.
 
-### P0-06 — Spike synthesis
-- **Depends on:** P0-01…P0-05
-- **Goal:** Fold spike findings back into the design and lock Phase 1.
-- **Scope:** ADRs for each significant finding; amend DESIGN.md (especially §3.5, §4.2, §4.4,
-  §4.8); adjust Phase 1–2 WPs in this plan; decide third-party dependencies (see
-  [Dependency decisions](#dependency-decisions)).
+### P0-06 — Spike synthesis (non-voice)
+- **Depends on:** P0-01, P0-04, P0-05
+- **Goal:** Fold the non-voice spike findings back into the design and lock Phase 1.
+- **Scope:** ADRs for each significant finding; amend DESIGN.md (especially §4.2, §4.4, §4.6);
+  adjust Phase 1 WPs in this plan; decide third-party dependencies (see
+  [Dependency decisions](#dependency-decisions)). Voice findings are P0-07.
+- **Deliverables:** ADRs, updated DESIGN.md and PLAN.md.
+- **Acceptance:** user has reviewed and confirmed the amended design.
+
+### P0-07 — Voice spike synthesis
+- **Depends on:** P0-02, P0-03 (run after P1-11)
+- **Goal:** Fold voice/AirPods findings into the design and lock Phase 2.
+- **Scope:** ADRs; amend DESIGN.md §3.4, §3.5, §4.8 (process model, TCC, Info.plist; pull P6-04
+  helper app forward if a terminal-launched binary can't get mic/speech permission); adjust
+  Phase 2 WPs.
 - **Deliverables:** ADRs, updated DESIGN.md and PLAN.md.
 - **Acceptance:** user has reviewed and confirmed the amended design.
 
@@ -305,7 +315,7 @@ to Claude, hear a spoken summary when it finishes, approve or deny a permission 
 mirrored on screen.
 
 ### P2-01 — Audio engine and device management (`VoCoderVoice`)
-- **Depends on:** P1-11, P0-02/P0-03 findings
+- **Depends on:** P1-11, P0-07
 - **Scope:** `AudioSession` actor: AVAudioEngine with voice processing, input/output device
   selection (config: AirPods vs built-in), route change and device connect/disconnect handling,
   mic state machine (idle → arming → live → closing), level metering for the voice bar.

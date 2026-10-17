@@ -12,9 +12,9 @@ or Makefile until P1-01).
 
 ## Next up
 
-**P0-02 — Audio, permissions, recognition and synthesis spike** (needs the user present: mic /
-speech permission prompts, speaking test phrases, AirPods). P0-04 and P0-05 can follow in any
-order; P0-03 needs P0-02.
+**P0-04 — Claude Code headless integration spike**, then P0-05 (either order), then P0-06
+(non-voice synthesis, locks Phase 1). Voice spikes P0-02/P0-03 (+ P0-07 synthesis) are deferred
+until after P1-11 because they need the user at the machine.
 
 ## Work package status
 
@@ -23,11 +23,12 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | WP | Title | Status | Notes |
 |---|---|---|---|
 | P0-01 | FTXUI + ObjC++ bridge build spike | done | Go. ADR 0001 |
-| P0-02 | Audio, permissions, recognition and synthesis spike | todo | |
-| P0-03 | AirPods activation spike | todo | |
+| P0-02 | Audio, permissions, recognition and synthesis spike | todo | Deferred to after P1-11 (user present) |
+| P0-03 | AirPods activation spike | todo | Deferred with P0-02 |
 | P0-04 | Claude Code headless integration spike | todo | |
 | P0-05 | Foundation Models intent spike | todo | |
-| P0-06 | Spike synthesis | todo | |
+| P0-06 | Spike synthesis (non-voice) | todo | P0-01/04/05 only |
+| P0-07 | Voice spike synthesis | todo | After P0-02/03; gates P2-01 |
 | P1-01 | Package scaffold and tooling | todo | |
 | P1-02 | UI bridge | todo | |
 | P1-03 | Swift UI DSL, focus and snapshot testing | todo | |
@@ -102,6 +103,10 @@ Newest first. One entry per session: date · WP(s) · what was done · decisions
   disambiguation for Ctrl-Space; Ctrl-C as a key and graceful signal model; CSI-u decoding;
   `Ctrl-Space 1…9` as guaranteed tab jump, Alt-digits optional. DESIGN §3.3/§4.2/§4.3/§5/§8 and
   PLAN P1-02 updated.
+- Plan change (user request): voice spikes P0-02/P0-03 deferred until after P1-11 (user not at
+  desk for a few sessions); P0-06 now covers non-voice spikes only; new P0-07 voice synthesis
+  gates P2-01. Accepted risk: a TCC/process-model surprise in P0-02 could force packaging
+  changes (helper app, P6-04) after Phase 1.
 - Follow-ups: consider an upstream FTXUI patch giving SIGWINCH its own event; `vocoder doctor`
   should explain Option-as-Meta (P1-06/P1-07 scope).
 

@@ -511,7 +511,7 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
 
 | Phase | Deliverable | Exit criteria |
 |---|---|---|
-| **0. Spikes** | Throwaway code in `spikes/`: (a) SwiftPM + FTXUI + ObjC++ tab bar in Terminal.app and Ghostty; (b) mic + SpeechAnalyzer + TTS permissions from a CLI, incl. AEC/barge-in; (c) AirPods stem press via Now Playing + mute gesture, HFP latency; (d) Claude Code stream-json round trip incl. permission prompts; (e) Foundation Models intent-parse accuracy over ~50 utterances | Written go/no-go per spike; this document amended |
+| **0. Spikes** | Throwaway code in `spikes/`: (a) SwiftPM + FTXUI + ObjC++ tab bar in Terminal.app and Ghostty; (b) mic + SpeechAnalyzer + TTS permissions from a CLI, incl. AEC/barge-in; (c) AirPods stem press via Now Playing + mute gesture, HFP latency; (d) Claude Code stream-json round trip incl. permission prompts; (e) Foundation Models intent-parse accuracy over ~50 utterances | Written go/no-go per spike; this document amended. (b) and (c) run after Phase 1, before Phase 2 (see PLAN P0-07) |
 | **1. Shell** | Bridge + node DSL, command registry, leader key, palette, tab bar, config, snapshot tests, Claude Code repo tab (keyboard only) | Daily-drivable for prompting Claude in one or more repos |
 | **2. Voice core** | Push-to-talk (key + AirPods), recognition, grammar → intent → dictation routing, voice bar, TTS + earcons + barge-in, spoken agent summaries, voice approvals with risk tiers | A full Claude Code task done by voice from across the room |
 | **3. Attention + Home + Calendar** | Attention queue + policy, Home briefing, EventKit day view, meeting reminders, "join my meeting" | Morning briefing and meeting reminders by voice |
