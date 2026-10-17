@@ -143,6 +143,8 @@ to one or two lines; move anything architectural into an ADR._
 - FTXUI's input parser reports 1-based mouse coordinates; `App` subtracts the origin.
   `injectInput:` does the same off-loop.
 - Swift: `"\r\n"` is a single `Character`, so `prefix { $0 != "\r" }` never stops.
+- pty test teardown must kill the wrapper's whole process group (`killpg`): killing only the
+  `sh` wrapper orphans the demo, which never gets SIGHUP because the test still holds the pty.
 
 ## Session log
 
@@ -170,6 +172,9 @@ Newest first. One entry per session: date · WP(s) · what was done · decisions
 - Verified: clean build 0 warnings, `make lint` clean, `make test`, `make pty-test` 11/11. Not
   done: manual check in Terminal.app/Ghostty (optional, user not required).
 - Next: P1-03.
+- Follow-up (same day): stray `bridge-demo` processes from interrupted runs traced to pty test
+  teardown killing only the `sh` wrapper; now `killpg`s the group. Verified mid-pop-out teardown
+  leaves nothing (old script leaked the demo); `make pty-test` 11/11.
 
 ### 2026-10-17 · P1-01
 - Root package: `CFTXUI` (spike settings), `VoCoderUIBridge` (probe rendering off-screen),

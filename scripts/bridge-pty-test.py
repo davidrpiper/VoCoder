@@ -273,7 +273,7 @@ class Demo:
             if code is not None:
                 self.pump(0.1)
                 return code
-        self.proc.kill()
+        self.kill()
         raise AssertionError("demo did not exit")
 
     def modes_restored(self):
@@ -286,10 +286,17 @@ class Demo:
 
         return modes(self.before) == modes(self.after)
 
+    def kill(self):
+        """Kill the wrapper's whole group: killing only the wrapper orphans the demo (and any
+        popped-out shell), which then never sees a hangup because we still hold the pty."""
+        try:
+            os.killpg(self.proc.pid, signal.SIGKILL)  # start_new_session: pgid == wrapper pid
+        except ProcessLookupError:
+            pass
+        self.proc.wait()
+
     def close(self):
-        if self.proc.poll() is None:
-            self.proc.kill()
-            self.proc.wait()
+        self.kill()
         os.close(self.master)
         os.close(self.slave)
         self.tmp.cleanup()
