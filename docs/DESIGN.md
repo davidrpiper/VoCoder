@@ -115,7 +115,10 @@ Terminals cannot see ⌘, so:
 
 - **Leader key** `Ctrl-Space` opens a which-key style popup listing the next keys, generated from
   the command registry (e.g. `Ctrl-Space t n` = next tab, `Ctrl-Space v` = talk).
-- `Alt-1…9` jump to tabs; `Ctrl-P` opens a fuzzy command palette; `?` shows contextual help.
+- `Ctrl-Space 1…9` jump to tabs (always works); `Alt-1…9` too where the terminal sends Option as
+  Meta/Alt (not the default in Terminal.app or Ghostty — first run / `vocoder doctor` explains the
+  setting; [ADR 0001](decisions/0001-ftxui-objc-bridge.md)). `Ctrl-P` opens a fuzzy command
+  palette; `?` shows contextual help.
 - Standard list navigation (`j/k`, arrows, `Enter`, `Esc`) in every list.
 - All bindings overridable in config.
 
@@ -206,7 +209,7 @@ Later: **nod to approve / shake to deny** using AirPods head tracking (`CMHeadph
 ├────────────────────────── ObjC++ bridge (VoCoderUIBridge, .mm) ───────────────────────┤
 │   VCRenderer: setRoot(VCNode tree), events → block callbacks; owns the FTXUI thread    │
 ├──────────────────────────────── FTXUI (C++20, vendored) ──────────────────────────────┤
-│   ScreenInteractive loop on its own thread · layout/flexbox · diffed terminal output   │
+│   App (ex-ScreenInteractive) loop on its own thread · layout · diffed terminal output │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -258,7 +261,17 @@ Objective-C gives us blocks ↔ closures, `NSString`, ARC, and zero special flag
   FTXUI components owned by C++ and keyed by a **stable id** in the node tree. Swift reads/writes
   their values through the bridge and receives change events.
 - **Events** (keys, mouse, widget changes, resize) are delivered as small ObjC objects via a block
-  callback; Swift hops to the main actor.
+  callback; Swift hops to the main actor. Keys arrive with normalised names; the bridge also
+  decodes CSI-u sequences (`ESC [ code ; mods u`, sent by Ghostty for Ctrl-I etc.), which FTXUI
+  doesn't parse.
+- **Ctrl-Space vs FTXUI internals:** FTXUI's `Event::Custom` and its SIGWINCH notification are
+  `Special({0})` — the same byte Ctrl-Space sends. The bridge redraws with a private special
+  event, never `Event::Custom`, and treats a NUL event as a resize only if the terminal size
+  changed ([ADR 0001](decisions/0001-ftxui-objc-bridge.md)).
+- **Ctrl-C and signals:** Ctrl-C is an ordinary key routed to the command system
+  (`ForceHandleCtrlC(false)`). The app sets SIGINT/SIGTERM/SIGHUP to `SIG_IGN` and observes them
+  with `DispatchSource`; FTXUI still restores the terminal and leaves its loop, and its re-raise
+  of the signal is then harmless, so shutdown runs normally.
 
 Target surface: ~10–15 ObjC classes (`VCRenderer`, `VCNode` + builders, `VCEvent`, `VCWidgetState`,
 `VCStyle`, …). If a specific complex widget ever needs full FTXUI power, it can be written in C++
@@ -267,15 +280,18 @@ as a custom node type without changing the overall approach.
 **Testing:** the same node → Element mapping can render to an off-screen `ftxui::Screen` and
 `ToString()`, giving golden-file snapshot tests for every view.
 
-**Escape hatch:** "pop out" suspends the TUI (`ScreenInteractive::WithRestoredIO`) to run an
+**Escape hatch:** "pop out" suspends the TUI (`App::WithRestoredIO`) to run an
 interactive program (e.g. `claude`, `$EDITOR`, `lazygit`) and resumes afterwards.
 
 ### 4.3 Threading
 
 - **Main thread / `@MainActor`**: app state, view models, command dispatch. Keeps a live RunLoop,
   which EventKit, AVFoundation and MediaPlayer callbacks require.
-- **FTXUI thread**: runs `ScreenInteractive::Loop`. Swift calls `[renderer setRoot:]` (thread-safe
-  swap) which posts a custom event to trigger redraw. Renders coalesce, capped at ~30 fps.
+- **FTXUI thread**: runs `App::Loop` (FTXUI ≥ 7.0.2; `ScreenInteractive` is now an alias). The
+  loop polls input at a 60 fps cadence rather than blocking. Swift calls `[renderer setRoot:]`
+  (thread-safe swap under a mutex) which posts a private redraw event via the thread-safe
+  `App::PostEvent`; at most one redraw is pending, so renders coalesce (measured: 80k `setRoot`
+  calls → ~90 frames; ~20 ms average latency).
 - **Voice actor**: audio engine, recognition, synthesis; emits transcripts and state changes.
 - **Provider tasks**: structured-concurrency tasks per provider for polling and streaming.
 
@@ -472,6 +488,8 @@ Rules:
 | GPU rendering, smooth streaming output | — | ✓ |
 | Synchronized output (no flicker) | — | ✓ |
 | Kitty keyboard protocol (key release → in-TUI hold-to-talk; Ctrl-I ≠ Tab) | — | ✓ (needs FTXUI parser extension) |
+| Ctrl-I distinct from Tab without negotiation (CSI u `ESC[105;5u`, decoded by bridge) | — (sends Tab) | ✓ |
+| Alt-digit keys (Option as Meta/Alt) | opt-in: "Use Option as Meta key" | opt-in: `macos-option-as-alt` |
 
 Terminal.app is the supported baseline; features degrade gracefully. Ghostty is recommended.
 
@@ -513,6 +531,6 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
 | 3 | AEC quality for barge-in with AirPods and built-in speakers | Spike (b) |
 | 4 | Recognition and intent latency targets: <300 ms grammar, <1 s intent | Spikes (b), (e) |
 | 5 | Permission prompt round-trip via `--permission-prompt-tool` in stream-json mode | Spike (d) |
-| 6 | Building FTXUI as a SwiftPM C++ target cleanly (no CMake) | Spike (a) |
+| 6 | Building FTXUI as a SwiftPM C++ target cleanly (no CMake) | ✅ Resolved: works, no `unsafeFlags` ([ADR 0001](decisions/0001-ftxui-objc-bridge.md)) |
 | 7 | Music playback vs. play/pause activation conflict | Spike (c); config option |
 | 8 | HFP audio quality drop while listening on AirPods | Accept for PTT; built-in-mic option |

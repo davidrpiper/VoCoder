@@ -33,4 +33,4 @@ Briefly, and why not.
 
 ## Index
 
-(none yet)
+- [0001 — FTXUI via SwiftPM + ObjC++ bridge: validated, with key/signal rules](0001-ftxui-objc-bridge.md) (P0-01, Accepted)

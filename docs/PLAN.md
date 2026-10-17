@@ -179,7 +179,9 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Goal:** Production version of the ObjC++ render protocol.
 - **Scope:** `VCNode` vocabulary (vbox, hbox, dbox, text, paragraph, border, separator, table,
   gauge, spinner, scrollFrame, tabBar, filler, style + flex modifiers); `VCRenderer`
-  (start/stop, `setRoot:` thread-safe swap, render coalescing ≤30 fps, resize, exit);
+  (start/stop, `setRoot:` thread-safe swap, coalesced redraws via a private event, resize,
+  exit; Ctrl-C as a key, signal model per ADR 0001); key normalisation incl. CSI-u decoding and
+  Ctrl-Space/NUL disambiguation;
   stateful widget registry keyed by stable ids (`input` single/multi-line, `menu`,
   scroll positions) with value get/set and change events; `VCEvent` (key, mouse, widget,
   resize); off-screen render to string; terminal restore on signals/crash; suspend/resume for
@@ -187,7 +189,8 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Deliverables:** bridge target + Swift-side thin tests through the public ObjC API.
 - **Acceptance:** node tree renders identically on-screen and off-screen; widget state survives
   re-renders; events arrive on the Swift side; no Swift target enables C++ interop.
-- **Design refs:** §4.2, §4.3.
+- **Design refs:** §4.2, §4.3; ADR 0001.
+- **Notes:** start from `spikes/ftxui-bridge/` and its FINDINGS.md (gotchas 2, 4–6, 8, 9, 12).
 
 ### P1-03 — Swift UI DSL, focus and snapshot testing (`VoCoderUI`)
 - **Depends on:** P1-02
