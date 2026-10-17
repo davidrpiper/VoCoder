@@ -43,7 +43,12 @@ let package = Package(
       publicHeadersPath: "include",
       cxxSettings: [.headerSearchPath("src")]
     ),
-    .target(name: "VoCoderUIBridge", dependencies: ["CFTXUI"]),
+    .target(
+      name: "VoCoderUIBridge",
+      dependencies: ["CFTXUI"],
+      // FTXUI's private headers (terminal input parser, used by `injectInput:`).
+      cxxSettings: [.headerSearchPath("../../Vendor/FTXUI/src")]
+    ),
     .target(
       name: "VoCoderCore",
       dependencies: [.product(name: "TOMLDecoder", package: "TOMLDecoder")]
@@ -78,7 +83,7 @@ let package = Package(
     .executableTarget(
       name: "vocoder",
       dependencies: [
-        "VoCoderCore", "VoCoderUI", "VoCoderVoice",
+        "VoCoderCore", "VoCoderUI", "VoCoderUIBridge", "VoCoderVoice",
         "GitModule", "ClaudeCodeModule", "EventKitCalendarModule", "LinearModule", "NotionModule",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ],
@@ -92,6 +97,7 @@ let package = Package(
     ),
 
     .testTarget(name: "VoCoderCoreTests", dependencies: ["VoCoderCore", "VoCoderTestSupport"]),
+    .testTarget(name: "VoCoderUIBridgeTests", dependencies: ["VoCoderUIBridge"]),
     .testTarget(name: "VoCoderUITests", dependencies: ["VoCoderUI", "VoCoderUIBridge"]),
     .testTarget(name: "VoCoderVoiceTests", dependencies: ["VoCoderVoice"]),
   ],

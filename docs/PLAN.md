@@ -276,6 +276,10 @@ key and palette; sessions resume after restart; terminal is always restored.
   (next/prev/goto n/goto by alias/close/reorder).
 - **Acceptance:** snapshot tests at 80×24, 120×40, 200×60; tab switching via keys and palette.
 - **Design refs:** §3.1.
+- **Notes:** the run loop, signal handling (incl. ignoring SIGINT while popped out) and the
+  pop-out spawn helper exist in `Sources/vocoder/BridgeDemo.swift` (P1-02); move them into the
+  app proper here. Keep `bridge-demo` while `make pty-test` uses it, or port the pty test to the
+  real app and delete the demo.
 
 ### P1-08 — Git module
 - **Depends on:** P1-04

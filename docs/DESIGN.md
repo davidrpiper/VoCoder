@@ -241,8 +241,10 @@ Sources/
   vocoder/                     executable: composition root, CLI, module list, run loop
 Tests/
   VoCoderCoreTests/            Swift Testing
+  VoCoderUIBridgeTests/        bridge tests through the public ObjC API (render, widgets, keys)
   VoCoderUITests/              snapshot tests (render to off-screen ftxui::Screen → text)
   VoCoderVoiceTests/           routing tests over transcript fixtures; recognition over audio fixtures
+scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` in a pty)
 spikes/                        throwaway Phase 0 experiments
 docs/
 ```
@@ -261,14 +263,24 @@ Objective-C gives us blocks ↔ closures, `NSString`, ARC, and zero special flag
 
 - Swift builds an immutable **node tree** each update from a small vocabulary: `vbox`, `hbox`,
   `dbox`, `text`, `paragraph`, `border`, `separator`, `table`, `gauge`, `spinner`, `scrollFrame`,
-  `tabBar`, `filler`, plus style (colour, bold, dim, inverted) and flex modifiers.
+  `tabBar`, `filler`, plus style (colour, bold, dim, inverted), border, size, alignment and flex
+  modifiers. Modifiers apply in call order. Colours keep the requested value (16/256/RGB) and
+  are converted while building, because FTXUI degrades a colour to the terminal's support when
+  it is constructed.
 - C++ maps the tree to `ftxui::Element`s and renders. FTXUI provides layout, Unicode/wide-char
   width, screen diffing, input parsing and mouse support.
 - **Stateful widgets** (text input with cursor/UTF-8 editing, menus, scroll positions) are real
   FTXUI components owned by C++ and keyed by a **stable id** in the node tree. Swift reads/writes
-  their values through the bridge and receives change events.
+  their values through the bridge and receives change and submit events. Widget state is
+  registered when `setRoot` is called, so values and input work before the first frame.
+  `scrollFrame` is a custom node with a persistent first-row offset: a `focusMarker` inside it
+  stays visible with minimal movement, otherwise `followingEnd` pins it to the bottom
+  (streaming output), otherwise the stored offset is kept; the offset drawn is written back.
+  (FTXUI's `yframe` centres the focused element and has no offset of its own.)
 - **Events** (keys, mouse, widget changes, resize) are delivered as small ObjC objects via a block
-  callback; Swift hops to the main actor. Keys arrive with normalised names; the bridge also
+  callback; Swift hops to the main actor. Mouse reporting is off by default (it would take
+  over the terminal's text selection) and can be enabled per renderer. Keys arrive with
+  normalised names (`VCKeyDecoder`: "Ctrl-a", "Alt-1", "Ctrl-ArrowLeft", "F5", …); the bridge also
   decodes CSI-u sequences (`ESC [ code ; mods u`, sent by Ghostty for Ctrl-I etc.), which FTXUI
   doesn't parse.
 - **Ctrl-Space vs FTXUI internals:** FTXUI's `Event::Custom` and its SIGWINCH notification are
@@ -278,17 +290,31 @@ Objective-C gives us blocks ↔ closures, `NSString`, ARC, and zero special flag
 - **Ctrl-C and signals:** Ctrl-C is an ordinary key routed to the command system
   (`ForceHandleCtrlC(false)`). The app sets SIGINT/SIGTERM/SIGHUP to `SIG_IGN` and observes them
   with `DispatchSource`; FTXUI still restores the terminal and leaves its loop, and its re-raise
-  of the signal is then harmless, so shutdown runs normally.
+  of the signal is then harmless, so shutdown runs normally. FTXUI also restores the terminal on
+  SIGSEGV/SIGABRT/SIGILL/SIGFPE/SIGBUS; the bridge adds SIGTRAP while the loop runs, because
+  Swift runtime traps (`fatalError`, failed force-unwraps) raise SIGTRAP on arm64.
 
 Target surface: ~10–15 ObjC classes (`VCRenderer`, `VCNode` + builders, `VCEvent`, `VCWidgetState`,
 `VCStyle`, …). If a specific complex widget ever needs full FTXUI power, it can be written in C++
 as a custom node type without changing the overall approach.
 
 **Testing:** the same node → Element mapping can render to an off-screen `ftxui::Screen` and
-`ToString()`, giving golden-file snapshot tests for every view.
+`ToString()`, giving golden-file snapshot tests for every view (ANSI output is rendered with
+true colour so it doesn't depend on the environment). `-[VCRenderer injectInput:]` (testing
+only) feeds raw terminal bytes through FTXUI's parser, so key and widget handling are testable
+without a terminal. `make pty-test` drives the hidden `vocoder bridge-demo` in a pseudo-terminal
+with a small VT emulator: exits, signals, resize, keys, mouse, pop-out, crash restore, and
+on-screen output identical to the off-screen render.
 
-**Escape hatch:** "pop out" suspends the TUI (`App::WithRestoredIO`) to run an
-interactive program (e.g. `claude`, `$EDITOR`, `lazygit`) and resumes afterwards.
+**Escape hatch:** "pop out" suspends the TUI (`App::WithRestoredIO`, exposed as
+`-[VCRenderer runSuspended:]`) to run an interactive program (e.g. `claude`, `$EDITOR`,
+`lazygit`) and resumes afterwards. The child must stay in vocoder's process group (the
+terminal's foreground group), so it is started with `posix_spawn` with SIGINT/SIGTERM/SIGHUP/
+SIGQUIT/SIGTSTP reset to default (they are `SIG_IGN` in vocoder, and ignored dispositions survive
+exec), not with Foundation `Process`, which starts a new process group (Ctrl-C and tty reads then
+fail). While popped out, the terminal's Ctrl-C reaches vocoder too, so the app ignores its
+SIGINT source until the TUI resumes. Non-interactive children (`claude -p`, `git`) can use
+`Process`, which resets signal dispositions.
 
 ### 4.3 Threading
 

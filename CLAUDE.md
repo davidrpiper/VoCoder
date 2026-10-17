@@ -70,6 +70,7 @@ The project is built over many sessions. Context is carried by the docs above, n
 ## Commands
 
 - `make build` / `make test` (Swift Testing + `vocoder --version` smoke check) / `make run ARGS=…`
+- `make pty-test` — drives the hidden `vocoder bridge-demo` in a pty (UI bridge end to end; slower)
 - `make snapshot-update` — regenerate UI goldens, then review the diff
 - `make fmt` / `make lint` — toolchain `swift format` (`.swift-format`: 2 spaces, 100 columns)
 - `make logs` — tail `~/Library/Logs/VoCoder/vocoder.log` (log via `Log(category:)` in Core)

@@ -24,15 +24,22 @@ P2-05 hard gates vs stretch goals set; `vocoder doctor` added to P1-06. Phase 1 
 P1-01 done (2026-10-17): root `Package.swift` with all DESIGN §4.1 targets (modules are empty
 placeholder targets), `Makefile`, `.swift-format`, embedded Info.plist (version lives there;
 `vocoder --version` reads it via `Bundle.main`), logging facility in Core (`Log` → `os.Logger` +
-rotating `FileLogSink` at `~/Library/Logs/VoCoder/`). `VoCoderUIBridge` has only a build probe
-(`VCBuildInfo`); the TUI does not exist yet (`vocoder` prints a placeholder line).
+rotating `FileLogSink` at `~/Library/Logs/VoCoder/`).
+P1-02 done (2026-10-17): production `VoCoderUIBridge` — `VCNode` (full vocabulary + modifiers),
+`VCColor`, `VCEvent`, `VCKeyDecoder`, `VCRenderer` (coalesced `setRoot`, widget registry for
+input/menu/scroll frame, `runSuspended:` pop-out, off-screen render, testing-only
+`injectInput:`, SIGTRAP terminal restore). 45 bridge tests in `VoCoderUIBridgeTests`; hidden
+`vocoder bridge-demo` + `make pty-test` (11 pty checks incl. on-screen == off-screen). The app
+itself still has no TUI (`vocoder` prints a placeholder line) until P1-07.
 
 ## Next up
 
-**P1-02 — UI bridge** (`VoCoderUIBridge`; port from `spikes/ftxui-bridge/` per ADR 0001 and its
-PLAN notes; replace the `VCBuildInfo` probe). P1-04 can run in parallel. Voice spikes
-P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed 2026-10-17). Keep the
-embedded-Info.plist and voice service boundaries easy to change (helper-app risk).
+**P1-03 — Swift UI DSL, focus and snapshot testing** (`VoCoderUI`; builds on `VCNode` and
+`renderToString`, which fits content when `height` <= 0 and renders ANSI with true colour).
+P1-04 can run in parallel. Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11
+(user confirmed 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to
+change (helper-app risk). Optional: user eyeball check of `make run ARGS=bridge-demo` in
+Terminal.app and Ghostty (pty tests cover behaviour, not real-terminal quirks).
 
 ## Work package status
 
@@ -48,7 +55,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P0-06 | Spike synthesis (non-voice) | done | ADR 0004; Phase 1 locked |
 | P0-07 | Voice spike synthesis | todo | After P0-02/03; gates P2-01 |
 | P1-01 | Package scaffold and tooling | done | `unsafeFlags` only on the executable (plist) |
-| P1-02 | UI bridge | todo | |
+| P1-02 | UI bridge | done | `make pty-test`; manual terminal check optional |
 | P1-03 | Swift UI DSL, focus and snapshot testing | todo | |
 | P1-04 | Core architecture and module system | todo | |
 | P1-05 | Command system, keymap, leader key, palette | todo | |
@@ -122,10 +129,47 @@ to one or two lines; move anything architectural into an ADR._
   just the last one. Log tests use temp dirs via `FileLogSink(directory:)`, never the real log.
 - Swift 6: `await iterator.next()` on an iterator stored in a `@MainActor` class doesn't compile;
   use a local copy with `next(isolation: #isolation)`.
+- FTXUI degrades a colour to the terminal's support when the `ftxui::Color` is *constructed*;
+  support is a lazily initialised, unlocked global. `VCColor` converts at build time;
+  `VCRenderer +initialize` touches it once; ANSI off-screen renders pin true colour under a mutex.
+- FTXUI size constraints only act inside containers (the root always gets the whole screen);
+  `Dimension::Fit` lays out at the terminal width (wrong for paragraphs off-screen).
+- Foundation `Process` starts the child in a new process group: fine for `claude -p`/`git`
+  (and it resets signal dispositions), wrong for interactive pop-out — use `posix_spawn` with
+  `POSIX_SPAWN_SETSIGDEF` (our `SIG_IGN`s survive exec). While popped out, the tty's Ctrl-C also
+  reaches vocoder's SIGINT `DispatchSource`; ignore it then.
+- When a pty's session leader exits, macOS revokes the pty: the parent can't `tcgetattr` it
+  afterwards. The pty test records `stty -g` from an `sh` wrapper instead.
+- FTXUI's input parser reports 1-based mouse coordinates; `App` subtracts the origin.
+  `injectInput:` does the same off-loop.
+- Swift: `"\r\n"` is a single `Character`, so `prefix { $0 != "\r" }` never stops.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-02
+- Bridge split into `VCColor`/`VCNode`/`VCEvent`/`VCKeyDecoder`/`VCRenderer` `.mm` files plus
+  private `BridgeInternal.h`, `BridgeState.mm` (node mapping, widget registry, root component),
+  `ScrollFrame.mm` (custom viewport node), `CrashRestore.mm` (SIGTRAP). `VCBuildInfo` removed.
+  Modifiers are an ordered decorator list; widget state registered on `setRoot`; Enter submits
+  single-line inputs and menus; Esc/Tab/Shift-Tab/Ctrl-C/Ctrl-Space bypass focused widgets.
+- Key decoder: full FTXUI table, xterm modifier params (arrows, Home/End, F-keys, `~` keys),
+  CSI-u and `27;mods;code~`, Alt/Ctrl-Alt, UTF-8; 63 table-driven cases.
+- `VoCoderUIBridgeTests` target (needs FTXUI's private `src/` header path only in the bridge
+  target, for the input parser). `VoCoderUITests` has a placeholder until P1-03.
+- `vocoder bridge-demo` (hidden; `--mouse`, `--still`, `--dump-offscreen`, `--crash-after`) and
+  `scripts/bridge-pty-test.py` (`make pty-test`): q/Ctrl-C/SIGINT/SIGTERM/SIGHUP exits restore
+  the terminal; on-screen == off-screen at 80×24, 100×30, 60×20; keys; mouse opt-in; input;
+  pop-out with Ctrl-C inside; SIGTRAP restore. Negative checks confirmed the pop-out and SIGTRAP
+  checks fail without the fixes.
+- Decisions (user, at plan time): mouse off by default with an option; demo as hidden
+  subcommand; `injectInput:` public, testing-only. No ADR: within ADR 0001; DESIGN §4.1/§4.2
+  updated (scroll frame, colours, SIGTRAP, pop-out process rule, testing). PLAN P1-07 note: move
+  run loop/signals/pop-out helper from the demo into the app.
+- Verified: clean build 0 warnings, `make lint` clean, `make test`, `make pty-test` 11/11. Not
+  done: manual check in Terminal.app/Ghostty (optional, user not required).
+- Next: P1-03.
 
 ### 2026-10-17 · P1-01
 - Root package: `CFTXUI` (spike settings), `VoCoderUIBridge` (probe rendering off-screen),

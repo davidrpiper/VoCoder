@@ -19,7 +19,8 @@ make run                                            # pass arguments with ARGS="
 |---|---|
 | `make build` | `swift build` (FTXUI is compiled from the `Vendor/FTXUI` submodule) |
 | `make test` | Swift Testing suites + a `vocoder --version` smoke check |
-| `make run` | Runs `vocoder` |
+| `make pty-test` | Drives the hidden `vocoder bridge-demo` in a pty: UI bridge end to end (slower) |
+| `make run` | Runs `vocoder` (`ARGS=bridge-demo` shows the UI bridge demo) |
 | `make snapshot-update` | Regenerates UI snapshot goldens (review the diff) |
 | `make fmt` / `make lint` | Toolchain `swift format` (lint is `--strict`) |
 | `make logs` | Tails `~/Library/Logs/VoCoder/vocoder.log` |

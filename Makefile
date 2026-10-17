@@ -3,7 +3,7 @@ SWIFT ?= swift
 FORMAT_PATHS := Package.swift Sources Tests
 LOG_FILE := $(HOME)/Library/Logs/VoCoder/vocoder.log
 
-.PHONY: build test run snapshot-update fmt lint logs clean
+.PHONY: build test pty-test run snapshot-update fmt lint logs clean
 
 build:
 	$(SWIFT) build
@@ -13,6 +13,11 @@ test:
 	@# Smoke check: the executable carries its embedded Info.plist.
 	@$(SWIFT) run -q vocoder --version | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+ \([0-9]+\)$$' \
 	  || { echo "vocoder --version: embedded Info.plist missing" >&2; exit 1; }
+
+# Drives `vocoder bridge-demo` in a pty: exits, signals, resize, keys, pop-out, crash restore,
+# on-screen vs off-screen render. Slower than `make test` (FTXUI's startup wait in a bare pty).
+pty-test: build
+	python3 -I scripts/bridge-pty-test.py "$$($(SWIFT) build --show-bin-path)/vocoder"
 
 run:
 	$(SWIFT) run vocoder $(ARGS)
