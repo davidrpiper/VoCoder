@@ -9,6 +9,7 @@ final class VoCoderApp {
   private let shell: AppShell
   private let session: TerminalSession
   private let notice: Notice?
+  private let dump: ScreenDump?
   private let log = Log(category: "app")
 
   init(
@@ -21,14 +22,17 @@ final class VoCoderApp {
       quit: { [weak host] in host?.renderer.stop() })
     session = TerminalSession(renderer: host.renderer, log: log)
     self.notice = notice
+    dump = ScreenDump.fromEnvironment(host: host)
   }
 
   func run() {
     shell.host.connect()
     shell.start()
     if let notice { shell.toasts.show(notice) }
+    dump?.start()
     log.info("tui started")
     session.run()
+    dump?.stop()
     shell.stop()
     log.info("tui exited")
   }

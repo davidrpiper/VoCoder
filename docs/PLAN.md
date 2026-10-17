@@ -371,6 +371,8 @@ key and palette; sessions resume after restart; terminal is always restored.
   terminal or `claude` process running the script. The run takes keyboard focus while it runs.
 - **Notes:** Ghostty has no comparable scripting interface and stays a manual check. Proposed by
   the user 2026-10-17 (during P1-06); do it before P1-10 so the repo tab gets these checks too.
+  Done 2026-10-17: `make term-test`, plus a bridge fix for Terminal.app's DECRQSS echo. P1-10
+  adds a repo-tab scenario to `scripts/term-test.py`.
 
 ### P1-08 — Git module
 - **Depends on:** P1-04

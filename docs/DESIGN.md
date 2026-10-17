@@ -273,6 +273,7 @@ Tests/
   VoCoderVoiceTests/           routing tests over transcript fixtures; recognition over audio fixtures
   ModuleTests/                 module contract for every module; demo module end to end
 scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` and the app in a pty;
+                               term-test.py: real Terminal.app windows, `make term-test`;
                                check-deps.py: target dependency rules, run by `make lint`)
 spikes/                        throwaway Phase 0 experiments
 docs/
@@ -336,6 +337,13 @@ without a terminal. `make pty-test` drives the hidden `vocoder bridge-demo` in a
 with a small VT emulator: exits, signals, resize, keys, mouse, pop-out, crash restore, and
 on-screen output identical to the off-screen render. It also smoke-tests the app (`vocoder
 --demo`: chrome, leader keys, a confirm dialog; `vocoder`: Home; both quit cleanly).
+`make term-test` (opt-in, P1-07b) does what a pty can't: it runs the app in real Terminal.app
+windows (see §6).
+
+Terminal.app prints the payload of FTXUI's setup query for the cursor shape (DECRQSS, `$q q`) as
+text, which moves the cursor before FTXUI draws its first frame relative to it. The bridge
+therefore sends a cursor home just before the first frame after startup and after each
+pop-out (found by `make term-test`; `make pty-test` checks the byte stream).
 
 **Swift side (`VoCoderUI`, [ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)):**
 views are `@MainActor` value types with a `@ViewBuilder` `body` (`VStack`, `HStack`, `Text`,
@@ -671,6 +679,17 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
   file, `make snapshot-update` rewrites them); focus and key routing driven through the
   bridge's `injectInput:` (keys go through the real keymap and commands; the palette, help and
   which-key overlays have goldens).
+- **Real terminal** (`make term-test`, opt-in, P1-07b): `scripts/term-test.py` opens Terminal.app
+  windows at fixed sizes (each with a temporary profile from a `.terminal` file, deleted
+  afterwards) running `vocoder --demo` and `ui-gallery` in both themes. It sends real
+  keystrokes through System Events (Ctrl-Space, Alt-digits with Option-as-Meta on and off, Ctrl-P,
+  F-keys) and compares the window text (`contents of tab`) with the app's off-screen render. The
+  app writes that render to `$VOCODER_DUMP_SCREEN` (`ScreenDump`). It also checks that every
+  cell's background in a `screencapture`, converted to sRGB, matches the colour the app drew (from
+  the ANSI dump), with the grid calibrated from two marker cells. Ctrl-Space lost to the macOS
+  input-source shortcut is a warning. It needs Automation, Accessibility and Screen Recording
+  permissions once and takes keyboard focus. Ghostty has no comparable scripting interface, so it
+  stays a manual check.
 - **Voice routing**: table-driven tests from transcript text → expected command/intent.
 - **Recognition**: a small set of recorded audio fixtures run through SpeechAnalyzer (opt-in, slow).
 - **Agent**: stream-json fixtures replayed through `ClaudeCodeBackend`'s parser.

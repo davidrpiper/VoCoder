@@ -139,6 +139,11 @@ struct VCBridgeState {
   bool trackMouse = false;
   std::atomic<bool> redrawPending{false};
   std::atomic<NSUInteger> framesDrawn{0};
+  // FTXUI draws its first frame (and the first after a pop-out) from wherever the cursor is.
+  // Terminal.app prints the unsupported DECRQSS query FTXUI sends at setup ("$q q") as text,
+  // moving the cursor, so that frame lands shifted and stays so (output is diff-based). Set
+  // before those frames: the next render homes the cursor first.
+  std::atomic<bool> homeCursorBeforeNextFrame{false};
   void (^onEvent)(VCEvent *) = nil;
 
   // All of the following require `mutex` held.

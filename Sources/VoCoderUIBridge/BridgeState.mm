@@ -1,6 +1,7 @@
 // Node → ftxui::Element mapping, the widget registry and the root component that routes input.
 #import "BridgeInternal.h"
 
+#include <unistd.h>
 #include <algorithm>
 
 #include "ftxui/component/app.hpp"
@@ -295,6 +296,12 @@ F::Element VCRootComponent::BuildTree() {
 
 F::Element VCRootComponent::OnRender() {
   state_->redrawPending.store(false);
+  // Render runs at the start of FTXUI's Draw, before it writes the frame; everything FTXUI
+  // sent earlier has been flushed by its setup.
+  if (state_->homeCursorBeforeNextFrame.exchange(false) && isatty(STDOUT_FILENO)) {
+    static const char home[] = "\x1b[H";
+    (void)write(STDOUT_FILENO, home, sizeof home - 1);
+  }
   F::Element el = BuildTree();
   auto size = F::Terminal::Size();
   VCEvent *resize = nil;

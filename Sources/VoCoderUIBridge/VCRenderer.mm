@@ -264,6 +264,7 @@ std::mutex gColorPinMutex;
       state->app = &app;
       state->lastWidth = state->lastHeight = -1;
     }
+    state->homeCursorBeforeNextFrame.store(true);
     VCArmTrapRestore();
     app.Loop(root);
     VCDisarmTrapRestore();
@@ -295,7 +296,13 @@ std::mutex gColorPinMutex;
     if (app) {
       // Post runs the closure on the loop thread; WithRestoredIO uninstalls the terminal
       // setup around it and redraws afterwards.
-      app->Post([app, block] { app->WithRestoredIO([block] { block(); })(); });
+      auto state = _state;
+      app->Post([app, block, state] {
+        app->WithRestoredIO([block, state] {
+          block();
+          state->homeCursorBeforeNextFrame.store(true);  // FTXUI reinstalls, queries again
+        })();
+      });
       return;
     }
   }

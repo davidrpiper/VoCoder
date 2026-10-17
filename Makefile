@@ -3,7 +3,7 @@ SWIFT ?= swift
 FORMAT_PATHS := Package.swift Sources Tests
 LOG_FILE := $(HOME)/Library/Logs/VoCoder/vocoder.log
 
-.PHONY: build test pty-test run snapshot-update fmt lint check-deps logs clean
+.PHONY: build test pty-test term-test run snapshot-update fmt lint check-deps logs clean
 
 build:
 	$(SWIFT) build
@@ -19,6 +19,12 @@ test:
 # `make test` (FTXUI's startup wait in a bare pty).
 pty-test: build
 	python3 -I scripts/bridge-pty-test.py "$$($(SWIFT) build --show-bin-path)/vocoder"
+
+# Real-terminal checks in Terminal.app windows (text vs off-screen render, real keystrokes,
+# screenshot pixel colours). Opt-in: takes keyboard focus and needs one-time permissions
+# (README). `ARGS="-k demo"` filters scenarios; results in .build/term-test/.
+term-test: build
+	python3 -I scripts/term-test.py "$$($(SWIFT) build --show-bin-path)/vocoder" $(ARGS)
 
 run:
 	$(SWIFT) run vocoder $(ARGS)

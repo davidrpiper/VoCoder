@@ -75,15 +75,23 @@ before the TUI. `KeychainSecretStore` (`dev.vocoder.<module>`), and modules decl
 checks (terminal, Option-as-Meta, Ctrl-Space input-source shortcut), app Apple Intelligence,
 and Claude Code's CLI version check. `[claude-code] mcp_servers` is ready for P1-09
 ([ADR 0009](decisions/0009-config-secrets-and-doctor.md)).
+P1-07b done (2026-10-17): `make term-test` (`scripts/term-test.py`, opt-in) runs `vocoder --demo`
+and `ui-gallery` in real Terminal.app windows (dark 80×24, light 120×40). Each window has a
+temporary profile, deleted afterwards. The script sends real keystrokes through System Events
+and compares the window text with the app's off-screen render (`$VOCODER_DUMP_SCREEN` →
+`ScreenDump`). It also checks every cell's background in an sRGB screenshot against the ANSI
+dump. 4 scenarios, 18 steps, all green on this Mac. It found a real bug: Terminal.app printed
+FTXUI's DECRQSS query as `$q q` and shifted the first row. The bridge now homes the cursor before
+the first frame and after a pop-out, and `make pty-test` checks for that.
 
 ## Next up
 
-**P1-07b — Real-terminal UI checks (Terminal.app)** (new; proposed by the user this session).
-Recommended next *when the user is at the desk*: the first run needs three macOS permission
-grants (Automation, Accessibility, Screen Recording) and takes keyboard focus. Otherwise do
-**P1-09** (agent backend; config section and CLI check are ready), **P1-08** (git) or
-**P1-03b** (markdown renderer). All four are unblocked and independent. P1-10 (repo tab) needs
-P1-08, P1-09, P1-03b and, ideally, P1-07b.
+**P1-09 — Agent backend and Claude Code module** (config section, CLI check and env stripping
+are ready). **P1-08** (git) and **P1-03b** (markdown renderer) are also unblocked and
+independent. P1-10 (repo tab) needs all three. Add repo-tab scenarios to `make term-test` then.
+Small follow-up from P1-07b (P1-07 chrome, not urgent): the toast's `clearUnder` area is one
+column wider than its box, so it hides the panel's right border on the toast's rows (visible
+off-screen too, so a snapshot test can pin it).
 Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed
 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to change
 (helper-app risk). Optional user checks:
@@ -114,7 +122,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-05 | Command system, keymap, leader key, palette | done | ADR 0007; tab next/prev/goto pulled in |
 | P1-06 | Config, secrets and CLI | done | ADR 0009; `vocoder doctor` |
 | P1-07 | App chrome | done | ADR 0008; `vocoder` runs the TUI |
-| P1-07b | Real-terminal UI checks (Terminal.app) | todo | New; first run needs the user (permissions) |
+| P1-07b | Real-terminal UI checks (Terminal.app) | done | `make term-test`; fixed DECRQSS shift |
 | P1-08 | Git module | todo | |
 | P1-09 | Agent backend and Claude Code module | todo | |
 | P1-10 | Repo tab | todo | |
@@ -251,10 +259,57 @@ to one or two lines; move anything architectural into an ADR._
 - The pty test's `Screen` truncates lines at its width; check long stderr text in `demo.raw`.
 - The pty harness sets `VOCODER_CONFIG` to a missing file per run, so the user's config never
   leaks into tests; pass `env={"VOCODER_CONFIG": …}` to use one.
+- Terminal.app prints DECRQSS payloads (`$q q`) as text. In a bare pty FTXUI follows the first
+  frame with a full redraw, which hides the shift, so test the byte stream, not the screen.
+- swift-argument-parser gives an option to the root command even when it comes after the
+  subcommand: a subcommand can't reuse a root option's name (hence `$VOCODER_DUMP_SCREEN`).
+- Terminal AppleScript: closed windows linger in `windows` with 0 tabs (closed = gone or 0 tabs).
+  `close` on a busy window opens a "terminate?" sheet. `pkill -t ttysNNN` matched nothing; kill
+  by pid. Its window `id` is the CGWindowID for `screencapture -l`.
+- Importing a `.terminal` file names the profile after the file and opens a window.
+  `useOptionAsMetaKey` works (AppleScript has no such property). `CommandString` is typed into
+  the interactive login shell, so use `exec …` for the window to close on exit.
+- Sample screenshot colours after `sips -m "sRGB Profile.icc"`. The cell background is the
+  cell's most common pixel colour: corner samples catch ascenders on 1× displays (7×15 px cells).
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-07b
+- Decisions (user, at plan time, as recommended): temporary Terminal profile per window, not the
+  default profile; Ctrl-Space lost to the input-source shortcut is a warning; scope `--demo` +
+  `ui-gallery`, both themes, 80×24 and 120×40.
+- All three permissions were already granted here: Claude Code runs inside Terminal.app, so it
+  has Automation and Accessibility, and screen capture worked. No grant or restart was needed.
+- `scripts/term-test.py`, standard-library Python. Each scenario imports a `.terminal` profile
+  (size, Option-as-Meta, `exec run.sh`) and sets its colours. `run.sh` draws two magenta marker
+  cells for grid calibration, waits for `go`, then execs the app with `$VOCODER_DUMP_SCREEN`.
+  Each step settles: the dump is stable and the window text (`contents of tab`) equals it. Then
+  the step takes a screenshot (sRGB BMP) and checks every cell's background against the ANSI
+  dump, plus specific colours (selected tab, focus button, theme swatches, toast ink). Keys go
+  only when the test window is frontmost. Cleanup is in `finally`: SIGTERM/SIGKILL by pid, close
+  the window, delete the profile, remove stale `vocoder-term-test-*` profiles at start.
+- Demo steps: initial, leader/which-key, Alt-digits (with Meta on; with it off the screen must not
+  change, then `<leader> digit`), palette → confirm dialog (centred), tasks tab → list picker →
+  toast (bottom right), help, Ctrl-C closes the window. Gallery: theme page swatches, pages via
+  F1–F5 (the form's text field takes plain digits), `q`.
+- Found and fixed: Terminal.app showed `$q q` and shifted row 0 (FTXUI's DECRQSS cursor-shape
+  query; FTXUI draws frame 0 from the cursor). Bridge: `homeCursorBeforeNextFrame` → `ESC[H` in
+  `VCRootComponent::OnRender`, set at loop start and after `runSuspended`. New pty check on the
+  byte stream (fails without the fix, verified).
+- App: `ScreenDump` (`VoCoderUI/Host`, polls 0.1 s, writes JSON only when changed) from
+  `$VOCODER_DUMP_SCREEN` in `VoCoderApp` and `ui-gallery`; hidden `ui-gallery --still`. The first
+  attempt was a hidden `--dump-screen` option, which the root command took from the gallery.
+- Negative checks run: wrong profile background → 1832 cells flagged with the screenshot named;
+  Ctrl-Space dropped → 2 warnings and the run continues (the toast step falls back to the
+  palette).
+- Tests: UI +3 (`ScreenDumpTests`); `make pty-test` 16/16 (+1).
+- Verified: build 0 warnings, `make lint` clean, `make test` all runs pass, `make pty-test`
+  16/16, `make term-test` 4 scenarios / 18 steps green, Terminal left with no extra windows or
+  profiles.
+- Follow-up noted: the toast's cleared area is one column too wide (P1-07 nit, in Next up).
+- Next: P1-09 (P1-08, P1-03b also unblocked).
 
 ### 2026-10-17 · P1-06
 - Decisions (user, at plan time, as recommended): every config error (module sections too)

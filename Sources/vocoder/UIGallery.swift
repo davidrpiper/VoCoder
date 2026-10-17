@@ -26,11 +26,13 @@ struct UIGalleryCommand: ParsableCommand {
   @Option(help: "Theme: auto (macOS appearance), dark or light.") var theme = ThemeChoice.auto
   @Option(help: "Colour depth: auto (detected), mono, 16, 256 or truecolor.")
   var colors = ColorChoice.auto
+  @Flag(help: .hidden) var still = false
 
   func run() throws {
     Log.bootstrap(sink: FileLogSink(directory: Log.defaultDirectory))
     let theme = theme
     let colors = colors
+    let still = still
     MainActor.assumeIsolated {
       let initialTheme: Theme =
         switch theme {
@@ -45,7 +47,7 @@ struct UIGalleryCommand: ParsableCommand {
       case .palette256: VCRenderer.colorDepth = .palette256
       case .truecolor: VCRenderer.colorDepth = .trueColor
       }
-      UIGallery(theme: initialTheme).run()
+      UIGallery(theme: initialTheme, still: still).run()
     }
   }
 }
@@ -87,8 +89,11 @@ final class UIGallery {
   private let log = Log(category: "ui-gallery")
   private lazy var session = TerminalSession(renderer: host.renderer, log: log)
   private var timer: Timer?
+  private let still: Bool
+  private let dump: ScreenDump?
 
-  init(theme: Theme) {
+  /// `still` stops the spinner so the screen only changes on input (for `make term-test`).
+  init(theme: Theme, still: Bool = false) {
     let model = model
     let host = UIHost(theme: theme)
     let dispatcher = CommandDispatcher(
@@ -107,16 +112,22 @@ final class UIGallery {
       return false
     }
     self.host = host
+    self.still = still
+    dump = ScreenDump.fromEnvironment(host: host)
   }
 
   func run() {
     host.connect()
     host.render()
-    timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [model] _ in
-      MainActor.assumeIsolated { model.spinnerFrame += 1 }
+    if !still {
+      timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [model] _ in
+        MainActor.assumeIsolated { model.spinnerFrame += 1 }
+      }
     }
+    dump?.start()
     log.info("ui gallery started")
     session.run()
+    dump?.stop()
     timer?.invalidate()
     log.info("ui gallery exited")
   }

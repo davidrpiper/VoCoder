@@ -393,6 +393,37 @@ def _(binary):
             demo.close()
 
 
+@check("each DECRQSS query (Terminal.app prints it as text) is followed by a cursor home")
+def _(binary):
+    # Terminal.app shows the payload ("$q q"), moving the cursor; FTXUI draws the next frame
+    # from the cursor, diff-based, so it would stay shifted. In a bare pty FTXUI redraws
+    # everything right after, hiding the shift on screen, so check the byte stream: between
+    # each query and the frame after it (FTXUI's Draw starts by hiding the cursor) the bridge
+    # sends ESC[H. Covers startup and the return from a pop-out.
+    query, frame, home = b"\x1bP$q q\x1b\\", b"\x1b[?25l", b"\x1b[H"
+    demo = Demo(binary, ["--still"], env={"SHELL": "/bin/sh"})
+    try:
+        started(demo)
+        demo.send("p", settle=0.5)
+        demo.send("exit\r")
+        demo.wait_for(lambda s: "q/Ctrl-C quit" in s, what="TUI after pop-out")
+        demo.pump(0.3)
+        demo.send("q")
+        assert_clean_exit(demo, demo.wait_exit())
+        queries = 0
+        position = demo.raw.find(query)
+        while position >= 0:
+            queries += 1
+            after = position + len(query)
+            frame_start = demo.raw.find(frame, after)
+            assert frame_start >= 0, f"no frame after query {queries}"
+            assert home in demo.raw[after:frame_start], f"no cursor home after query {queries}"
+            position = demo.raw.find(query, after)
+        assert queries == 2, f"expected 2 queries (startup, pop-out), saw {queries}"
+    finally:
+        demo.close()
+
+
 @check("keys: leader, Ctrl-Space, CSI-u, Alt, function keys, UTF-8")
 def _(binary):
     demo = Demo(binary, ["--still"])

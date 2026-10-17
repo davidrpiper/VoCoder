@@ -72,6 +72,9 @@ The project is built over many sessions. Context is carried by the docs above, n
 - `make build` / `make test` (Swift Testing + `vocoder --version` smoke check) / `make run ARGS=…`
 - `make pty-test` — drives the hidden `vocoder bridge-demo` (UI bridge end to end) and smoke-tests
   the app in a pty; slower
+- `make term-test` — opt-in real-terminal checks in Terminal.app windows (window text vs
+  off-screen render, real keystrokes, screenshot colours; `ARGS="-k demo"` filters). Takes
+  keyboard focus and needs one-time permissions (README). Results in `.build/term-test/`
 - `make snapshot-update` — regenerate UI goldens, then review the diff
 - `make fmt` / `make lint` — toolchain `swift format` (`.swift-format`: 2 spaces, 100 columns);
   `lint` also runs `make check-deps` (target dependency rules, `scripts/check-deps.py`)
