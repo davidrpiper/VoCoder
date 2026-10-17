@@ -3,7 +3,7 @@ SWIFT ?= swift
 FORMAT_PATHS := Package.swift Sources Tests
 LOG_FILE := $(HOME)/Library/Logs/VoCoder/vocoder.log
 
-.PHONY: build test pty-test run snapshot-update fmt lint logs clean
+.PHONY: build test pty-test run snapshot-update fmt lint check-deps logs clean
 
 build:
 	$(SWIFT) build
@@ -24,13 +24,17 @@ run:
 
 # Regenerate UI snapshot goldens; review the diff before committing.
 snapshot-update:
-	VOCODER_SNAPSHOT_UPDATE=1 $(SWIFT) test --filter VoCoderUITests
+	VOCODER_SNAPSHOT_UPDATE=1 $(SWIFT) test --filter 'VoCoderUITests|ModuleTests'
 
 fmt:
 	$(SWIFT) format format --in-place --parallel --recursive $(FORMAT_PATHS)
 
-lint:
+lint: check-deps
 	$(SWIFT) format lint --strict --parallel --recursive $(FORMAT_PATHS)
+
+# Target dependency rules (Core ← modules, modules never import each other; DESIGN §4.10).
+check-deps:
+	$(SWIFT) package dump-package | python3 -I scripts/check-deps.py
 
 logs:
 	@mkdir -p "$(dir $(LOG_FILE))" && touch "$(LOG_FILE)"

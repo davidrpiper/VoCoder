@@ -229,7 +229,8 @@ Sources/
   CFTXUI/                      FTXUI sources/headers target
   VoCoderUIBridge/             ObjC++ (.mm) bridge; public headers are plain Objective-C
   VoCoderCore/                 Swift: domain types, protocols, registries, commands, attention, brain
-  VoCoderTestSupport/          fakes + protocol contract test suites (test-only)
+  VoCoderFakes/                in-memory fakes of every Core protocol (tests, fixtures, `--demo`)
+  VoCoderTestSupport/          protocol contract test suites (test-only; imports Swift Testing)
   VoCoderUITestSupport/        `assertSnapshot` for views (test-only; keeps FTXUI out of Core tests)
   VoCoderVoice/                Swift: audio capture, recognition, synthesis, earcons, activation
   VoCoderUI/                   Swift: node-tree DSL, focus, chrome, generic Home/Tasks/Docs tabs
@@ -239,14 +240,17 @@ Sources/
     EventKitCalendarModule/
     LinearModule/
     NotionModule/
-  vocoder/                     executable: composition root, CLI, module list, run loop
+    DemoModule/                fake-backed demo contributions; the only module using VoCoderFakes
+  vocoder/                     executable: composition root, CLI, module list (CompiledModules), run loop
                                (+ hidden dev subcommands `bridge-demo`, `ui-gallery`)
 Tests/
   VoCoderCoreTests/            Swift Testing
   VoCoderUIBridgeTests/        bridge tests through the public ObjC API (render, widgets, keys)
   VoCoderUITests/              DSL/focus/key-routing tests; snapshot goldens in __Snapshots__/<TestFile>/
   VoCoderVoiceTests/           routing tests over transcript fixtures; recognition over audio fixtures
-scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` in a pty)
+  ModuleTests/                 module contract for every module; demo module end to end
+scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` in a pty;
+                               check-deps.py: target dependency rules, run by `make lint`)
 spikes/                        throwaway Phase 0 experiments
 docs/
 ```
@@ -540,6 +544,26 @@ protocol VoCoderModule {
 | `SpeechRecognizer` / `SpeechSynthesizer` | voice | Apple SpeechAnalyzer / AVSpeechSynthesizer | alternative engines |
 | `LanguageModel` | brain | Foundation Models, Claude API | other models |
 
+How it works (P1-04, [ADR 0006](decisions/0006-module-system-and-tab-model.md)):
+
+- `ModuleLoader` creates the enabled modules in list order with a `ModuleContext` (parsed config
+  section, `SecretStore`, `Log`, read-only `ServiceContainer`). A failed init, bad config
+  section, duplicate id or rejected contribution is a `ModuleIssue`: logged, shown by
+  `vocoder doctor`, never fatal.
+- `ModuleRegistry` keeps one typed list per extension point; ids are unique per point (first
+  wins) and every contribution is attributed to its module.
+- **Tabs are split**: Core owns the `Tab` model (id, title, aliases, `TabBadge`, lifecycle) and
+  `TabFactory` (placement home → repo → integration) so app state, voice and attention know
+  tabs; `VoCoderUI`'s `ViewTab` adds the `body`, and factories can only be built from
+  `ViewTab`s.
+- `AppCore` (Core) holds the loaded modules, the `@Observable` `AppState` (tabs, selection,
+  attention items, issues) and the command registry; `start()` opens tabs and collects
+  attention items, `stop()` closes them.
+- Seams whose WP hasn't started are declared with identity (`Provider.id`) and capabilities
+  only; `LanguageModel` is complete (ADR 0003 shape over a neutral flat `GenerationSchema`).
+- `vocoder --demo` loads only `DemoModule` (fake-backed), shown in a temporary dev shell until
+  the chrome (P1-07).
+
 Rules:
 
 - **Dependency direction**: `VoCoderCore` defines protocols and domain types; modules depend on
@@ -554,8 +578,9 @@ Rules:
   Jira or Confluence module only needs an adapter, not new UI.
 - **Contract tests**: each protocol ships a reusable conformance test suite in Core's test support;
   every adapter (including stubs and fakes) runs it.
-- **Fakes first**: each protocol has an in-memory fake used for UI development, snapshot tests and
-  demo mode (`vocoder --demo`).
+- **Fakes first**: each protocol has an in-memory fake (`VoCoderFakes`) used for UI development,
+  snapshot tests and demo mode (`vocoder --demo`).
+- **Checked, not just stated**: `make lint` runs `scripts/check-deps.py` on the package graph.
 
 ---
 
@@ -577,8 +602,10 @@ Terminal.app is the supported baseline; features degrade gracefully. Ghostty is 
 
 ## 6. Testing strategy
 
-- **Core**: Swift Testing unit tests for command registry, routing, attention policy, provider
-  mapping (with recorded API fixtures).
+- **Core**: Swift Testing unit tests for module loading, app state, command registry, routing,
+  attention policy, provider mapping (with recorded API fixtures).
+- **Contracts**: every fake, stub, adapter and module runs its protocol's suite from
+  `VoCoderTestSupport`; `ModuleTests` runs the module contract over every module target.
 - **UI**: snapshot tests rendering views to off-screen FTXUI screens (`assertSnapshot` in
   `VoCoderUITestSupport`: plain text, or ANSI at a chosen colour depth; goldens next to the test
   file, `make snapshot-update` rewrites them); focus and key routing driven through the

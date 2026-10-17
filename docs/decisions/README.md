@@ -38,3 +38,4 @@ Briefly, and why not.
 - [0003 — On-device intent parsing as a guarded middle stage](0003-on-device-intent-routing.md) (P0-05, Accepted)
 - [0004 — Third-party dependencies for Phase 1](0004-third-party-dependencies.md) (P0-06, Accepted)
 - [0005 — View DSL, focus tree and key routing](0005-view-dsl-focus-and-key-routing.md) (P1-03, Accepted)
+- [0006 — Module system, tab model split and fakes target](0006-module-system-and-tab-model.md) (P1-04, Accepted)

@@ -269,6 +269,9 @@ key and palette; sessions resume after restart; terminal is always restored.
   `ui.cancel`, …) that call `UIHost.perform(_:)`, and hook the keymap in at
   `UIHost.onUnhandledKey` / key handling ([ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)).
   Leaving a text field (it consumes printable keys) needs a command bound to Esc or the leader.
+  P1-04 left a minimal `Command` (id, title, category, `perform(CommandContext)`), a
+  `CommandRegistry` and `AppCore.run(_:)`; extend these (don't replace them) and route the dev
+  shell's command list through the dispatcher ([ADR 0006](decisions/0006-module-system-and-tab-model.md)).
 
 ### P1-06 — Config, secrets and CLI
 - **Depends on:** P1-04
@@ -289,6 +292,11 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Design refs:** §4.9.
 - **Notes:** add a `theme = "auto" | "dark" | "light"` option (P1-03 defaults to `auto`:
   `Theme.automatic()` follows the macOS appearance).
+  P1-04 hooks: `ModuleEnvironment.configSection` (`ConfigSectionReader`: parse a module's
+  `ConfigSection` from TOML), `.enabled` (module ids from config), `.repos` (`RepoRoot`s);
+  `SecretStore` protocol + `SecretStoreContract` (Keychain store goes here; `InMemorySecretStore`
+  is in `VoCoderFakes`); `--demo` already exists on the root command. `vocoder doctor` can list
+  `AppState.issues` / `LoadedModules.issues`.
 
 ### P1-07 — App chrome
 - **Depends on:** P1-03, P1-05
@@ -302,7 +310,10 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Notes:** the run loop, signal handling (incl. ignoring SIGINT while popped out) and the
   pop-out spawn helper exist in `Sources/vocoder/` (`TerminalRunLoop`, shared by `bridge-demo`
   and `ui-gallery` since P1-03; spawn helper in `BridgeDemo.swift`); move them into the app
-  proper here. Panels use `ContextReader` + `containsFocus` for focus borders (see the gallery). Keep `bridge-demo` while `make pty-test` uses it, or port the pty test to the
+  proper here. Panels use `ContextReader` + `containsFocus` for focus borders (see the gallery). The
+  chrome replaces P1-04's temporary `DevShell` (`Sources/VoCoderUI/App/DevShell.swift`) and
+  `DemoApp`'s development keys (digits, `q`); render tab content with `TabContent`, badges with
+  `TabBadge.label`, and drive tabs through `AppState.select/close`. Keep `bridge-demo` while `make pty-test` uses it, or port the pty test to the
   real app and delete the demo.
 
 ### P1-08 — Git module
@@ -401,6 +412,11 @@ mirrored on screen.
   risky kinds always confirm, raw utterance for dictation); clarification dialogue ("did you
   mean …?"); dictation target resolution by context; routing test table seeded from
   `spikes/intents/utterances.json` (incl. its hold-out set).
+- **Notes:** the `LanguageModel` protocol, `GenerationSchema`/`GenerationOutcome`,
+  `withGenerationTimeout`, `FakeLanguageModel` and `LanguageModelContract` exist since P1-04
+  (ADR 0006); this WP writes the Foundation Models adapter (neutral schema →
+  `DynamicGenerationSchema`) and runs the contract against it. Compare against the spike's static
+  `@Generable` numbers.
 - **Acceptance (hard gates, confirmed in P0-06):** 0 unconfirmed dangerous actions; wrong-action
   rate ≤10%; grammar stage <50 ms; model p50 ≤1.0 s with prewarm; routing table ≥95% on clean
   and ≥65% on loose and hold-out utterances, with the remaining misses ending in a clarifying

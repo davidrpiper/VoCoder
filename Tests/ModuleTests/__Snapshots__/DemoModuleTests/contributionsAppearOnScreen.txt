@@ -1,0 +1,24 @@
+ 1 demo-repo ◐  2 Tasks
+────────────────────────────────────────────────────────────────────────────────
+╭demo-repo─────────────────────────────────────────────────────────────────────╮
+│Demo repository                                                               │
+│A stand-in for a repo tab (P1-10). Its badge is ◐; run “Cycle repo badge” to  │
+│change it. Shown 1 time(s).                                                   │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭Attention (1)────────────────╮╭Commands───────────────────────────────────────╮
+│· Demo module loaded         ││› Ping                               demo.ping │
+│                             ││  Cycle repo badge             demo.cycleBadge │
+│                             ││  Clear attention          demo.clearAttention │
+│                             ││                                               │
+│                             ││                                               │
+╰─────────────────────────────╯╰───────────────────────────────────────────────╯
+demo shell · 1-9 tab · Tab focus · j/k move · Enter run · q quit

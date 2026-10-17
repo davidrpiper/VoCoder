@@ -37,16 +37,27 @@ modifiers, `@Observable`-driven `UIHost`), themes (dark/light, `auto`), focus tr
 `ScrollView`/`TextField`, `VoCoderUITestSupport.assertSnapshot`, hidden `vocoder ui-gallery`
 ([ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)). Markdown renderer split off as
 P1-03b.
+P1-04 done (2026-10-17): module system in Core — `VoCoderModule`, `ModuleContext`
+(config section, `SecretStore`, `Log`, `ServiceContainer`), `ModuleLoader` (enabled filter,
+failures → `ModuleIssue`s), `ModuleRegistry` (all §4.10 extension points, unique ids, owners),
+`Tab`/`TabBadge`/`TabFactory` (+ `ViewTab` in UI), `@Observable` `AppState`, `AppCore`
+(tabs + attention collection + `run`), minimal `Command`/`CommandRegistry`, placeholder provider
+protocols with capabilities, full `LanguageModel` (ADR 0003 shape). New `VoCoderFakes` target,
+contract suites in `VoCoderTestSupport`, `DemoModule`, `ModuleTests`, `vocoder --demo` on a
+temporary `DevShell`, `make check-deps` in `make lint`
+([ADR 0006](decisions/0006-module-system-and-tab-model.md)).
 
 ## Next up
 
-**P1-04 — Core architecture and module system** (`VoCoderCore`). P1-03b (markdown-lite renderer +
-bridge `flow` node) is independent and can be done before or after; it is needed by P1-10.
-P1-05 replaces the temporary `KeyMap.defaultBindings` with commands (see the PLAN note).
+**P1-05 — Command system, keymap, leader key, palette.** Extend P1-04's minimal `Command` /
+`CommandRegistry` / `AppCore.run` and replace the temporary `KeyMap.defaultBindings` with
+commands (see the PLAN notes). P1-03b (markdown-lite renderer + bridge `flow` node) is
+independent and can be done before or after; it is needed by P1-10. P1-06 can also start now
+(it depends only on P1-04).
 Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed
 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to change
 (helper-app risk). Optional user eyeball checks: `make run ARGS=bridge-demo` and
-`make run ARGS=ui-gallery` in Terminal.app and Ghostty (`t` toggles theme, `c` cycles colour
+`make run ARGS=ui-gallery` / `make run ARGS=--demo` in Terminal.app and Ghostty (`t` toggles theme, `c` cycles colour
 depth; pty tests cover behaviour, not real-terminal looks).
 
 ## Work package status
@@ -66,7 +77,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-02 | UI bridge | done | `make pty-test`; manual terminal check optional |
 | P1-03 | Swift UI DSL, focus and snapshot testing | done | ADR 0005; markdown → P1-03b |
 | P1-03b | Markdown-lite renderer | todo | Split from P1-03; adds bridge `flow` node |
-| P1-04 | Core architecture and module system | todo | |
+| P1-04 | Core architecture and module system | done | ADR 0006; `vocoder --demo` |
 | P1-05 | Command system, keymap, leader key, palette | todo | |
 | P1-06 | Config, secrets and CLI | todo | |
 | P1-07 | App chrome | todo | |
@@ -162,10 +173,51 @@ to one or two lines; move anything architectural into an ADR._
   thread; the host invalidates directly when that is the main thread (tests rely on it).
 - pty test teardown must kill the wrapper's whole process group (`killpg`): killing only the
   `sh` wrapper orphans the demo, which never gets SIGHUP because the test still holds the pty.
+- Swift Testing `#expect`: a key-path argument (`contains(where: \.isWhitespace)`) or a
+  `mutating` call inside the macro doesn't compile; compute into a `let` first. Parameterised
+  `@Test(arguments:)` can't read `@MainActor` statics (module metatypes) — loop instead.
+- An extension `init` that forwards with a trailing closure can resolve to itself (infinite
+  recursion warning) when the labels differ only in the closure; pass the closure labelled.
+- `UIHost.focus.focus(id)` is deferred until the id is rendered: keys injected before the
+  first `render()` reach no handler. Render first (tests and `DemoApp` do).
+- `package` access works across targets of this package, test targets included; used for
+  Core-only APIs that modules must go through `VoCoderUI` for (`TabFactory` init).
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-04
+- Decisions (user, at plan time, all as recommended): tab model in Core with `ViewTab` in UI
+  and `ViewTab`-only factories; fakes in a new `VoCoderFakes` target with a `DemoModule`;
+  `--demo` runs a small dev shell that P1-07 replaces; minimal `Command` now, extended in P1-05.
+  Recorded in [ADR 0006](decisions/0006-module-system-and-tab-model.md).
+- Core: `Identifier<Kind>` typed ids; `VoCoderModule`, `ConfigSection`, `ModuleIssue`,
+  `ModuleContext`, `RepoRoot`, `SecretStore`/`SecretKey`, `ServiceContainer` (`now`);
+  `ModuleRegistry` (14 extension points, duplicate/empty ids rejected and attributed);
+  `ModuleEnvironment`/`ModuleLoader`/`LoadedModules`; `Tab`, `TabBadge`, `TabPlacement`,
+  `TabFactory`; `AppState`; `AppCore`; `Command`/`CommandContext`/`CommandRegistry`; provider
+  protocols (`Provider` + agent/tracker/docs/calendar/chat/workflow/brain tool/activation/speech,
+  `TaskTrackerCapabilities`); `AttentionItem`/`AttentionPriority`/`AttentionSource`;
+  `LanguageModel` with `GenerationSchema` (+ validation), `GenerationOutcome`, `NoParseReason`,
+  `withGenerationTimeout`.
+- `VoCoderFakes` (fakes for every protocol, `FakeLanguageModel` scripted with delays,
+  `FakeAttentionSource`, `InMemorySecretStore`, `FakeTab`); `VoCoderTestSupport` contract
+  suites + `eventually`; `VoCoderUI`: `ViewTab`, `TabContent`, `TabBadge.label`, `DevShell`.
+- Modules: the five placeholders are empty conforming modules; `DemoModule` (repo + tasks tabs,
+  three commands, attention source, fake tracker and model). `vocoder`: `CompiledModules`,
+  `--demo` flag, `DemoApp`.
+- Tests: Core 43 (acceptance: a fake module's tab, command and attention source appear),
+  UI +3, new `ModuleTests` (module contract over all six modules, demo end to end with 2
+  goldens). `scripts/check-deps.py` in `make lint`; negative check confirmed it catches
+  module→module and Core→UI dependencies.
+  `make snapshot-update` now also regenerates `ModuleTests` goldens.
+- Docs: DESIGN §4.1/§4.10/§6, PLAN notes on P1-05/P1-06/P1-07/P2-05, CLAUDE.md commands.
+- Verified: clean build 0 warnings, `make lint` clean, `make test` (all runs pass),
+  `make pty-test` 11/11, `vocoder --demo` driven in a pty (renders, Enter runs Ping, digit
+  switches tab, `q` exits with the terminal restored). Not done: eyeballing `--demo` in
+  Terminal.app/Ghostty (optional).
+- Next: P1-05 (P1-03b and P1-06 are also unblocked).
 
 ### 2026-10-17 · P1-03
 - Split at plan time (user): markdown-lite renderer → new P1-03b. Decisions (user): temporary

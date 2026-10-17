@@ -55,7 +55,10 @@ let package = Package(
     ),
     .target(name: "VoCoderUI", dependencies: ["VoCoderCore", "VoCoderUIBridge"]),
     .target(name: "VoCoderVoice", dependencies: ["VoCoderCore"]),
-    .target(name: "VoCoderTestSupport", dependencies: ["VoCoderCore"]),
+    // In-memory fakes of every Core protocol: tests, snapshot fixtures and `vocoder --demo`.
+    .target(name: "VoCoderFakes", dependencies: ["VoCoderCore"]),
+    // Contract test suites (imports Swift Testing; test-only).
+    .target(name: "VoCoderTestSupport", dependencies: ["VoCoderCore", "VoCoderFakes"]),
     // Snapshot helper for view tests; separate so Core tests don't link FTXUI.
     .target(name: "VoCoderUITestSupport", dependencies: ["VoCoderUI", "VoCoderUIBridge"]),
 
@@ -82,11 +85,19 @@ let package = Package(
       path: "Sources/Modules/NotionModule"
     ),
 
+    // Demo contributions for `vocoder --demo`; the only module allowed to use the fakes.
+    .target(
+      name: "DemoModule",
+      dependencies: ["VoCoderCore", "VoCoderUI", "VoCoderFakes"],
+      path: "Sources/Modules/DemoModule"
+    ),
+
     .executableTarget(
       name: "vocoder",
       dependencies: [
-        "VoCoderCore", "VoCoderUI", "VoCoderUIBridge", "VoCoderVoice",
+        "VoCoderCore", "VoCoderUI", "VoCoderUIBridge", "VoCoderVoice", "VoCoderFakes",
         "GitModule", "ClaudeCodeModule", "EventKitCalendarModule", "LinearModule", "NotionModule",
+        "DemoModule",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ],
       exclude: ["Info.plist"],
@@ -98,11 +109,24 @@ let package = Package(
       ]
     ),
 
-    .testTarget(name: "VoCoderCoreTests", dependencies: ["VoCoderCore", "VoCoderTestSupport"]),
+    .testTarget(
+      name: "VoCoderCoreTests",
+      dependencies: ["VoCoderCore", "VoCoderFakes", "VoCoderTestSupport"]
+    ),
     .testTarget(name: "VoCoderUIBridgeTests", dependencies: ["VoCoderUIBridge"]),
     .testTarget(
       name: "VoCoderUITests",
-      dependencies: ["VoCoderUI", "VoCoderUIBridge", "VoCoderUITestSupport"],
+      dependencies: ["VoCoderUI", "VoCoderUIBridge", "VoCoderUITestSupport", "VoCoderFakes"],
+      exclude: ["__Snapshots__"]
+    ),
+    // Every compiled-in module runs the module contract; the demo module end to end.
+    .testTarget(
+      name: "ModuleTests",
+      dependencies: [
+        "VoCoderCore", "VoCoderUI", "VoCoderFakes", "VoCoderTestSupport", "VoCoderUITestSupport",
+        "GitModule", "ClaudeCodeModule", "EventKitCalendarModule", "LinearModule", "NotionModule",
+        "DemoModule",
+      ],
       exclude: ["__Snapshots__"]
     ),
     .testTarget(name: "VoCoderVoiceTests", dependencies: ["VoCoderVoice"]),

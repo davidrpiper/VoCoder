@@ -2,5 +2,11 @@
 import VoCoderCore
 import VoCoderUI
 
-/// Namespace placeholder until P1-09.
-public enum ClaudeCodeModule {}
+/// Registers nothing until P1-09.
+public final class ClaudeCodeModule: VoCoderModule {
+  public static let id: ModuleID = "claude-code"
+
+  public init(context: ModuleContext) {}
+
+  public func register(into registry: inout ModuleRegistry) {}
+}
