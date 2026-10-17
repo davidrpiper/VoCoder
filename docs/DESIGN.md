@@ -203,7 +203,7 @@ Later: **nod to approve / shake to deny** using AirPods head tracking (`CMHeadph
 ## 4. Architecture
 
 ```
-┌──────────────────────────── vocoder (Swift 6, macOS 26+) ─────────────────────────────┐
+┌──────────────────────────── vocoder (Swift 6, macOS 26.4+) ────────────────────────────┐
 │  App core (@MainActor state, Swift concurrency)                                        │
 │   ├─ CommandRegistry  ── keys / palette / voice / brain all dispatch here              │
 │   ├─ AttentionQueue   ── priority, batching, interruption policy, Focus-aware          │
@@ -460,6 +460,11 @@ leader = "ctrl+space"
 
 Secrets (Linear key, Notion token, Anthropic API key) live in the macOS Keychain, set via
 `vocoder auth <provider>`.
+
+The config is parsed with TOMLDecoder and the CLI built with swift-argument-parser, the only
+third-party Swift packages ([ADR 0004](decisions/0004-third-party-dependencies.md)).
+`vocoder doctor` checks the environment (Apple Intelligence, Claude Code version, terminal and
+Option-as-Meta, config, secrets) with module-contributed checks.
 
 ### 4.10 Extension points and the module system
 

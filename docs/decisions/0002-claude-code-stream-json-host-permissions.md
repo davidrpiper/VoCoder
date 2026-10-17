@@ -1,6 +1,6 @@
 # 0002 — Claude Code via stream-json, permissions over the host control protocol
 
-- Status: Accepted (subject to P0-06 review)
+- Status: Accepted (confirmed in P0-06)
 - Date: 2026-10-17
 - WP: P0-04
 

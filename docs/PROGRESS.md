@@ -18,13 +18,19 @@ Claude/clarify; model-stage risky kinds always confirm)
 ([FINDINGS](../spikes/intents/FINDINGS.md), [ADR 0003](decisions/0003-on-device-intent-routing.md)).
 Utterance set with hold-out for P2-05: `spikes/intents/utterances.json`. Deployment target is now
 macOS 26.4+.
+P0-06 done (2026-10-17): ADRs 0001–0003 confirmed; dependencies decided
+([ADR 0004](decisions/0004-third-party-dependencies.md): swift-argument-parser + TOMLDecoder only);
+P2-05 hard gates vs stretch goals set; `vocoder doctor` added to P1-06. Phase 1 is locked.
 No production code yet (no root `Package.swift` or Makefile until P1-01).
 
 ## Next up
 
-**P0-06 — Spike synthesis (non-voice)**: review ADRs 0001/0002/0003 with the user, decide
-third-party dependencies, confirm P2-05 thresholds proposed in P0-05, lock Phase 1. Voice spikes P0-02/P0-03 (+ P0-07 synthesis) are deferred
-until after P1-11 because they need the user at the machine.
+**Decision pending with the user:** either
+- **P0-02 — Audio, permissions, recognition and synthesis spike** (then P0-03, P0-07) *now*, if
+  the user is at the machine with AirPods — recommended, because its findings (TCC attribution,
+  embedded Info.plist, helper app or not) shape P1-01 packaging and the P1-04 service boundaries;
+- or **P1-01 — Package scaffold and tooling**, keeping the voice spikes deferred until after P1-11
+  as planned.
 
 ## Work package status
 
@@ -37,7 +43,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P0-03 | AirPods activation spike | todo | Deferred with P0-02 |
 | P0-04 | Claude Code headless integration spike | done | Go. ADR 0002 |
 | P0-05 | Foundation Models intent spike | done | Go (middle stage). ADR 0003 |
-| P0-06 | Spike synthesis (non-voice) | todo | P0-01/04/05 only |
+| P0-06 | Spike synthesis (non-voice) | done | ADR 0004; Phase 1 locked |
 | P0-07 | Voice spike synthesis | todo | After P0-02/03; gates P2-01 |
 | P1-01 | Package scaffold and tooling | todo | |
 | P1-02 | UI bridge | todo | |
@@ -116,6 +122,22 @@ to one or two lines; move anything architectural into an ADR._
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P0-06
+- Reviewed ADRs 0001–0003 with the user; 0002/0003 now plain Accepted. Checked candidate
+  packages (swift-argument-parser 1.8.2; TOMLDecoder 0.4.5 pure Swift; TOMLKit wraps C++) and that
+  the toolchain's `swift format` works.
+- Decisions: [ADR 0004](decisions/0004-third-party-dependencies.md) — only swift-argument-parser
+  and TOMLDecoder; toolchain `swift format`, Swift Testing, own logging sink and snapshot helper;
+  new dependencies need an ADR. P2-05: hard gates (0 unconfirmed dangerous, ≤10% wrong actions,
+  grammar <50 ms, model p50 ≤1.0 s, ≥95% clean, ≥65% loose/hold-out) with the P0-05 proposal
+  (≥75% loose/hold-out) as stretch; ≥80% moves to P3-02 with Claude as second interpreter.
+- PLAN: P1-01 notes (tools 6.2, macOS 26.4, FTXUI settings, deps, `Package.resolved`); P1-04
+  declares `LanguageModel` with the ADR 0003 shape; P1-06 gains `vocoder doctor` (module-contributed
+  checks) and the MCP-servers agent option; P1-09 kept whole (split when started if it runs
+  long); dependency table final. DESIGN §4 diagram (26.4+) and §4.9 updated.
+- Open: user asked whether the AirPods/voice checks should happen before Phase 1. Recommended
+  pulling P0-02/P0-03 forward if the user is at the machine; awaiting their choice.
 
 ### 2026-10-17 · P0-05
 - User enabled Apple Intelligence (was off). Built `spikes/intents/` (`intent-spike`: two schemas

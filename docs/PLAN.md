@@ -182,6 +182,11 @@ key and palette; sessions resume after restart; terminal is always restored.
   file at `~/Library/Logs/VoCoder/`, `make logs` to tail); `vocoder --version`; README build
   instructions.
 - **Deliverables:** compiling skeleton; `make test` runs one placeholder test per test target.
+- **Notes:** swift-tools-version 6.2, platform `.macOS("26.4")`; FTXUI target settings from
+  `spikes/ftxui-bridge/Package.swift` (excludes enumerated, no `component/loop.cpp`, no
+  `unsafeFlags`); dependencies swift-argument-parser and TOMLDecoder per
+  [ADR 0004](decisions/0004-third-party-dependencies.md), `Package.resolved` committed; `make fmt`/
+  `make lint` use the toolchain's `swift format`.
 - **Acceptance:** clean clone → `git submodule update --init && make build test` works.
 
 ### P1-02 — UI bridge (`VoCoderUIBridge`)
@@ -218,7 +223,9 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Depends on:** P1-01
 - **Goal:** App state model, module system and registries — the extensibility backbone.
 - **Scope:** `VoCoderModule`, `ModuleContext`, `ModuleRegistry` and all registries from DESIGN
-  §4.10 (empty protocols for not-yet-built seams, including `ChatProvider`); `AppState` on
+  §4.10 (empty protocols for not-yet-built seams, including `ChatProvider`; `LanguageModel`
+  declared with the ADR 0003 shape: availability, prewarm, guided generation with timeout, typed
+  "no parse" outcome); `AppState` on
   `@MainActor` with an observable change stream driving re-renders; tab model (`TabFactory`,
   `Tab` lifecycle, badges); service container passed through `ModuleContext`; composition root
   in `vocoder` with an explicit compiled-in module list; capability flags pattern;
@@ -247,9 +254,15 @@ key and palette; sessions resume after restart; terminal is always restored.
   [Dependency decisions](#dependency-decisions)); typed root config + module `ConfigSection`s;
   validation with readable errors; Keychain wrapper; CLI via swift-argument-parser:
   `vocoder` (run), `vocoder auth <module>`, `vocoder config check`, `vocoder config init`,
-  `vocoder --demo`; repo list + aliases.
+  `vocoder --demo`, `vocoder doctor`; repo list + aliases; agent option for loading the user's
+  own MCP servers into sessions (`--strict-mcp-config` or not, ADR 0002).
+- **`vocoder doctor`:** checks and explains Apple Intelligence availability
+  (`SystemLanguageModel.default.availability`), Claude Code CLI presence and version against the
+  minimum (P1-09), terminal (Terminal.app/Ghostty) and Option-as-Meta/Alt for Alt-digit tab keys,
+  config validity and Keychain secrets present per enabled module. Checks are contributed per
+  module so new modules add their own.
 - **Acceptance:** invalid config produces actionable errors before the TUI starts; secrets never
-  appear in logs.
+  appear in logs; `vocoder doctor` reports each check with a fix hint.
 - **Design refs:** §4.9.
 
 ### P1-07 — App chrome
@@ -358,9 +371,14 @@ mirrored on screen.
   risky kinds always confirm, raw utterance for dictation); clarification dialogue ("did you
   mean …?"); dictation target resolution by context; routing test table seeded from
   `spikes/intents/utterances.json` (incl. its hold-out set).
-- **Acceptance:** grammar stage <50 ms; routing table ≥90% on clean and ≥75% on loose and
-  hold-out utterances; 0 unconfirmed dangerous actions; wrong-action rate ≤10%; model p50
-  ≤1.0 s with prewarm (thresholds proposed by P0-05, confirmed in P0-06).
+- **Acceptance (hard gates, confirmed in P0-06):** 0 unconfirmed dangerous actions; wrong-action
+  rate ≤10%; grammar stage <50 ms; model p50 ≤1.0 s with prewarm; routing table ≥95% on clean
+  and ≥65% on loose and hold-out utterances, with the remaining misses ending in a clarifying
+  question, not an action.
+- **Stretch goals:** ≥75% on loose and hold-out (the P0-05 proposal). The spike measured 62%
+  loose / 65% hold-out / ~14% wrong actions for the chosen configuration, so the wrong-action
+  gate depends on the guard rules (ignore undeclared slots, dictation-trap handling) and the
+  loose target on the Claude fallback (P3-02).
 
 ### P2-06 — Spoken representations and voice navigation
 - **Depends on:** P2-05, P2-03
@@ -415,7 +433,8 @@ queue never talks over the user.
   logging; Claude as second interpreter for utterances the on-device model returns as `unclear`
   (measure accuracy/latency on the P0-05 utterance set, ADR 0003).
 - **Acceptance:** "what am I doing today?" answered using calendar + agent tools (fakes in
-  tests).
+  tests); with the Claude second interpreter, routing ≥80% on loose and hold-out utterances
+  while keeping P2-05's gates (0 unconfirmed dangerous, ≤10% wrong actions).
 
 ### P3-03 — Calendar module (EventKit)
 - **Depends on:** P3-01
@@ -525,14 +544,17 @@ fix in the core first.
 
 ## Dependency decisions
 
-To be confirmed in P0-06; recorded as ADRs.
+Decided in P0-06 ([ADR 0004](decisions/0004-third-party-dependencies.md)). New third-party
+dependencies need an ADR.
 
-| Need | Candidates | Leaning |
-|---|---|---|
-| TUI rendering | FTXUI (vendored submodule) | Decided |
-| CLI parsing | swift-argument-parser | Likely |
-| TOML | a pure-Swift TOML library vs. a small hand-written parser | Decide in P0-06 (avoid anything needing C++ interop) |
-| MCP server (permission tool) | official Swift MCP SDK vs. minimal hand-rolled JSON-RPC | Decided: none needed — host control protocol ([ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md)) |
-| GraphQL (Linear) | hand-written queries over URLSession | Likely (no codegen) |
-| Snapshot testing | custom helper (render-to-string) | Likely |
-| Logging | `os.Logger` + small file sink | Likely |
+| Need | Decision |
+|---|---|
+| TUI rendering | FTXUI, vendored submodule ([ADR 0001](decisions/0001-ftxui-objc-bridge.md)) |
+| CLI parsing | swift-argument-parser `from: "1.8.2"` |
+| TOML | TOMLDecoder `from: "0.4.5"` (pure Swift, decode only) |
+| MCP server (permission tool) | none — host control protocol ([ADR 0002](decisions/0002-claude-code-stream-json-host-permissions.md)) |
+| GraphQL (Linear) | hand-written queries over URLSession (no codegen) |
+| Snapshot testing | custom helper (off-screen render to string) |
+| Logging | `os.Logger` + small rotating file sink |
+| Formatting / lint | toolchain `swift format` (no SwiftLint) |
+| Unit tests | Swift Testing |

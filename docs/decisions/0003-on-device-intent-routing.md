@@ -1,6 +1,6 @@
 # 0003 — On-device intent parsing as a guarded middle stage
 
-- Status: Accepted (subject to P0-06 review)
+- Status: Accepted (confirmed in P0-06)
 - Date: 2026-10-17
 - WP: P0-05
 
