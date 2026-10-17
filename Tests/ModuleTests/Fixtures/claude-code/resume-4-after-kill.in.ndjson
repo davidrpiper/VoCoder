@@ -1,0 +1,2 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"What was the code word? Reply with just the code word.","role":"user"},"type":"user"}

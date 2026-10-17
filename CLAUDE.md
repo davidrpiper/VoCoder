@@ -85,6 +85,8 @@ The project is built over many sessions. Context is carried by the docs above, n
   checks); invalid config stops startup (ADR 0009)
 - `VOCODER_KEYCHAIN_TESTS=1 make test` also runs the Keychain contract against the real login
   keychain (items under `dev.vocoder.test.*`, removed afterwards)
+- `VOCODER_LIVE_CLAUDE=1 make test` also runs the live Claude Code test (Haiku, temp git repo,
+  needs `claude` logged in; uses a little quota)
 - `make logs` — tail `~/Library/Logs/VoCoder/vocoder.log` (log via `Log(category:)` in Core)
 - `make clean`; fresh clone needs `git submodule update --init` first
 

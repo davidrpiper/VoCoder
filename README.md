@@ -19,6 +19,7 @@ make run                                            # pass arguments with ARGS="
 |---|---|
 | `make build` | `swift build` (FTXUI is compiled from the `Vendor/FTXUI` submodule) |
 | `make test` | Swift Testing suites + a `vocoder --version` smoke check |
+| `VOCODER_LIVE_CLAUDE=1 make test` | Also runs the live Claude Code test: Haiku in a temporary git repo, an approved Write, an interrupt, a resume (needs `claude` logged in; uses a little quota) |
 | `make pty-test` | Drives the hidden `vocoder bridge-demo` in a pty: UI bridge end to end (slower) |
 | `make term-test` | Real-terminal checks in Terminal.app windows (opt-in; see below) |
 | `make run` | Runs `vocoder` (`ARGS=bridge-demo` shows the UI bridge demo) |

@@ -3,11 +3,6 @@
 import Synchronization
 import VoCoderCore
 
-public struct FakeAgentBackend: AgentBackend {
-  public let id: ProviderID
-  public init(id: ProviderID = "fake-agent") { self.id = id }
-}
-
 public struct FakeTaskTracker: TaskTracker {
   public let id: ProviderID
   public let capabilities: TaskTrackerCapabilities

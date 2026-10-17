@@ -1,0 +1,2 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"Read README.md, then tell me the project codename in one short sentence.","role":"user"},"type":"user"}

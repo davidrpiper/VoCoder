@@ -1,5 +1,6 @@
 import ClaudeCodeModule
 import Foundation
+import Synchronization
 import Testing
 import VoCoderCore
 import VoCoderFakes
@@ -13,13 +14,14 @@ import VoCoderTestSupport
   }
 
   @Test func configSection() throws {
-    let result = load("[claude-code]\nmcp_servers = \"user\"\n")
+    let result = load("[claude-code]\nmcp_servers = \"user\"\nmodel = \"sonnet\"\n")
     #expect(result.errors.isEmpty)
     let environment = result.config.environment(
       for: [ClaudeCodeModule.self], secrets: InMemorySecretStore())
     let loaded = ModuleLoader.load([ClaudeCodeModule.self], environment: environment)
     let module = try #require(loaded.modules.first as? ClaudeCodeModule)
     #expect(module.config.mcpServers == .user)
+    #expect(module.config.model == "sonnet")
   }
 
   @Test func configDefaultsAndErrors() {
@@ -28,7 +30,7 @@ import VoCoderTestSupport
     #expect(
       bad.errors.map(\.description) == [
         "/tmp/config.toml:2: claude-code.mcp_servers: 'all' isn't one of: none, user",
-        "/tmp/config.toml:3: claude-code.mcp: unknown key\n    allowed here: mcp_servers",
+        "/tmp/config.toml:3: claude-code.mcp: unknown key\n    allowed here: mcp_servers, model",
       ])
   }
 
@@ -80,9 +82,78 @@ import VoCoderTestSupport
         == "claude")
   }
 
-  @Test func registersTheCLICheck() {
+  @Test func registersTheBackendAndTheCLICheck() async {
     let loaded = ModuleLoader.load(
       [ClaudeCodeModule.self], environment: ModuleEnvironment(secrets: InMemorySecretStore()))
     #expect(loaded.registry.doctorChecks.map(\.id) == ["claude-code.cli"])
+    #expect(loaded.registry.agents.map(\.id) == ["claude-code"])
+    for agent in loaded.registry.agents { AgentBackendContract.verify(agent) }
+    await AgentBackendContract.verifyStub(CodexBackend())
+    await AgentBackendContract.verifyStub(GeminiBackend())
+  }
+
+  @Test func arguments() {
+    let fresh = ClaudeLaunch.arguments(config: ClaudeCodeConfig(), model: nil, resume: nil)
+    #expect(fresh.prefix(3) == ["-p", "--input-format", "stream-json"])
+    #expect(fresh.contains("--strict-mcp-config"))
+    #expect(!fresh.contains("--model"))
+    let tools = fresh[fresh.firstIndex(of: "--tools")! + 1]
+    #expect(tools.contains("TaskCreate"))
+    let spoken = fresh[fresh.firstIndex(of: "--append-system-prompt")! + 1]
+    #expect(spoken.contains("<spoken>"))
+
+    let configured = ClaudeLaunch.arguments(
+      config: ClaudeCodeConfig(mcpServers: .user, model: "sonnet"), model: nil, resume: "s-9")
+    #expect(!configured.contains("--strict-mcp-config"))
+    #expect(configured.suffix(4) == ["--model", "sonnet", "--resume", "s-9"])
+    let overridden = ClaudeLaunch.arguments(
+      config: ClaudeCodeConfig(model: "sonnet"), model: "haiku", resume: nil)
+    #expect(overridden.suffix(2) == ["--model", "haiku"])
+  }
+
+  @Test func environmentIsSanitized() {
+    let environment = ClaudeLaunch.sanitized([
+      "PATH": "/bin", "HOME": "/Users/x", "CLAUDECODE": "1", "CLAUDE_PID": "1", "AI_AGENT": "a",
+      "CLAUDE_CODE_ENTRYPOINT": "cli", "CLAUDE_CODE_SESSION_ID": "s",
+      "CLAUDE_CODE_USE_BEDROCK": "1", "ANTHROPIC_API_KEY": "k",
+    ])
+    #expect(
+      environment == [
+        "PATH": "/bin", "HOME": "/Users/x", "CLAUDE_CODE_USE_BEDROCK": "1",
+        "ANTHROPIC_API_KEY": "k",
+      ])
+  }
+
+  @Test func startChecksTheExecutableAndItsVersionOnce() async throws {
+    let options = AgentSessionOptions(repo: URL(filePath: "/tmp"))
+    let missing = ClaudeCodeBackend(locate: { nil })
+    await #expect(throws: AgentError.executableNotFound("claude")) {
+      _ = try await missing.startSession(options)
+    }
+    let old = ClaudeCodeBackend(
+      locate: { URL(filePath: "/opt/bin/claude") }, versionOutput: { _ in "2.0.1 (Claude Code)" })
+    await #expect(throws: AgentError.unsupportedVersion(found: "2.0.1", minimum: "2.1.302")) {
+      _ = try await old.startSession(options)
+    }
+
+    let checks = Mutex(0)
+    let launched = Mutex(0)
+    let counting = ClaudeCodeBackend(
+      locate: { URL(filePath: "/opt/bin/claude") },
+      versionOutput: { _ in
+        checks.withLock { $0 += 1 }
+        return "2.1.400"
+      },
+      launcher: { _ in
+        launched.withLock { $0 += 1 }
+        throw AgentError.launchFailed("test")
+      })
+    for _ in 0..<2 {
+      await #expect(throws: AgentError.launchFailed("test")) {
+        _ = try await counting.startSession(options)
+      }
+    }
+    #expect(checks.withLock { $0 } == 1)
+    #expect(launched.withLock { $0 } == 2)
   }
 }

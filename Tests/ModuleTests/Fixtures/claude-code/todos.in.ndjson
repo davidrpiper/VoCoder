@@ -1,0 +1,2 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"Use your task tools to create a 3 item list (lint, test, ship), then mark lint in progress and test completed, then stop. Do not run anything else.","role":"user"},"type":"user"}

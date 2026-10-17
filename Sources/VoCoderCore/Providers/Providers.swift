@@ -1,14 +1,11 @@
-// Extension-point protocols for contributed services (DESIGN §4.10). Seams whose work package
-// hasn't started are declared with identity (and capabilities) only; their members arrive with
-// that WP (agents P1-09, calendar P3-03, trackers P4-01, docs P5-01, voice P2-xx).
+// Extension-point protocols for contributed services (DESIGN §4.10); agents are in `Agents/`.
+// Seams whose work package hasn't started are declared with identity (and capabilities) only;
+// their members arrive with that WP (calendar P3-03, trackers P4-01, docs P5-01, voice P2-xx).
 
 /// A contributed service with a stable id, unique within its extension point.
 public protocol Provider: Sendable {
   var id: ProviderID { get }
 }
-
-/// A coding agent (Claude Code; Codex and Gemini stubs). DESIGN §4.4, P1-09.
-public protocol AgentBackend: Provider {}
 
 /// Optional tracker features; UI and commands degrade when one is missing.
 public struct TaskTrackerCapabilities: OptionSet, Sendable {

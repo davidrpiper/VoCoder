@@ -23,9 +23,11 @@ public enum ConfigTemplate {
     # Compiled-in modules that shouldn't load: git, claude-code, calendar, linear, notion.
     disabled = []
 
-    # Claude Code sessions: load your own MCP servers ("user") or none ("none").
+    # Claude Code sessions: load your own MCP servers ("user") or none ("none"), and the
+    # model (default: Claude Code's own).
     # [claude-code]
     # mcp_servers = "none"
+    # model = "sonnet"
 
     """
 }

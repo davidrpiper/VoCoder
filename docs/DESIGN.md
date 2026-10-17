@@ -259,7 +259,7 @@ Sources/
                                toasts), terminal session (run loop, pop-out), generic tabs
   Modules/                     one target per module (§4.10)
     GitModule/
-    ClaudeCodeModule/          + Codex/Gemini stub backends
+    ClaudeCodeModule/          + Codex/Gemini stub backends (not registered)
     EventKitCalendarModule/
     LinearModule/
     NotionModule/
@@ -271,7 +271,8 @@ Tests/
   VoCoderUIBridgeTests/        bridge tests through the public ObjC API (render, widgets, keys)
   VoCoderUITests/              DSL/focus/key-routing tests; snapshot goldens in __Snapshots__/<TestFile>/
   VoCoderVoiceTests/           routing tests over transcript fixtures; recognition over audio fixtures
-  ModuleTests/                 module contract for every module; demo module end to end
+  ModuleTests/                 module contract for every module; demo module end to end;
+                               Claude Code replay tests over Fixtures/claude-code (P0-04 transcripts)
 scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` and the app in a pty;
                                term-test.py: real Terminal.app windows, `make term-test`;
                                check-deps.py: target dependency rules, run by `make lint`)
@@ -386,18 +387,20 @@ SIGINT source until the TUI resumes. Non-interactive children (`claude -p`, `git
 ### 4.4 Agent integration
 
 ```swift
-protocol AgentBackend {
-    var id: AgentBackendID { get }
-    func startSession(in repo: URL, resume: SessionID?) async throws -> AgentSession
-}
+protocol AgentBackend: Provider {                  // VoCoderCore/Agents (ADR 0010)
+    var displayName: String { get }
+    func startSession(_ options: AgentSessionOptions) async throws -> any AgentSession
+}                                                  // options: repo, resume id, model
 
-protocol AgentSession: AnyObject {
+protocol AgentSession: AnyObject, Sendable {
     var events: AsyncStream<AgentEvent> { get }   // sessionStarted, status, text, textDelta,
                                                   // toolUse, toolResult, todos, permissionRequest,
-                                                  // backgroundTask, usage, spokenSummary, turnEnd, error
+                                                  // backgroundTask, usage, spokenSummary, turnEnd,
+                                                  // error, ended (always last)
     func send(_ prompt: String) async throws
     func respond(to request: PermissionRequest, _ decision: PermissionDecision) async throws
     func interrupt() async
+    func close() async
 }
 
 // allowOnce · allowEdited(input) · allowForSession · allowAlways (repo settings, explicit only)
@@ -427,8 +430,17 @@ enum PermissionDecision { … }
     vars; drain stderr to the log; fail pending control requests when stdout closes; require a
     minimum Claude Code version (from `init`). Loading the user's own MCP servers
     (`--strict-mcp-config` or not) is a config option.
+  - **Process and restart** ([ADR 0010](decisions/0010-agent-sessions-transport-and-restart.md)):
+    `ClaudeCodeSession` sits on a `ClaudeTransport` (`ProcessTransport` in the app; replayed
+    fixtures in tests). If the process exits unexpectedly after starting, the session emits
+    `error(.crashed)` and relaunches with `--resume` up to 3 times, queueing prompts sent
+    meanwhile; then `ended(.exited)`. Startup failures (unknown resume id, not logged in) are
+    thrown by `startSession`, never retried. `<spoken>` is stripped from `text`/`textDelta` and
+    reported as `spokenSummary` (Core `SpokenTag`).
+  - **Session ids** for resume are kept per repo and backend by Core's `AgentSessionStore`
+    (`~/Library/Application Support/VoCoder/agent-sessions.json`).
 - **Stubs**: `CodexBackend`, `GeminiBackend` conform to the protocol and throw
-  `AgentError.notImplemented`, keeping the abstraction honest.
+  `AgentError.notImplemented`, keeping the abstraction honest. They aren't registered.
 - One `AgentSession` per repo tab initially; multiple sessions per repo later.
 
 ### 4.5 Integration providers

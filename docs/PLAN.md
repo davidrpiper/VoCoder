@@ -403,6 +403,12 @@ key and palette; sessions resume after restart; terminal is always restored.
   the user's servers) and the doctor check `ClaudeCLICheck` with a provisional
   `minimumCLIVersion` of 2.1.302. Confirm or raise it with the replay tests, and reuse its env
   stripping (`CLAUDECODE`, `CLAUDE_CODE_*`) for the session process.
+- **Done 2026-10-17** ([ADR 0010](decisions/0010-agent-sessions-transport-and-restart.md)):
+  Core `Agents/` (protocols, `AgentEvent`, `JSONValue`, `SpokenTag`, `AgentSessionStore`);
+  `ClaudeCodeBackend`/`ClaudeCodeSession` over a `ClaudeTransport` seam with crash restart;
+  `FakeAgentBackend`; `AgentSessionContract`; 11 fixture replays, `sh`-scripted process tests,
+  and the opt-in live test (`VOCODER_LIVE_CLAUDE=1 make test`, passing on 2.1.302). Minimum
+  version stays 2.1.302. New config key `[claude-code] model`.
 
 ### P1-10 — Repo tab
 - **Depends on:** P1-07, P1-08, P1-09

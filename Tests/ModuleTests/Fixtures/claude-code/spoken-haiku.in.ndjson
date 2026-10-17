@@ -1,0 +1,18 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"What does README.md say? Read it.","role":"user"},"type":"user"}
+{"message":{"content":"Write a Swift function that reverses a string. Just the code and a one-line note.","role":"user"},"type":"user"}
+{"message":{"content":"What's 17 times 23?","role":"user"},"type":"user"}
+{"message":{"content":"List three ideas for naming a CLI tool.","role":"user"},"type":"user"}
+{"message":{"content":"Create notes.txt containing a haiku about git.","role":"user"},"type":"user"}
+{"response":{"request_id":"5543146f-6ed7-46d6-8cd9-c184bbf1b0db","response":{"behavior":"allow","updatedInput":{"content":"Branches split and grow\neach commit a stone set down\nrewind if you dare\n","file_path":"/REPO/spoken-haiku/notes.txt"}},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Explain in detail the difference between a process and a thread.","role":"user"},"type":"user"}
+{"message":{"content":"Run git log and tell me how many commits there are.","role":"user"},"type":"user"}
+{"response":{"request_id":"cfdd8f0c-97b5-48c6-864a-a5d3bca79fa2","response":{"behavior":"allow","updatedInput":{"command":"git -C /REPO/spoken-haiku log --oneline && git -C /REPO/spoken-haiku rev-list --count HEAD","description":"Show git log and count commits on HEAD"}},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Read the file does-not-exist.swift.","role":"user"},"type":"user"}
+{"message":{"content":"Refactor nothing; just say whether this repo has tests.","role":"user"},"type":"user"}
+{"message":{"content":"Give me a markdown table of 3 HTTP status codes and their meanings.","role":"user"},"type":"user"}
+{"message":{"content":"ok","role":"user"},"type":"user"}
+{"message":{"content":"Summarise everything we've done in this session.","role":"user"},"type":"user"}
+{"message":{"content":"Write a bash one-liner that counts lines in all .md files.","role":"user"},"type":"user"}
+{"message":{"content":"Is it safe to force-push to main? Short answer.","role":"user"},"type":"user"}
+{"message":{"content":"Fix the typo in README.md if there is one.","role":"user"},"type":"user"}

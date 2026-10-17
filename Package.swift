@@ -130,7 +130,9 @@ let package = Package(
         "GitModule", "ClaudeCodeModule", "EventKitCalendarModule", "LinearModule", "NotionModule",
         "DemoModule",
       ],
-      exclude: ["__Snapshots__"]
+      exclude: ["__Snapshots__"],
+      // Claude Code stream-json transcripts recorded by the P0-04 spike (replay tests).
+      resources: [.copy("Fixtures")]
     ),
     .testTarget(name: "VoCoderVoiceTests", dependencies: ["VoCoderVoice"]),
   ],

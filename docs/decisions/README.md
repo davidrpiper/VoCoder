@@ -42,3 +42,4 @@ Briefly, and why not.
 - [0007 — Command system, keymap and keyboard overlays](0007-command-system-and-keymap.md) (P1-05, Accepted)
 - [0008 — App chrome, command prompts and modals](0008-app-chrome-prompts-and-modals.md) (P1-07, Accepted)
 - [0009 — Config validation, Keychain secrets and `vocoder doctor`](0009-config-secrets-and-doctor.md) (P1-06, Accepted)
+- [0010 — Agent sessions: event model, transport seam, crash restart and session store](0010-agent-sessions-transport-and-restart.md) (P1-09, Accepted)

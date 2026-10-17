@@ -1,0 +1,14 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"Use the Bash tool to run exactly this command: echo approved > a.txt","role":"user"},"type":"user"}
+{"response":{"request_id":"6e0aa163-b618-4b4e-84f5-bfbb4c756137","response":{"behavior":"allow","updatedInput":{"command":"echo approved > a.txt","description":"Write \"approved\" into a.txt"}},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Use the Bash tool to run exactly this command: rm README.md. If it is refused, do not retry or work around it; just tell me.","role":"user"},"type":"user"}
+{"response":{"request_id":"b1bcf836-72fe-4d31-93b5-d38c6385de3c","response":{"behavior":"deny","message":"The user declined this from VoCoder."},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Use the Write tool to create b.txt containing exactly: original","role":"user"},"type":"user"}
+{"response":{"request_id":"2a1a75de-fd5e-4b0d-a5d4-82e7e7e3a0b3","response":{"behavior":"allow","updatedInput":{"content":"modified by VoCoder\n","file_path":"/REPO/permission-host/b.txt"}},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Use the Bash tool to run exactly: echo one > c.txt","role":"user"},"type":"user"}
+{"response":{"request_id":"da4df052-6278-464e-9df8-5fa40731a120","response":{"behavior":"allow","updatedInput":{"command":"echo one > c.txt","description":"Write \"one\" into c.txt"},"updatedPermissions":[{"behavior":"allow","destination":"localSettings","rules":[{"ruleContent":"echo one *","toolName":"Bash"}],"type":"addRules"},{"destination":"session","directories":["/REPO/permission-host"],"type":"addDirectories"}]},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Use the Bash tool to run exactly the same command again: echo one > c.txt","role":"user"},"type":"user"}
+{"response":{"request_id":"d4e81f6b-77c0-447d-b688-fec5d7e586cb","response":{"behavior":"deny","message":"should not have been asked"},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Use the Bash tool to run exactly: touch d.txt","role":"user"},"type":"user"}
+{"response":{"request_id":"3fb1e0ee-8524-4387-b1d1-4059814df702","response":{"behavior":"allow","updatedInput":{"command":"touch d.txt","description":"Create empty d.txt"},"updatedPermissions":[{"behavior":"allow","destination":"session","rules":[{"ruleContent":"touch d.txt","toolName":"Bash"}],"type":"addRules"},{"destination":"session","directories":["/REPO/permission-host"],"type":"addDirectories"},{"destination":"session","mode":"acceptEdits","type":"setMode"}]},"subtype":"success"},"type":"control_response"}
+{"message":{"content":"Use the Bash tool to run exactly the same command again: touch d.txt","role":"user"},"type":"user"}

@@ -1,16 +1,16 @@
-// Filled in by P1-09 (DESIGN §4.10). Modules depend on Core (and UI); never on each other.
-// P1-06 adds the config section and the `vocoder doctor` check of the `claude` CLI.
+// Claude Code as an agent backend (DESIGN §4.4, ADR 0002, ADR 0010), its config section and
+// the `vocoder doctor` check of the `claude` CLI. Depends on Core (and UI); never on modules.
 import Foundation
 import VoCoderCore
 import VoCoderUI
 
-/// Registers its doctor check; the agent backend arrives in P1-09.
+/// Registers the Claude Code agent backend and its doctor check.
 public final class ClaudeCodeModule: VoCoderModule {
   public static let id: ModuleID = "claude-code"
   public static let configSection: (any ConfigSection.Type)? = ClaudeCodeConfig.self
-  /// The oldest CLI the stream-json host protocol was verified with (P0-04 spike, ADR 0002).
-  /// P1-09 confirms it with the replay tests.
-  public static let minimumCLIVersion = CLIVersion("2.1.302")!
+  /// The oldest CLI the stream-json host protocol was verified with: the P0-04 fixtures and
+  /// the P1-09 live test (ADR 0002).
+  public nonisolated static let minimumCLIVersion = CLIVersion("2.1.302")!
 
   public let config: ClaudeCodeConfig
 
@@ -19,6 +19,7 @@ public final class ClaudeCodeModule: VoCoderModule {
   }
 
   public func register(into registry: inout ModuleRegistry) {
+    registry.add(agent: ClaudeCodeBackend(config: config))
     registry.add(doctorCheck: ClaudeCLICheck(minimum: Self.minimumCLIVersion))
   }
 }
@@ -32,17 +33,25 @@ public struct ClaudeCodeConfig: ConfigSection, Equatable {
   }
 
   public var mcpServers: MCPServers
+  /// `--model` for sessions (an alias such as `sonnet`, or a full name); nil: Claude Code's
+  /// default.
+  public var model: String?
 
-  public static let keys: [String]? = ["mcp_servers"]
+  public static let keys: [String]? = ["mcp_servers", "model"]
 
   enum CodingKeys: String, CodingKey {
     case mcpServers = "mcp_servers"
+    case model
   }
 
-  public init(mcpServers: MCPServers = .none) { self.mcpServers = mcpServers }
+  public init(mcpServers: MCPServers = .none, model: String? = nil) {
+    self.mcpServers = mcpServers
+    self.model = model
+  }
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    model = try container.decodeIfPresent(String.self, forKey: .model)
     guard let raw = try container.decodeIfPresent(String.self, forKey: .mcpServers) else {
       mcpServers = .none
       return
@@ -153,9 +162,7 @@ public struct ClaudeCLICheck: DoctorCheck {
     let process = Process()
     process.executableURL = executable
     process.arguments = ["--version"]
-    process.environment = ProcessInfo.processInfo.environment.filter {
-      $0.key != "CLAUDECODE" && !$0.key.hasPrefix("CLAUDE_CODE_")
-    }
+    process.environment = ClaudeLaunch.sanitized(ProcessInfo.processInfo.environment)
     let output = Pipe()
     process.standardOutput = output
     process.standardError = FileHandle.nullDevice

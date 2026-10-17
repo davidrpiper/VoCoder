@@ -1,0 +1,3 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"Remember the code word MANGO-7. Reply only: OK","role":"user"},"type":"user"}
+{"message":{"content":"Write a 400 word essay about mangoes.","role":"user"},"type":"user"}

@@ -83,12 +83,35 @@ and compares the window text with the app's off-screen render (`$VOCODER_DUMP_SC
 dump. 4 scenarios, 18 steps, all green on this Mac. It found a real bug: Terminal.app printed
 FTXUI's DECRQSS query as `$q q` and shifted the first row. The bridge now homes the cursor before
 the first frame and after a pop-out, and `make pty-test` checks for that.
+P1-09 done (2026-10-17): agent backend and Claude Code module. Core `Agents/` has
+`AgentBackend`/`AgentSession`, `AgentEvent` (ADR 0002's cases + `ended`, always last),
+`PermissionRequest`/`PermissionDecision`, `JSONValue`, `SpokenTag`/`SpokenTagFilter` and
+`AgentSessionStore` (last session id per repo + backend). `ClaudeCodeModule` registers
+`ClaudeCodeBackend`. Its `ClaudeCodeSession` runs over a `ClaudeTransport` seam
+(`ProcessTransport`, or replayed fixtures in tests). The session restarts a crashed process
+with `--resume` up to 3 times and queues prompts sent meanwhile. Startup failures are thrown
+and never retried. Other pieces:
+- the version check (`claude --version`, cached; minimum stays 2.1.302)
+- env stripping, shared with the doctor check, that keeps the user's Bedrock/Vertex/OAuth
+  variables
+- the new `[claude-code] model` key
+- `CodexBackend`/`GeminiBackend` stubs, not registered
+- `FakeAgentBackend`/`FakeAgentSession` (scripted behaviors) for P1-10
+- `AgentSessionContract`, `AgentEventRecorder`
+
+Tests: 11 fixture replays (`Tests/ModuleTests/Fixtures/claude-code`), `sh`-scripted process
+tests, and the opt-in live test (`VOCODER_LIVE_CLAUDE=1 make test`), which passed 4 times on
+2.1.302 from inside Claude Code
+([ADR 0010](decisions/0010-agent-sessions-transport-and-restart.md)).
 
 ## Next up
 
-**P1-09 — Agent backend and Claude Code module** (config section, CLI check and env stripping
-are ready). **P1-08** (git) and **P1-03b** (markdown renderer) are also unblocked and
-independent. P1-10 (repo tab) needs all three. Add repo-tab scenarios to `make term-test` then.
+**P1-08 — Git module** (independent; P1-10 needs it). **P1-03b** (markdown renderer) is also
+unblocked. After both: **P1-10 repo tab**, which builds on `FakeAgentBackend` for snapshots
+and on the registered `claude-code` backend for real use (see ADR 0010 "Consequences": write
+`AgentSessionStore` on `sessionStarted`, close an open approval modal on `turnEnd`, show
+`crashed`/`ended`, call `close()` when the tab goes). Add repo-tab scenarios to
+`make term-test` then.
 Small follow-up from P1-07b (P1-07 chrome, not urgent): the toast's `clearUnder` area is one
 column wider than its box, so it hides the panel's right border on the toast's rows (visible
 off-screen too, so a snapshot test can pin it).
@@ -124,7 +147,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-07 | App chrome | done | ADR 0008; `vocoder` runs the TUI |
 | P1-07b | Real-terminal UI checks (Terminal.app) | done | `make term-test`; fixed DECRQSS shift |
 | P1-08 | Git module | todo | |
-| P1-09 | Agent backend and Claude Code module | todo | |
+| P1-09 | Agent backend and Claude Code module | done | ADR 0010; live test passes on 2.1.302 |
 | P1-10 | Repo tab | todo | |
 | P1-11 | M1 hardening and dogfood | todo | |
 | P2-01 | Audio engine and device management | todo | |
@@ -272,9 +295,43 @@ to one or two lines; move anything architectural into an ADR._
 - Sample screenshot colours after `sips -m "sRGB Profile.icc"`. The cell background is the
   cell's most common pixel colour: corner samples catch ascenders on 1× displays (7×15 px cells).
 
+- A task group waits for *all* children: racing an uncancellable wait (`waitForExit`) against a
+  timeout blocks until the wait ends. Use a first-result one-shot (`FirstResult` in
+  `ClaudeTransport.swift`).
+- Set `F_SETNOSIGPIPE` on a child's stdin pipe: writing after the child exited then throws (EPIPE)
+  instead of killing VoCoder with SIGPIPE.
+- `AgentEventRecorder.next(\.x)` counts from the start of the session. To wait for a *new* event,
+  pass `occurrence: currentCount + 1` (the live interrupt test was flaky without it).
+- Replay gating: control request ids restart at `vc-1` per process (the fixtures expect it), and
+  a `ReplayTransport`'s gate timeouts start at launch, not at creation.
+- `ClaudeCodeBackend(…) { launcher }` as a trailing closure binds to `environment`; label
+  `launcher:` (swift-format also rejects a closure argument plus a trailing closure).
+
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-09
+- Decisions (user, at plan time, as recommended): build the session store now; I run the live
+  test (it used a few Haiku turns of the user's quota).
+- Core `Agents/`: protocols, events, `JSONValue`, `SpokenTag` (plus a streaming filter that holds
+  back a possible tag start), `AgentSessionStore`. The `AgentBackend` placeholder left
+  `Providers.swift`.
+- `ClaudeCodeModule`: `ClaudeLaunch` (arguments, tools list, spoken instruction, `sanitized`),
+  `ClaudeTransport`/`ProcessTransport`, `ClaudeEventMapper` (stream-json → events; todos from
+  Task* calls; streaming text through `SpokenTagFilter`), `ClaudeCodeSession` (actor: control
+  correlation, permission answers, interrupt, restart, prompt queue), `ClaudeCodeBackend`, and
+  the stubs.
+- Replay: `ReplayTransport` holds each fixture line back until its cause was written (n-th init
+  ← n-th user message; control_response ← our request; after `can_use_tool` ← its answer), and
+  auto-answers control requests the fixture lacks. Our permission answers equal the spike's
+  JSON for JSON (permission-host, spoken-haiku). permission-mcp, spoken-opus and spoken-sonnet
+  weren't copied.
+- Bugs found by the tests: `stop()` hung (task group, see gotchas); restarted processes got
+  `vc-2` for `initialize`; the live test interrupted before turn 2 had started (fixed in the
+  test).
+- Checked live: all 12 `--tools` names are accepted by 2.1.302.
+- `make build`/`make test`/`make lint`/`make pty-test` green; agent suites ran 5× without a flake.
 
 ### 2026-10-17 · P1-07b
 - Decisions (user, at plan time, as recommended): temporary Terminal profile per window, not the

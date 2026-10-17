@@ -1,0 +1,2 @@
+{"request":{"subtype":"initialize"},"request_id":"vc-1","type":"control_request"}
+{"message":{"content":"Remember the code word PINEAPPLE-42. Reply only: OK","role":"user"},"type":"user"}
