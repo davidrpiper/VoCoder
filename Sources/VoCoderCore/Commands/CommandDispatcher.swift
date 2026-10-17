@@ -1,5 +1,5 @@
-/// Asked before an outward command runs (DESIGN §3.4). P1-07 supplies a dialog for keys and the
-/// palette; P2-07 the spoken read-back and "confirm".
+/// Asked before an outward command runs (DESIGN §3.4). The chrome's dialog answers it for keys
+/// and the palette (P1-07); P2-07 adds the spoken read-back and "confirm".
 @MainActor
 public protocol CommandConfirmer: AnyObject {
   func confirm(_ command: Command, in context: CommandContext) async -> Bool
@@ -25,6 +25,8 @@ public final class CommandDispatcher {
   /// from voice or the brain they are declined.
   public weak var confirmer: (any CommandConfirmer)?
   public weak var undoSink: (any UndoSink)?
+  /// Handed to commands for their questions and notices; without one they are declined.
+  public weak var prompter: (any CommandPrompter)?
   /// Most recently run first (palette ranking).
   public private(set) var recent: [CommandID] = []
   private let log = Log(category: "commands")
@@ -52,7 +54,9 @@ public final class CommandDispatcher {
   public func context(
     source: CommandSource = .program, arguments: CommandArguments = [:]
   ) -> CommandContext {
-    CommandContext(state: state, focus: focusProvider(), arguments: arguments, source: source)
+    CommandContext(
+      state: state, focus: focusProvider(), arguments: arguments, source: source,
+      prompter: prompter)
   }
 
   public func isAvailable(_ id: CommandID, source: CommandSource = .program) -> Bool {

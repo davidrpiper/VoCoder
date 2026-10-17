@@ -1,0 +1,24 @@
+‹8  9 repository-8 ●  repository-9 ✓  repository-10 ✗  repository-11 3        1›
+────────────────────────────────────────────────────────────────────────────────
+Repository repository-9
+Conversation and side panel arrive with the repo tab (P1-10).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 0
+ ^Space leader   ^Space x p publish   ^Space x r rename   ^P palette   ? help

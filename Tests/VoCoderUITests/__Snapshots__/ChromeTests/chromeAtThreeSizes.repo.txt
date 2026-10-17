@@ -1,0 +1,24 @@
+ 1 Home 3  2 api-server ◐  3 web ●  4 infra ✓  5 docs ✗
+────────────────────────────────────────────────────────────────────────────────
+Repository api-server
+Conversation and side panel arrive with the repo tab (P1-10).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 3
+ ^Space leader   ^Space x p publish   ^Space x r rename   ^P palette   ? help

@@ -76,11 +76,16 @@ final class GalleryModel {
 
 @MainActor
 final class UIGallery {
+  /// Development keys on top of the defaults.
+  static let overrides = KeyBindingOverrides(bindings: [
+    NavigationCommands.quit: ["q", "Ctrl-c", "<leader> q"]
+  ])
+
   private let model = GalleryModel()
   private let host: UIHost
   private let keyboard: KeyboardController
   private let log = Log(category: "ui-gallery")
-  private lazy var runLoop = TerminalRunLoop(renderer: host.renderer, log: log)
+  private lazy var session = TerminalSession(renderer: host.renderer, log: log)
   private var timer: Timer?
 
   init(theme: Theme) {
@@ -89,7 +94,7 @@ final class UIGallery {
     let dispatcher = CommandDispatcher(
       state: AppState(), registry: CommandRegistry(Self.commands(model: model, host: host)))
     keyboard = KeyboardController(
-      host: host, dispatcher: dispatcher, overrides: DemoApp.overrides,
+      host: host, dispatcher: dispatcher, overrides: Self.overrides,
       quit: { [weak host] in host?.renderer.stop() })
     let keyboard = keyboard
     host.setContent { GalleryView(model: model).commandOverlays(keyboard) }
@@ -111,7 +116,7 @@ final class UIGallery {
       MainActor.assumeIsolated { model.spinnerFrame += 1 }
     }
     log.info("ui gallery started")
-    runLoop.run()
+    session.run()
     timer?.invalidate()
     log.info("ui gallery exited")
   }

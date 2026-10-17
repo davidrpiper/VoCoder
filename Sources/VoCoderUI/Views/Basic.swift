@@ -145,3 +145,21 @@ public struct Grid: View, PrimitiveView {
     return [.table(rows.map { $0.map { context.node(for: $0) } }, options: options)]
   }
 }
+
+/// Children left to right at their natural widths. When they don't fit, the child at
+/// `keepingVisible` and as many neighbours as fit are shown, with "‹n" / "n›" markers counting
+/// the hidden ones (the tab bar).
+public struct Strip: View, PrimitiveView {
+  public typealias Body = Never
+  let keep: Int
+  let content: ViewGroup
+
+  public init(keepingVisible index: Int, @ViewBuilder _ content: () -> ViewGroup) {
+    keep = index
+    self.content = content()
+  }
+
+  func makeNodes(in context: RenderContext) -> [VCNode] {
+    [.strip(context.nodes(for: content), keepingVisible: keep)]
+  }
+}

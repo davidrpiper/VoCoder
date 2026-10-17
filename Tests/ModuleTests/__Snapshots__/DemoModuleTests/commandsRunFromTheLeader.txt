@@ -1,9 +1,9 @@
- 1 demo-repo ●  2 Tasks 1
+ 1 Home 2  2 demo-repo ●  3 Tasks 1
 ────────────────────────────────────────────────────────────────────────────────
 ╭Demo tasks────────────────────────────────────────────────────────────────────╮
 │› DEMO-1 Wire the module system                                          Done │
-│  DEMO-2 Command palette                                                 Todo │
-│  DEMO-3 App chrome                                                      Todo │
+│  DEMO-2 Command palette                                                 Done │
+│  DEMO-3 App chrome                                               In Progress │
 │  DEMO-4 Repo tab                                                     Backlog │
 │                                                                              │
 │                                                                              │
@@ -13,12 +13,12 @@
 │                                                                              │
 │                                                                              │
 │                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-╭Attention (2)────────────────╮╭Commands───────────────────────────────────────╮
-│• Ping 1                     ││  Ping                               demo.ping │
-│· Demo module loaded         ││› Cycle repo badge             demo.cycleBadge │
-│                             ││  Clear attention          demo.clearAttention │
-│                             ││  Post a note                        demo.note │
-│                             ││  Select a demo issue         demo.selectIssue │
-╰─────────────────────────────╯╰───────────────────────────────────────────────╯
-demo · ^Space leader · ^P palette · ? help · Tab focus · Enter run · q quit
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 2
+ ^Space leader   ^Space d t set issue status   ^Space d p ping   ^P palette   1›

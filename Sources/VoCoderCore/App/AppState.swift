@@ -12,6 +12,8 @@ public final class AppState {
   /// Pending items, oldest first. Ordering and delivery policy arrive with the queue (P3-01).
   public private(set) var attention: [AttentionItem] = []
   public internal(set) var modules: [ModuleID] = []
+  /// What the voice bar shows. Static (`.off`) until the voice layer drives it (Phase 2).
+  public var voice = VoiceStatus()
   public private(set) var issues: [ModuleIssue] = []
 
   @ObservationIgnored private let log = Log(category: "state")
@@ -63,6 +65,31 @@ public final class AppState {
       select(tabs[min(index, tabs.count - 1)].id)
     }
     return true
+  }
+
+  /// Moves tab `id` to `index` (clamped). Returns false if there is no such tab.
+  @discardableResult
+  public func move(_ id: TabID, to index: Int) -> Bool {
+    guard let from = tabs.firstIndex(where: { $0.id == id }) else { return false }
+    let tab = tabs.remove(at: from)
+    tabs.insert(tab, at: max(0, min(index, tabs.count)))
+    return true
+  }
+
+  /// The tab whose title or an alias is `name`, ignoring case, spaces at the ends and a leading
+  /// "the" ("go to the api" → alias "api"); nil if none or several match.
+  public func tab(matching name: String) -> (any Tab)? {
+    func normalised(_ text: String) -> String {
+      var text = text.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+      if text.hasPrefix("the ") { text = String(text.dropFirst(4)) }
+      return text
+    }
+    let wanted = normalised(name)
+    guard !wanted.isEmpty else { return nil }
+    let matches = tabs.filter { tab in
+      ([tab.title] + tab.aliases).contains { normalised($0) == wanted }
+    }
+    return matches.count == 1 ? matches[0] : nil
   }
 
   /// Closes every tab (app shutdown).

@@ -106,6 +106,12 @@
   return node;
 }
 
++ (VCNode *)strip:(NSArray<VCNode *> *)children keepingVisible:(NSInteger)index {
+  VCNode *node = [self container:VCNodeKindStrip children:children];
+  node->_integer = index;
+  return node;
+}
+
 // MARK: Widgets
 
 + (VCNode *)inputWithId:(NSString *)widgetId

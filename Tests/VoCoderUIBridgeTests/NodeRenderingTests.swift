@@ -19,6 +19,19 @@ import VoCoderUIBridge
     #expect(render(.dbox([below, .hbox([box.clearUnder(), .filler()])])) == lines("b  a"))
   }
 
+  @Test func stripShowsAWindowAroundTheKeptChild() {
+    let tabs = (1...6).map { VCNode.text(" t\($0) ") }  // 4 cells each
+    #expect(render(.strip(tabs, keepingVisible: 0), width: 24) == lines(" t1  t2  t3  t4  t5  t6"))
+    // 16 cells: the window grows to the right first, markers take their room.
+    #expect(render(.strip(tabs, keepingVisible: 0), width: 16) == lines(" t1  t2  t3   3›"))
+    #expect(render(.strip(tabs, keepingVisible: 2), width: 16) == lines("‹2  t3  t4    2›"))
+    #expect(render(.strip(tabs, keepingVisible: 3), width: 16) == lines("‹3  t4  t5  t6"))
+    #expect(render(.strip(tabs, keepingVisible: 5), width: 16) == lines("‹3  t4  t5  t6"))
+    // Too narrow even for the kept child alone: it is shown clipped.
+    #expect(render(.strip(tabs, keepingVisible: 2), width: 3) == lines(" t3"))
+    #expect(render(.strip([], keepingVisible: 0), width: 3) == lines(""))
+  }
+
   @Test func paragraphWrapsToWidth() {
     let text = "the quick brown fox jumps over the lazy dog"
     #expect(

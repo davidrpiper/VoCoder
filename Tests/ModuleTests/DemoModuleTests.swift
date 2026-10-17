@@ -11,37 +11,25 @@ final class QuitFlag {
   var quit = false
 }
 
-/// `vocoder --demo` end to end, minus the terminal (wired like `DemoApp`): the demo module's
-/// tab, commands and attention items reach the app state and the screen, and commands run from
-/// the shell's list, the leader and the palette.
+/// `vocoder --demo` end to end, minus the terminal (wired like `VoCoderApp`): the demo module's
+/// tabs, commands and attention items reach the chrome, and commands run from the leader, the
+/// palette and the modals they open.
 @MainActor
 @Suite struct DemoModuleTests {
-  let core = AppCore(
-    modules: [DemoModule.self], environment: ModuleEnvironment(secrets: InMemorySecretStore()))
-  let commandList = ListState()
   let host = UIHost(theme: .dark)
-  let keyboard: KeyboardController
+  let shell: AppShell
   let quitFlag = QuitFlag()
+  var core: AppCore { shell.core }
+  var keyboard: KeyboardController { shell.keyboard }
 
   init() {
-    let core = core
-    let commandList = commandList
     let quitFlag = quitFlag
-    let keyboard = KeyboardController(
-      host: host, dispatcher: core.dispatcher,
-      overrides: KeyBindingOverrides(bindings: [NavigationCommands.quit: ["q"]]),
+    shell = AppShell(
+      modules: [DemoModule.self],
+      environment: ModuleEnvironment(secrets: InMemorySecretStore()), host: host,
       quit: { quitFlag.quit = true })
-    self.keyboard = keyboard
-    host.setContent {
-      DevShell(
-        state: core.state, commands: core.registry.commands, commandList: commandList,
-        onRun: { keyboard.invoke($0.id, source: .program) }
-      )
-      .commandOverlays(keyboard)
-    }
-    core.start()
-    host.focus.focus(DevShell.commandListID)
-    host.render()
+    shell.toasts.sleep = { _ in try await Task.sleep(for: .seconds(3600)) }
+    shell.start()
   }
 
   /// Feeds raw terminal bytes through the bridge's parser, delivering events synchronously.
@@ -52,10 +40,11 @@ final class QuitFlag {
   }
 
   @Test func contributionsAppearOnScreen() async {
-    #expect(core.state.tabs.map(\.title) == ["demo-repo", "Tasks"])
+    #expect(core.state.tabs.map(\.title) == ["Home", "demo-repo", "Tasks"])
     #expect(
       core.registry.commands.map(\.id) == [
-        "demo.ping", "demo.cycleBadge", "demo.clearAttention", "demo.note", "demo.selectIssue",
+        "demo.ping", "demo.cycleBadge", "demo.clearAttention", "demo.rename", "demo.triage",
+        "demo.publish", "demo.note", "demo.selectIssue",
       ])
     #expect(core.state.issues.isEmpty)
     #expect(keyboard.keymap.issues.isEmpty)
@@ -64,17 +53,39 @@ final class QuitFlag {
     core.stop()
   }
 
-  @Test func commandsRunFromTheShell() async {
+  @Test func commandsRunFromTheLeader() async {
     #expect(await eventually { core.state.attention.count == 1 })
-    type("\r")  // Ping
+    type("\0dp")  // Ping
     #expect(await eventually { core.state.attention.count == 2 })
     #expect(core.state.tabs.last?.badge == .count(1))
-    type("j\r")  // Cycle repo badge
-    #expect(await eventually { core.state.tabs.first?.badge == .needsYou })
+    type("\0db")  // Cycle repo badge
+    #expect(await eventually { core.state.tabs[1].badge == .needsYou })
     core.state.select("demo.tasks")
     assertSnapshot(of: host, width: 80, height: 24)
-    type("j\r")  // Clear attention
+    type("\0dc")  // Clear attention
     #expect(await eventually { core.state.attention.isEmpty })
+    core.stop()
+  }
+
+  @Test func demoCommandsUseTheModals() async {
+    type("\0dr")  // Rename: a text prompt
+    type(String(repeating: "\u{7F}", count: 9) + "renamed")  // backspaces over "demo-repo"
+    assertSnapshot(of: host, width: 80, height: 24, named: "rename")
+    type("\r")
+    #expect(await eventually { core.state.tabs[1].title == "renamed" })
+
+    type("\03")  // the Tasks tab
+    type("jj")  // DEMO-3
+    type("\0dt")  // Triage: a list picker
+    type("review\r")
+    #expect(
+      await eventually { shell.toasts.toasts.map(\.notice.message) == ["DEMO-3 is now In Review"] })
+    assertSnapshot(of: host, width: 80, height: 24, named: "triaged")
+
+    type("\0du")  // Publish: outward, confirm first
+    #expect(shell.modals.top != nil)
+    type("y")
+    #expect(await eventually { core.state.attention.map(\.title).last == "Published the demo" })
     core.stop()
   }
 
@@ -86,7 +97,7 @@ final class QuitFlag {
     type("p")  // <leader> d p: Ping
     #expect(await eventually { core.state.attention.count == 2 })
     type("\0")
-    type("2")  // <leader> 2: the Tasks tab
+    type("3")  // <leader> 3: the Tasks tab
     #expect(core.state.selectedTabID == "demo.tasks")
 
     type("\u{10}")  // Ctrl-P
@@ -100,7 +111,7 @@ final class QuitFlag {
     #expect((core.state.selectedTab as? any ViewTab)?.id == "demo.tasks")
     assertSnapshot(of: host, width: 80, height: 24, named: "issue-selected")
 
-    type("q")
+    type("\0q")
     #expect(quitFlag.quit)
     core.stop()
   }

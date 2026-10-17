@@ -91,6 +91,11 @@ NS_SWIFT_SENDABLE
 /// A horizontal row of tab titles with the selected one highlighted (inverted, bold).
 + (VCNode *)tabBarWithTitles:(NSArray<NSString *> *)titles selected:(NSInteger)selected
     NS_SWIFT_NAME(tabBar(_:selected:));
+/// Children left to right at their natural widths. When they don't fit, the child at `index`
+/// and as many neighbours as fit are shown, with dim "‹n" / "n›" markers counting the hidden
+/// children on each side.
++ (VCNode *)strip:(NSArray<VCNode *> *)children keepingVisible:(NSInteger)index
+    NS_SWIFT_NAME(strip(_:keepingVisible:));
 
 // MARK: Stateful widgets (state lives in C++, keyed by a stable id that survives tree swaps)
 /// Text input. Single-line inputs report Enter as `VCEventKindWidgetSubmitted`; multi-line

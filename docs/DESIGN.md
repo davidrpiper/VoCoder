@@ -74,24 +74,35 @@ keyboard-driven TUI at the desk, and fully operable by voice from across the roo
 ### 3.1 Layout
 
 ```
-┌─[1 Home •2]─[2 vocoder ◐]─[3 api-server ●]─[4 Linear 3]─[5 Cal 10:30 Standup]─[6 Notion 1]─┐
-│                                                                                            │
-│                                 active tab content                                         │
-│                                                                                            │
-├────────────────────────────────────────────────────────────────────────────────────────────┤
-│ 🎙 LISTENING  "open the auth tic…"                  ⏵ speaking: api-server summary  queue: 2 │  voice bar
-│ ^Space leader   ^P palette   ^Space v talk   ? help                                         │  hint bar
-└────────────────────────────────────────────────────────────────────────────────────────────┘
+ 1 Home 2  2 vocoder ◐  3 api-server ●  4 Linear 3  5 Cal 10:30 Standup  6 Notion 1     tab bar
+────────────────────────────────────────────────────────────────────────────────────────
+                                 active tab content
+                                                          ╭──────────────────────────╮
+                                                          │✓ ENG-123 is now In Review│  toast
+                                                          ╰──────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────
+ ● LISTENING  “open the auth tic…”            ⏵ speaking: api-server summary  queue: 2   voice bar
+ ^Space leader   ^Space a approve   ^P palette   ? help                                 hint bar
 ```
+
+No outer border: it would cost two columns and two rows at 80×24 (P1-07,
+[ADR 0008](decisions/0008-app-chrome-prompts-and-modals.md)).
 
 - **Tab bar** (top): Home, one tab per configured repo root, then one tab per connected
   integration. Tabs show badges:
   - Repo tabs: `◐` agent working, `●` needs you (approval/question), `✓` turn finished,
     `✗` error.
   - Integration tabs: unread/attention count; Calendar shows the next event inline.
-- **Voice bar**: mic state (idle / listening / thinking / speaking), live partial transcript,
-  what is currently being spoken, attention-queue length.
-- **Hint bar**: context-sensitive key hints.
+  When the tabs don't fit, the selected one stays visible and `‹n` / `n›` count the hidden
+  tabs. Home is built in, always first and can't be closed or moved.
+- **Voice bar**: mic state (off / idle / listening / thinking / speaking), live partial transcript,
+  what is currently being spoken, attention-queue length. Drawn from `AppState.voice` (off until
+  Phase 2).
+- **Hint bar**: the leader, then the selected tab's `hintCommands` that are available now, then
+  palette and help; hints that don't fit are left out whole.
+- **Modals** (confirm, text prompt, filterable list picker) answer the questions commands ask
+  through `CommandPrompter`; outward commands get a confirm dialog that starts on Cancel (`y`
+  confirms). **Toasts** (bottom right) show failures and notices.
 
 ### 3.2 Tabs
 
@@ -115,6 +126,8 @@ Terminals cannot see ⌘, so:
 
 - **Leader key** `Ctrl-Space` opens a which-key style popup listing the next keys, generated from
   the command registry (e.g. `Ctrl-Space t n` = next tab, `Ctrl-Space v` = talk).
+- Tabs: `Ctrl-Space t n/p` next/previous, `t t` switch by name, `t c` close, `t h/l` move
+  left/right.
 - `Ctrl-Space 1…9` jump to tabs (always works); `Alt-1…9` too where the terminal sends Option as
   Meta/Alt (not the default in Terminal.app or Ghostty — first run / `vocoder doctor` explains the
   setting; [ADR 0001](decisions/0001-ftxui-objc-bridge.md)). `Ctrl-P` opens a fuzzy command
@@ -242,7 +255,8 @@ Sources/
   VoCoderTestSupport/          protocol contract test suites (test-only; imports Swift Testing)
   VoCoderUITestSupport/        `assertSnapshot` for views (test-only; keeps FTXUI out of Core tests)
   VoCoderVoice/                Swift: audio capture, recognition, synthesis, earcons, activation
-  VoCoderUI/                   Swift: node-tree DSL, focus, chrome, generic Home/Tasks/Docs tabs
+  VoCoderUI/                   Swift: node-tree DSL, focus, chrome (AppShell, Home tab, modals,
+                               toasts), terminal session (run loop, pop-out), generic tabs
   Modules/                     one target per module (§4.10)
     GitModule/
     ClaudeCodeModule/          + Codex/Gemini stub backends
@@ -250,7 +264,7 @@ Sources/
     LinearModule/
     NotionModule/
     DemoModule/                fake-backed demo contributions; the only module using VoCoderFakes
-  vocoder/                     executable: composition root, CLI, module list (CompiledModules), run loop
+  vocoder/                     executable: composition root, CLI, module list (CompiledModules)
                                (+ hidden dev subcommands `bridge-demo`, `ui-gallery`)
 Tests/
   VoCoderCoreTests/            Swift Testing
@@ -258,7 +272,7 @@ Tests/
   VoCoderUITests/              DSL/focus/key-routing tests; snapshot goldens in __Snapshots__/<TestFile>/
   VoCoderVoiceTests/           routing tests over transcript fixtures; recognition over audio fixtures
   ModuleTests/                 module contract for every module; demo module end to end
-scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` in a pty;
+scripts/                       dev scripts (bridge-pty-test.py: drives `vocoder bridge-demo` and the app in a pty;
                                check-deps.py: target dependency rules, run by `make lint`)
 spikes/                        throwaway Phase 0 experiments
 docs/
@@ -278,7 +292,8 @@ Objective-C gives us blocks ↔ closures, `NSString`, ARC, and zero special flag
 
 - Swift builds an immutable **node tree** each update from a small vocabulary: `vbox`, `hbox`,
   `dbox`, `text`, `paragraph`, `border`, `separator`, `table`, `gauge`, `spinner`, `scrollFrame`,
-  `tabBar`, `filler`, plus style (colour, bold, dim, inverted), border (optionally coloured without colouring the content), size, alignment and flex
+  `tabBar`, `strip` (keeps one child visible when the children overflow, with `‹n`/`n›`
+  markers), `filler`, plus style (colour, bold, dim, inverted), border (optionally coloured without colouring the content), size, alignment and flex
   modifiers. Modifiers apply in call order. Colours keep the requested value (16/256/RGB) and
   are converted while building, because FTXUI degrades a colour to the terminal's support when
   it is constructed.
@@ -319,7 +334,8 @@ true colour so it doesn't depend on the environment). `-[VCRenderer injectInput:
 only) feeds raw terminal bytes through FTXUI's parser, so key and widget handling are testable
 without a terminal. `make pty-test` drives the hidden `vocoder bridge-demo` in a pseudo-terminal
 with a small VT emulator: exits, signals, resize, keys, mouse, pop-out, crash restore, and
-on-screen output identical to the off-screen render.
+on-screen output identical to the off-screen render. It also smoke-tests the app (`vocoder
+--demo`: chrome, leader keys, a confirm dialog; `vocoder`: Home; both quit cleanly).
 
 **Swift side (`VoCoderUI`, [ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)):**
 views are `@MainActor` value types with a `@ViewBuilder` `body` (`VStack`, `HStack`, `Text`,
@@ -337,7 +353,7 @@ voice share one path. Overlays (palette, help, which-key) are drawn in a `ZStack
 bridge's `clearUnder` modifier (FTXUI `clear_under`). `vocoder ui-gallery` (hidden) shows the views live, with theme and colour-depth
 toggles.
 
-**Escape hatch:** "pop out" suspends the TUI (`App::WithRestoredIO`, exposed as
+**Escape hatch:** "pop out" (`TerminalSession.popOut`, P1-07) suspends the TUI (`App::WithRestoredIO`, exposed as
 `-[VCRenderer runSuspended:]`) to run an interactive program (e.g. `claude`, `$EDITOR`,
 `lazygit`) and resumes afterwards. The child must stay in vocoder's process group (the
 terminal's foreground group), so it is started with `posix_spawn` with SIGINT/SIGTERM/SIGHUP/
@@ -548,7 +564,7 @@ protocol VoCoderModule {
 | `DocsProvider` | docs | Notion | Confluence |
 | `CalendarProvider` | calendars | EventKit | — |
 | `ChatProvider` | chat | — (protocol defined, unused) | Slack |
-| `TabFactory` | tabs | core (Home, Repo), each provider module | — |
+| `TabFactory` | tabs | core (Home, built in), Repo, each provider module | — |
 | `Command` sets | commands | core + every module | — |
 | `Workflow` | workflows | core ("start working on …") | per-integration workflows |
 | `AttentionSource` | attention | agent, calendar, tracker, docs modules | — |
@@ -579,10 +595,15 @@ How it works (P1-04, [ADR 0006](decisions/0006-module-system-and-tab-model.md)):
   `CommandConfirmer` before outward commands, hands undo actions to an `UndoSink`, and knows the
   UI's focus through a `FocusSnapshot`. Core's tab commands and the UI's navigation commands are
   built-ins and are registered before (and win over) module commands.
+- **Prompts** ([ADR 0008](decisions/0008-app-chrome-prompts-and-modals.md)): a running command
+  asks the user through `CommandContext.prompter` (`CommandPrompter`: confirm, text, choice,
+  notify). The chrome's `ModalPresenter` answers with modals and toasts and is also the
+  `CommandConfirmer`; voice answers the same requests later (P2-07).
+- **Built-in tabs**: the app passes its Home tab to `AppCore` as a built-in factory; it opens
+  first and can't be closed (`Tab.isClosable`).
 - Seams whose WP hasn't started are declared with identity (`Provider.id`) and capabilities
   only; `LanguageModel` is complete (ADR 0003 shape over a neutral flat `GenerationSchema`).
-- `vocoder --demo` loads only `DemoModule` (fake-backed), shown in a temporary dev shell until
-  the chrome (P1-07).
+- `vocoder --demo` loads only `DemoModule` (fake-backed) in the real chrome (`AppShell`).
 
 Rules:
 

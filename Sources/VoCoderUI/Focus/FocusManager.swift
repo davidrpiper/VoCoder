@@ -59,16 +59,18 @@ public final class FocusManager {
   func update(_ newTree: FocusTree) {
     let oldOrder = tree.leaves(in: nil)
     tree = newTree
+    // A trap scope (modal) appeared: focus moves into it (to a requested leaf, or its first)
+    // and returns when it closes.
+    let newTrap = tree.activeTrap.flatMap { trap in
+      trap != lastTrap && !lastPath.contains(trap) ? trap : nil
+    }
+    if let newTrap, let focused { trapReturn[newTrap] = focused }
     if let pending, let leaf = resolve(pending) {
       self.pending = nil
       set(leaf)
       return
     }
-    // A trap scope (modal) appeared: focus moves into it and returns when it closes.
-    if let trap = tree.activeTrap, trap != lastTrap, !lastPath.contains(trap),
-      let leaf = resolve(trap)
-    {
-      if let focused { trapReturn[trap] = focused }
+    if let newTrap, let leaf = resolve(newTrap) {
       set(leaf)
       return
     }

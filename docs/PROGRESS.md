@@ -55,21 +55,32 @@ leader; `KeyBindingOverrides` are ready for P1-06. Also: `FuzzyMatcher`/`Command
 help/quit) and `KeyboardController` (replaces `KeyMap.defaultBindings`). Overlays: which-key,
 palette with parameter prompts, help (`.commandOverlays`). New bridge `clearUnder`. The demo and
 the gallery run entirely on commands ([ADR 0007](decisions/0007-command-system-and-keymap.md)).
+P1-07 done (2026-10-17): app chrome. `AppShell`/`AppChrome` in `VoCoderUI/Chrome/`: tab bar
+(badges, overflow via the new bridge `strip` node), voice bar (static, `AppState.voice`), hint bar
+(`Tab.hintCommands`), modals (`ModalPresenter`: confirm/text/list picker, also the
+`CommandConfirmer`; outward commands start on Cancel, `y` confirms), toasts (`ToastCenter`),
+built-in `HomeTab` (attention inbox, problems). Core: `CommandPrompter` on `CommandContext`
+(+ `FakePrompter`, contract), `tab.switch/close/moveLeft/moveRight`, `Tab.isClosable`,
+`AppState.move/tab(matching:)`, `AppCore(builtInTabs:)`. `TerminalSession` (run loop + `popOut`)
+moved into `VoCoderUI`. `DevShell`/`DemoApp` are gone: plain `vocoder` now runs the TUI (Home
+only until P1-06 brings config), `--demo` the same chrome over `DemoModule`
+([ADR 0008](decisions/0008-app-chrome-prompts-and-modals.md)).
 
 ## Next up
 
-**P1-07 — App chrome** (critical path; unblocked by P1-05). See the PLAN notes: tab bar, voice
-and hint bars, modal system (its confirm dialog is the `CommandConfirmer`), toasts
-(`KeyboardController.lastFailure`), Home placeholder, close/reorder/alias tab commands. It
-replaces `DevShell`/`DemoApp`'s shell. P1-06 (config/CLI, including parsing `[keys]` into
-`KeyBindingOverrides`), P1-03b (markdown renderer), P1-08 and P1-09 are also unblocked and could
-go first.
+**P1-06 — Config, secrets and CLI** (unblocked; recommended next). Plain `vocoder` now runs the
+TUI with an `InMemorySecretStore` and no config: P1-06 swaps in the Keychain store, config
+(repos, enabled modules, `[keys]` → `AppShell(…, overrides:)`, theme) and `vocoder doctor` (see
+the PLAN notes). Then P1-08 (git) and P1-09 (agent backend), P1-03b (markdown renderer), and
+P1-10 (repo tab) once those are in. All of P1-06/P1-08/P1-09/P1-03b are unblocked and
+independent.
 Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed
 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to change
-(helper-app risk). Optional user eyeball checks: `make run ARGS=bridge-demo` and
-`make run ARGS=ui-gallery` / `make run ARGS=--demo` in Terminal.app and Ghostty (`t` toggles theme, `c` cycles colour
-depth; pty tests cover behaviour, not real-terminal looks). In particular, check that
-`Ctrl-Space` reaches the app and isn't taken by the macOS input-source shortcut.
+(helper-app risk). Optional user eyeball checks: `make run` / `make run ARGS=--demo` (and
+`ARGS=ui-gallery`, `ARGS=bridge-demo`) in Terminal.app and Ghostty (pty tests cover behaviour,
+not real-terminal looks: tab bar highlight, badge colours, toast and dialog placement). In
+particular, check that `Ctrl-Space` reaches the app and isn't taken by the macOS input-source
+shortcut.
 
 ## Work package status
 
@@ -91,7 +102,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-04 | Core architecture and module system | done | ADR 0006; `vocoder --demo` |
 | P1-05 | Command system, keymap, leader key, palette | done | ADR 0007; tab next/prev/goto pulled in |
 | P1-06 | Config, secrets and CLI | todo | |
-| P1-07 | App chrome | todo | |
+| P1-07 | App chrome | done | ADR 0008; `vocoder` runs the TUI |
 | P1-08 | Git module | todo | |
 | P1-09 | Agent backend and Claude Code module | todo | |
 | P1-10 | Repo tab | todo | |
@@ -208,10 +219,50 @@ to one or two lines; move anything architectural into an ADR._
   borders below merge (`┴`).
 - FTXUI's output is diff-based: a pty test can't grep a whole redrawn line after a small
   change; check for state changes instead.
+- FTXUI `hbox` shrinks every text child when the row is too narrow (squashed words, not
+  clipping). Rows of items that may overflow use the bridge `strip` node (`Strip` view).
+- FTXUI's input widget has no Ctrl-U (kill line); tests clear a field with backspaces (`\u{7F}`).
+- Swift `split(separator:)` drops empty lines by default: index screen rows with
+  `omittingEmptySubsequences: false`.
+- `posix_spawn_file_actions_addchdir_np` is deprecated on macOS 26; use
+  `posix_spawn_file_actions_addchdir`.
+- `FocusManager`: a focus request (`focus(id)`) into a trap scope that appears in the same render
+  must still record the trap's return focus (fixed in P1-07; modals rely on it).
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-17 · P1-07
+- Decisions (user, at plan time, as recommended): outward-command confirm dialog starts on
+  Cancel (`y` confirms); closed tabs don't come back until restart (session restore, P1-11);
+  Home can't be closed. Recorded with the rest in
+  [ADR 0008](decisions/0008-app-chrome-prompts-and-modals.md).
+- Bridge: `VCNode strip(_:keepingVisible:)` (`Strip.mm`, custom FTXUI node; window around the kept
+  child, `‹n`/`n›` markers) + test.
+- Core: `CommandPrompter` (`ConfirmRequest`/`TextRequest`/`ChoiceRequest`/`Notice`,
+  `DecliningPrompter`), `CommandContext.prompter`, `CommandDispatcher.prompter`; `VoiceStatus` on
+  `AppState.voice`; `AppState.move(_:to:)`, `tab(matching:)`; `Tab.isClosable`, `hintCommands`;
+  `TabCommands` switch/close/moveLeft/moveRight; `AppCore(builtInTabs:)`.
+- Fakes/contracts: `FakePrompter` (+ `PromptRequest`/`PromptAnswer`), `FakeTab` flags,
+  `CommandPrompterContract` (run over the fake and `ModalPresenter`).
+- UI: `Chrome/` (`AppShell`, `AppChrome`, `TabBarView`/`VoiceBarView`/`HintBarView`,
+  `ModalPresenter` + `ModalCommands` + views, `ToastCenter`, `HomeTab`), `Button`, `Strip`,
+  `TerminalSession` (moved from the executable, now with `popOut`), `KeyboardController.onFailure`
+  (declined confirms aren't failures; messages use command titles), focus-manager trap-return
+  fix. `DevShell` removed.
+- App: `VoCoderApp` replaces `DemoApp`; `vocoder` runs the real modules, `--demo` the demo module;
+  gallery keeps its `q` override; `bridge-demo` pops out through `TerminalSession`.
+  `DemoModule`: rename (text prompt), triage (list picker + toast), publish (outward), tab hints.
+- Tests: Core +6 (move/match, prompter in dispatcher, tab commands, built-in tabs, prompter
+  contract); new `ChromeTests` (13: chrome at 80×24/120×40/200×60 + ANSI, overflow, voice bar
+  states, hint bar, tab switching by keys and palette, close/reorder, confirm/text/picker
+  modals, cancel on stop, toasts, presenter contract); `DemoModuleTests` reworked onto the
+  shell; palette/help goldens gained the new tab commands. `make pty-test` 13/13 (+2 app
+  checks: `--demo` chrome/leader/dialog/Ctrl-C, plain `vocoder` Home/leader quit).
+- Verified: clean build 0 warnings, `make lint` clean, `make test` all runs pass, `make pty-test`
+  13/13. Not done: eyeballing in Terminal.app/Ghostty (optional).
+- Next: P1-06 (P1-08, P1-09, P1-03b also unblocked).
 
 ### 2026-10-17 · P1-05
 - Decisions (user, at plan time, as recommended): move `tab.next/previous/goto 1…9` here from

@@ -15,7 +15,8 @@ test:
 	  || { echo "vocoder --version: embedded Info.plist missing" >&2; exit 1; }
 
 # Drives `vocoder bridge-demo` in a pty: exits, signals, resize, keys, pop-out, crash restore,
-# on-screen vs off-screen render. Slower than `make test` (FTXUI's startup wait in a bare pty).
+# on-screen vs off-screen render; then smoke-tests the app (`--demo` and plain). Slower than
+# `make test` (FTXUI's startup wait in a bare pty).
 pty-test: build
 	python3 -I scripts/bridge-pty-test.py "$$($(SWIFT) build --show-bin-path)/vocoder"
 

@@ -1,0 +1,24 @@
+ 1 Home  2 api-server ◐  3 web ●  4 infra ✓  5 docs ✗
+────────╭Switch to tab › Tab───────────────────────────────────────────╮────────
+Reposito│› Filter                                                      │
+Conversa├──────────────────────────────────────────────────────────────┤
+        │› Home (home)                                                 │
+        │  api-server (the api)                                        │
+        │  web                                                         │
+        │  infra                                                       │
+        │  docs                                                        │
+        │↑↓ select · Enter run · Esc close                             │
+        ╰──────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 0
+ ^Space leader   ^Space x p publish   ^Space x r rename   ^P palette   ? help

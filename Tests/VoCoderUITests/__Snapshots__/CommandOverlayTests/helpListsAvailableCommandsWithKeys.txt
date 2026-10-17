@@ -8,16 +8,16 @@ backdrop│Tabs                                                          │op 5
 backdrop│  Next tab                                         ^Space t n │op 6 bac
 backdrop│  Previous tab                                     ^Space t p │op 7 bac
 › one   │  Go to tab                               ^Space 1…9, Alt-1…9 │
-  two   │Notes                                                         │
-  three │  Post a note                                      ^Space n p │
+  two   │  Switch to tab                                    ^Space t t │
+  three │  Close tab                                        ^Space t c │
+        │  Move tab right                                   ^Space t l │
+        │Notes                                                         │
+        │  Post a note                                      ^Space n p │
         │  Count notes                                      ^Space n c │
         │  Only on the list                                            │
         │Navigation                                                    │
         │  Move up                                                k, ↑ │
         │  Move down                                              j, ↓ │
-        │  Page up                                          PageUp, ^U │
-        │  Page down                                      PageDown, ^D │
-        │  Go to first                                         g, Home │
         ├──────────────────────────────────────────────────────────────┤
         │^P palette · ^Space leader · j/k scroll · Esc close           │
         ╰──────────────────────────────────────────────────────────────╯

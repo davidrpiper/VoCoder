@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Drives `vocoder bridge-demo` in a pseudo-terminal and checks the UI bridge end to end.
+"""Drives `vocoder bridge-demo` in a pseudo-terminal and checks the UI bridge end to end, plus a
+smoke test of the app itself (`vocoder`, `vocoder --demo`).
 
 Not part of `make test` (FTXUI waits ~500 ms for terminal replies at startup in a bare pty).
 Run: `make pty-test` or `python3 -I scripts/bridge-pty-test.py [path/to/vocoder]`.
@@ -187,7 +188,7 @@ class Demo:
     """Runs the demo under a tiny `sh` wrapper that records the tty modes (`stty -g`) before and
     after: when the session leader exits, macOS revokes the pty, so the parent can't check."""
 
-    def __init__(self, binary, args=(), width=80, height=24, env=None):
+    def __init__(self, binary, args=(), width=80, height=24, env=None, command=("bridge-demo",)):
         self.screen = Screen(width, height)
         self.raw = b""
         self.tmp = tempfile.TemporaryDirectory()
@@ -201,7 +202,7 @@ class Demo:
                 child_env.pop(key)
         script = 'stty -g > "$0.before"; "$@"; code=$?; stty -g > "$0.after"; exit $code'
         self.proc = subprocess.Popen(
-            ["/bin/sh", "-c", script, os.path.join(self.tmp.name, "modes"), binary, "bridge-demo", *args],
+            ["/bin/sh", "-c", script, os.path.join(self.tmp.name, "modes"), binary, *command, *args],
             stdin=self.slave,
             stdout=self.slave,
             stderr=self.slave,
@@ -493,6 +494,36 @@ def _(binary):
         assert demo.modes_restored(), "tty modes not restored"
     finally:
         demo.close()
+
+
+@check("app: vocoder --demo shows the chrome, runs leader keys and a dialog, Ctrl-C quits")
+def _(binary):
+    app = Demo(binary, command=("--demo",))
+    try:
+        app.wait_for(lambda s: "1 Home" in s and "voice off" in s and "^P palette" in s, what="chrome")
+        app.send("\x00")
+        app.wait_for(lambda s: "+Demo" in s, what="which-key popup")
+        app.send("3")
+        app.wait_for(lambda s: "Demo tasks" in s, what="Tasks tab")
+        app.send("\x00du")
+        app.wait_for(lambda s: "Publish the demo?" in s, what="confirm dialog")
+        app.send("y")
+        app.wait_for(lambda s: "Published" in s, what="toast")
+        app.send("\x03")
+        assert_clean_exit(app, app.wait_exit())
+    finally:
+        app.close()
+
+
+@check("app: vocoder (no config) shows Home and quits with the leader")
+def _(binary):
+    app = Demo(binary, command=())
+    try:
+        app.wait_for(lambda s: "1 Home" in s and "Getting around" in s, what="Home tab")
+        app.send("\x00q")
+        assert_clean_exit(app, app.wait_exit())
+    finally:
+        app.close()
 
 
 def main():

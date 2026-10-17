@@ -63,6 +63,31 @@ import VoCoderFakes
     #expect(b.lifecycle == ["close"])
   }
 
+  @Test func moveReordersAndClamps() {
+    openAll()
+    #expect(state.move("a", to: 2))
+    #expect(state.tabs.map(\.id) == ["b", "c", "a"])
+    #expect(state.move("c", to: -5))
+    #expect(state.tabs.map(\.id) == ["c", "b", "a"])
+    #expect(state.move("c", to: 99))
+    #expect(state.tabs.map(\.id) == ["b", "a", "c"])
+    #expect(!state.move("missing", to: 0))
+    #expect(state.selectedTabID == "a", "moving keeps the selection")
+  }
+
+  @Test func tabsMatchByTitleOrAlias() {
+    state.open(FakeTab(id: "api", title: "api-server", aliases: ["api", "the backend"]))
+    state.open(FakeTab(id: "web", title: "Web", aliases: ["frontend"]))
+    state.open(FakeTab(id: "web2", title: "web-old", aliases: ["frontend"]))
+    #expect(state.tab(matching: "API-server")?.id == "api")
+    #expect(state.tab(matching: " the api ")?.id == "api")
+    #expect(state.tab(matching: "backend")?.id == "api", "a leading 'the' is dropped on both sides")
+    #expect(state.tab(matching: "web")?.id == "web")
+    #expect(state.tab(matching: "frontend") == nil, "ambiguous")
+    #expect(state.tab(matching: "") == nil)
+    #expect(state.tab(matching: "nothing") == nil)
+  }
+
   @Test func closeAllClosesEveryTab() {
     openAll()
     state.closeAll()

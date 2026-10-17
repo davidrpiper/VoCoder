@@ -10,6 +10,8 @@ public final class FakeTab: Tab {
   public var title: String
   public var aliases: [String]
   public var badge: TabBadge
+  public var isClosable = true
+  public var hintCommands: [CommandID] = []
   /// "activate", "deactivate", "close", in call order.
   public private(set) var lifecycle: [String] = []
 

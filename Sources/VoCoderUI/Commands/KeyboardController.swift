@@ -22,6 +22,8 @@ public final class KeyboardController {
   public let helpScroll = ScrollState(pageSize: 10)
   /// Why the last command failed, until the next one runs (for a hint or toast).
   public private(set) var lastFailure: String?
+  /// Called with each failure (the chrome shows a toast). A declined confirmation isn't one.
+  @ObservationIgnored public var onFailure: (@MainActor (String) -> Void)?
 
   @ObservationIgnored private var resolver = KeyResolver()
   @ObservationIgnored private var overrides: KeyBindingOverrides
@@ -114,8 +116,10 @@ public final class KeyboardController {
     Task.immediate { [dispatcher, weak self] in
       do {
         try await dispatcher.run(id, arguments: arguments, source: source)
+      } catch CommandError.declined {
+        // The user said no; nothing failed.
       } catch {
-        self?.fail("\(error)")
+        self?.fail(Self.message(for: error, dispatcher: dispatcher))
       }
     }
   }
@@ -123,6 +127,20 @@ public final class KeyboardController {
   private func fail(_ message: String) {
     log.info("command failed: \(message)")
     lastFailure = message
+    onFailure?(message)
+  }
+
+  /// "Close tab isn't available here": command titles rather than ids.
+  private static func message(for error: any Error, dispatcher: CommandDispatcher) -> String {
+    guard let error = error as? CommandError else { return "\(error)" }
+    let title = { (id: CommandID) in dispatcher[id]?.title ?? id.rawValue }
+    switch error {
+    case .unknown(let id): return "Unknown command \(id)"
+    case .unavailable(let id): return "\(title(id)) isn't available here"
+    case .missingArgument(let id, let name): return "\(title(id)) needs \(name)"
+    case .invalidArgument(let id, let name): return "\(title(id)): invalid \(name)"
+    case .declined(let id): return "\(title(id)) was not confirmed"
+    }
   }
 
   // MARK: Overlays

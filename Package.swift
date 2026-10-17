@@ -116,7 +116,10 @@ let package = Package(
     .testTarget(name: "VoCoderUIBridgeTests", dependencies: ["VoCoderUIBridge"]),
     .testTarget(
       name: "VoCoderUITests",
-      dependencies: ["VoCoderUI", "VoCoderUIBridge", "VoCoderUITestSupport", "VoCoderFakes"],
+      dependencies: [
+        "VoCoderUI", "VoCoderUIBridge", "VoCoderUITestSupport", "VoCoderFakes",
+        "VoCoderTestSupport",
+      ],
       exclude: ["__Snapshots__"]
     ),
     // Every compiled-in module runs the module contract; the demo module end to end.

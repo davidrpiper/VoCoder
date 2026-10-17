@@ -7,12 +7,12 @@ backdrop│  Quit                                           App  ^Space q│op 4
 backdrop│  Next tab                                    Tabs  ^Space t n│op 5 bac
 backdrop│  Previous tab                                Tabs  ^Space t p│op 6 bac
 backdrop│  Go to tab                                   Tabs  ^Space 1…9│op 7 bac
-› one   │  Post a note                                Notes  ^Space n p│
-  two   │  Count notes                                Notes  ^Space n c│
-  three │  Only on the list                                       Notes│
-        │  Move up                                        Navigation  k│
-        │  Move down                                      Navigation  j│
-        │20 results · ↑↓ select · Enter run · Esc close                │
+› one   │  Switch to tab                               Tabs  ^Space t t│
+  two   │  Close tab                                   Tabs  ^Space t c│
+  three │  Move tab right                              Tabs  ^Space t l│
+        │  Post a note                                Notes  ^Space n p│
+        │  Count notes                                Notes  ^Space n c│
+        │23 results · ↑↓ select · Enter run · Esc close                │
         ╰──────────────────────────────────────────────────────────────╯
 
 

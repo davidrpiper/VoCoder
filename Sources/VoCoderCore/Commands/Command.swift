@@ -115,24 +115,28 @@ public struct CommandContext {
   public let focus: FocusSnapshot
   public let arguments: CommandArguments
   public let source: CommandSource
+  /// Questions and notices for the user while the command runs (modals and toasts, later voice).
+  public let prompter: any CommandPrompter
   private let result: OutcomeBox
 
   public init(
     state: AppState, focus: FocusSnapshot = .none, arguments: CommandArguments = [:],
-    source: CommandSource = .program
+    source: CommandSource = .program, prompter: (any CommandPrompter)? = nil
   ) {
     self.init(
-      state: state, focus: focus, arguments: arguments, source: source, result: OutcomeBox())
+      state: state, focus: focus, arguments: arguments, source: source,
+      prompter: prompter ?? DecliningPrompter.shared, result: OutcomeBox())
   }
 
   private init(
     state: AppState, focus: FocusSnapshot, arguments: CommandArguments, source: CommandSource,
-    result: OutcomeBox
+    prompter: any CommandPrompter, result: OutcomeBox
   ) {
     self.state = state
     self.focus = focus
     self.arguments = arguments
     self.source = source
+    self.prompter = prompter
     self.result = result
   }
 
@@ -149,7 +153,8 @@ public struct CommandContext {
 
   /// A fresh context (and outcome) with `arguments`.
   func with(arguments: CommandArguments) -> CommandContext {
-    CommandContext(state: state, focus: focus, arguments: arguments, source: source)
+    CommandContext(
+      state: state, focus: focus, arguments: arguments, source: source, prompter: prompter)
   }
 }
 

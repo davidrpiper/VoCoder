@@ -3,6 +3,7 @@
 import Foundation
 import Testing
 import VoCoderCore
+import VoCoderFakes
 
 /// Identity rules shared by every provider.
 public enum ProviderContract {
@@ -126,5 +127,62 @@ public enum LanguageModelContract {
     #expect(
       (tokens != nil) == model.capabilities.contains(.tokenCounting),
       "tokenCount must be non-nil exactly with .tokenCounting", sourceLocation: sourceLocation)
+  }
+}
+
+/// The resolution rules of `CommandPrompter`: answers come back typed, the newest request is
+/// answered first, cancelling resolves to false/nil, and `cancelAll` resolves everything.
+@MainActor
+public enum CommandPrompterContract {
+  /// `answer` answers the newest pending request the way a user would (pressing the button,
+  /// typing and submitting, picking the choice, or cancelling); `pending` counts open requests.
+  public static func verify(
+    _ prompter: any CommandPrompter,
+    answer: @escaping @MainActor (PromptAnswer) -> Void,
+    pending: @escaping @MainActor () -> Int,
+    sourceLocation: SourceLocation = #_sourceLocation
+  ) async {
+    let confirm = ConfirmRequest(title: "Send it?")
+    let text = TextRequest(title: "Name", initial: "draft")
+    let choice = ChoiceRequest(
+      title: "Pick", choices: [.init(value: "a", title: "A"), .init(value: "b", title: "B")])
+
+    func waitForPending(_ count: Int) async -> Bool {
+      await eventually { pending() == count }
+    }
+
+    let yes = Task { await prompter.confirm(confirm) }
+    #expect(await waitForPending(1), "confirm never pending", sourceLocation: sourceLocation)
+    answer(.confirm(true))
+    #expect(await yes.value == true, sourceLocation: sourceLocation)
+
+    let no = Task { await prompter.confirm(confirm) }
+    #expect(await waitForPending(1), sourceLocation: sourceLocation)
+    answer(.cancel)
+    #expect(await no.value == false, "a cancelled confirm is false", sourceLocation: sourceLocation)
+
+    let typed = Task { await prompter.askText(text) }
+    #expect(await waitForPending(1), sourceLocation: sourceLocation)
+    answer(.text("hello"))
+    #expect(await typed.value == "hello", sourceLocation: sourceLocation)
+
+    let picked = Task { await prompter.choose(choice) }
+    #expect(await waitForPending(1), sourceLocation: sourceLocation)
+    answer(.choice("b"))
+    #expect(await picked.value == "b", sourceLocation: sourceLocation)
+
+    // Stacked: the newest is answered first; cancelAll resolves the rest.
+    let outer = Task { await prompter.askText(text) }
+    #expect(await waitForPending(1), sourceLocation: sourceLocation)
+    let inner = Task { await prompter.choose(choice) }
+    #expect(await waitForPending(2), "requests stack", sourceLocation: sourceLocation)
+    answer(.choice("a"))
+    #expect(await inner.value == "a", "newest first", sourceLocation: sourceLocation)
+    prompter.cancelAll()
+    #expect(await outer.value == nil, "cancelAll resolves", sourceLocation: sourceLocation)
+    #expect(pending() == 0, sourceLocation: sourceLocation)
+
+    prompter.notify(Notice("done", kind: .success))  // never blocks
+    prompter.cancelAll()  // nothing pending: no-op
   }
 }

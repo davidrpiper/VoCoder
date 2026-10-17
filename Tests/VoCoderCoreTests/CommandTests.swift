@@ -1,5 +1,6 @@
 import Testing
 import VoCoderCore
+import VoCoderFakes
 
 // MARK: Key chords and sequences
 
@@ -375,6 +376,21 @@ final class EntryLog {
     #expect(log.entries == ["archive", "unarchive"])
   }
 
+  @Test func commandsGetTheDispatchersPrompter() async throws {
+    dispatcher.register([
+      command("ask") { context in
+        let name = await context.prompter.askText(TextRequest(title: "Name"))
+        log.entries.append("ask \(name ?? "nil")")
+      }
+    ])
+    try await dispatcher.run("ask")  // no prompter: declined
+    let prompter = FakePrompter { _ in .text("Ann") }
+    dispatcher.prompter = prompter
+    try await dispatcher.run("ask")
+    #expect(log.entries == ["ask nil", "ask Ann"])
+    #expect(prompter.requests == [.text(TextRequest(title: "Name"))])
+  }
+
   @Test func builtInsGoFirstAndReplaceModuleCommands() {
     let replaced = dispatcher.registerBuiltIns([command("echo"), command("builtin")])
     #expect(replaced.map(\.id) == ["echo"])
@@ -418,6 +434,39 @@ final class EntryLog {
     #expect(
       keymap.lookup(chords("Alt-3"))
         == .targets([.init(command: TabCommands.goto, arguments: ["tab": "3"])]))
+  }
+
+  @Test func switchCloseAndReorder() async throws {
+    let state = AppState()
+    let dispatcher = CommandDispatcher(state: state, registry: CommandRegistry(TabCommands.all))
+    let home = FakeTab(id: "home", title: "Home")
+    home.isClosable = false
+    state.open(home)
+    state.open(FakeTab(id: "api", title: "api-server", aliases: ["api"]))
+    state.open(FakeTab(id: "web", title: "web"))
+
+    #expect(!dispatcher.isAvailable(TabCommands.close), "Home can't be closed")
+    #expect(!dispatcher.isAvailable(TabCommands.moveRight), "Home stays first")
+    var choices: [String] = []
+    if case .choice(let make) = dispatcher[TabCommands.switchTo]?.params.first?.kind {
+      choices = make(dispatcher.context()).map(\.title)
+    }
+    #expect(choices == ["Home", "api-server (api)", "web"])
+    let outcome = try await dispatcher.run(TabCommands.switchTo, arguments: ["tab": "api"])
+    #expect(state.selectedTabID == "api")
+    #expect(outcome.spoken == "api-server")
+
+    #expect(!dispatcher.isAvailable(TabCommands.moveLeft), "can't move before Home")
+    try await dispatcher.run(TabCommands.moveRight)
+    #expect(state.tabs.map(\.id) == ["home", "web", "api"])
+    #expect(!dispatcher.isAvailable(TabCommands.moveRight), "already last")
+    try await dispatcher.run(TabCommands.moveLeft)
+    #expect(state.tabs.map(\.id) == ["home", "api", "web"])
+
+    try await dispatcher.run(TabCommands.close)
+    #expect(state.tabs.map(\.id) == ["home", "web"])
+    #expect(state.selectedTabID == "web")
+    #expect(Keymap(commands: TabCommands.all).issues.isEmpty)
   }
 }
 

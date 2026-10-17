@@ -1,9 +1,10 @@
- 1 demo-repo ◐  2 Tasks
+ 1 Home 1  2 demo-repo ◐  3 Tasks
 ────────────────────────────────────────────────────────────────────────────────
-╭demo-repo─────────────────────────────────────────────────────────────────────╮
-│Demo repository                                                               │
-│A stand-in for a repo tab (P1-10). Its badge is ◐; run “Cycle repo badge” to  │
-│change it. Shown 1 time(s).                                                   │
+╭Needs you (1)─────────────────────────────────────────────────────────────────╮
+│› · Demo module loaded                                                        │
+│                                                                              │
+│                                                                              │
+│                                                                              │
 │                                                                              │
 │                                                                              │
 │                                                                              │
@@ -14,11 +15,10 @@
 │                                                                              │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-╭Attention (1)────────────────╮╭Commands───────────────────────────────────────╮
-│· Demo module loaded         ││› Ping                               demo.ping │
-│                             ││  Cycle repo badge             demo.cycleBadge │
-╭^Space …─────────────────────┴┴───────────────────────────────────────────────╮
-│p Command palette    ? Help     t +Tabs                                       │
-│1…9 Go to tab        d +Demo                                                  │
+╭Getting around────────────────────────────────────────────────────────────────╮
+│The daily briefing arrives with Phase 3. The bar at the bottom shows the main │
+╭^Space …──────────────────────────────────────────────────────────────────────╮
+│p Command palette    ? Help           q Quit                                  │
+│t +Tabs              1…9 Go to tab    d +Demo                                 │
 │Esc cancel                                                                    │
 ╰──────────────────────────────────────────────────────────────────────────────╯

@@ -1,18 +1,24 @@
 /// The running app without its UI: loaded modules, app state, commands. `start()` opens the
 /// contributed tabs and listens to attention sources; `stop()` undoes both. Core's built-in
-/// commands (tabs) are registered before the modules' so a module can't take their ids.
+/// commands (tabs) are registered before the modules' so a module can't take their ids; the
+/// app's built-in tabs (Home) open before the modules' tabs.
 @MainActor
 public final class AppCore {
   public let state: AppState
   public let loaded: LoadedModules
   public let dispatcher: CommandDispatcher
   private let environment: ModuleEnvironment
+  private let builtInTabs: [TabFactory]
   private var attentionTasks: [Task<Void, Never>] = []
   private let log = Log(category: "app")
 
-  public init(loaded: LoadedModules, environment: ModuleEnvironment, state: AppState = AppState()) {
+  public init(
+    loaded: LoadedModules, environment: ModuleEnvironment, state: AppState = AppState(),
+    builtInTabs: [TabFactory] = []
+  ) {
     self.loaded = loaded
     self.environment = environment
+    self.builtInTabs = builtInTabs
     self.state = state
     dispatcher = CommandDispatcher(state: state, registry: CommandRegistry(TabCommands.all))
     state.modules = loaded.moduleIDs
@@ -33,9 +39,13 @@ public final class AppCore {
   }
 
   /// Loads `modules` and wraps them in a core (not yet started).
-  public convenience init(modules: [any VoCoderModule.Type], environment: ModuleEnvironment) {
+  public convenience init(
+    modules: [any VoCoderModule.Type], environment: ModuleEnvironment,
+    builtInTabs: [TabFactory] = []
+  ) {
     self.init(
-      loaded: ModuleLoader.load(modules, environment: environment), environment: environment)
+      loaded: ModuleLoader.load(modules, environment: environment), environment: environment,
+      builtInTabs: builtInTabs)
   }
 
   public var registry: ModuleRegistry { loaded.registry }
@@ -67,14 +77,18 @@ public final class AppCore {
     try await dispatcher.run(id, arguments: arguments, source: source)
   }
 
-  /// Home, then repo, then integration tabs; registration order within each.
+  /// Home, then repo, then integration tabs; built-ins first, then registration order within
+  /// each.
   private func openTabs() {
     let context = TabContext(repos: environment.repos)
-    let factories = registry.tabFactories.enumerated().sorted {
+    let factories = (builtInTabs + registry.tabFactories).enumerated().sorted {
       ($0.element.placement, $0.offset) < ($1.element.placement, $1.offset)
     }
+    let builtInIDs = Set(builtInTabs.map(\.id))
     for factory in factories.map(\.element) {
-      let module = registry.owner(of: factory.id.rawValue, in: .tabs) ?? "unknown"
+      let module =
+        builtInIDs.contains(factory.id)
+        ? "core" : registry.owner(of: factory.id.rawValue, in: .tabs) ?? "unknown"
       do {
         for tab in try factory.makeTabs(in: context) where !state.open(tab) {
           state.report(ModuleIssue(module: module, message: "duplicate tab id '\(tab.id)'"))

@@ -1,0 +1,24 @@
+ 1 Home  2 api-server ◐  3 web ●  4 infra ✓  5 docs ✗
+────────────────────────────────────────────────────────────────────────────────
+Repository web
+Conversation and side panel arrive with the repo tab (P1-10).
+
+
+
+
+
+            ╭Publish?──────────────────────────────────────────────╮
+            │This acts outside VoCoder.                            │
+            │                                                      │
+            │                               [ Cancel ]  [ Publish ]│
+            │y confirm · n / Esc cancel · ←→ choose                │
+            ╰──────────────────────────────────────────────────────╯
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 0
+ ^Space leader   ^Space x p publish   ^Space x r rename   ^P palette   ? help

@@ -215,6 +215,17 @@ final class TabsModule: VoCoderModule {
     #expect(core.state.tabs.isEmpty)
   }
 
+  @Test func builtInTabsOpenFirstWithinTheirPlacement() {
+    let builtIn = TabFactory.fake(id: "core.home", placement: .home) { _ in
+      [FakeTab(id: "core-home", title: "Home")]
+    }
+    let core = AppCore(modules: [TabsModule.self], environment: environment, builtInTabs: [builtIn])
+    core.start()
+    #expect(core.state.tabs.map(\.id) == ["core-home", "home", "integration"])
+    #expect(core.state.selectedTabID == "core-home")
+    core.stop()
+  }
+
   @Test func stopClosesTabsAndStopsListening() async {
     let core = AppCore(modules: [AcceptanceModule.self], environment: environment)
     core.start()

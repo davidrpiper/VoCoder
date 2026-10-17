@@ -54,6 +54,7 @@ typedef NS_ENUM(NSInteger, VCNodeKind) {
   VCNodeKindInput,
   VCNodeKindMenu,
   VCNodeKindScrollFrame,
+  VCNodeKindStrip,
 };
 
 /// A modifier, applied in the order it was added.
@@ -76,7 +77,7 @@ struct VCDecorator {
 @property(nonatomic, readonly, copy) NSArray<NSArray<VCNode *> *> *rows;
 /// Tab titles, menu entries.
 @property(nonatomic, readonly, copy) NSArray<NSString *> *strings;
-/// Axis, spinner charset, table options, selected tab.
+/// Axis, spinner charset, table options, selected tab, strip's kept child.
 @property(nonatomic, readonly) NSInteger integer;
 /// Spinner frame.
 @property(nonatomic, readonly) NSInteger integer2;
@@ -181,6 +182,9 @@ const ftxui::Event &VCRedrawEvent();
 /// The scroll viewport node (ScrollFrame.mm).
 ftxui::Element VCScrollFrame(ftxui::Element child, std::shared_ptr<std::atomic<int>> offset,
                              bool followEnd);
+
+/// The overflowing horizontal strip (Strip.mm).
+ftxui::Element VCStrip(ftxui::Elements children, int keepVisible);
 
 // MARK: - Crash restore (CrashRestore.mm)
 

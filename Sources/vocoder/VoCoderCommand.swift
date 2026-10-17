@@ -1,5 +1,6 @@
 import ArgumentParser
 import VoCoderCore
+import VoCoderFakes
 import VoCoderUI
 
 @main
@@ -17,13 +18,15 @@ struct VoCoderCommand: ParsableCommand {
     Log.bootstrap(sink: FileLogSink(directory: Log.defaultDirectory))
     let log = Log(category: "app")
     log.info("vocoder \(BuildInfo.fromMainBundle()?.displayString ?? "unknown") started")
-    if demo {
-      MainActor.assumeIsolated { DemoApp(theme: .automatic()).run() }
-      return
+    // Config, repos and the Keychain arrive with P1-06; until then the real modules load
+    // without configuration (only Home has content) and secrets stay in memory.
+    MainActor.assumeIsolated {
+      let environment = ModuleEnvironment(secrets: InMemorySecretStore())
+      VoCoderApp(
+        modules: demo ? CompiledModules.demo : CompiledModules.all, environment: environment,
+        theme: .automatic()
+      ).run()
     }
-    // The TUI arrives with P1-07; until then only `--demo` runs one (`bridge-demo` and
-    // `ui-gallery` exercise the UI layers).
-    print("VoCoder scaffold — the TUI is not built yet; try `vocoder --demo`.")
     log.info("vocoder exiting")
   }
 }

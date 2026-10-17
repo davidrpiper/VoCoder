@@ -5,11 +5,11 @@ backdrop├───────────────────────
 backdrop│› Next tab                                    Tabs  ^Space t n│op 3 bac
 backdrop│  Previous tab                                Tabs  ^Space t p│op 4 bac
 backdrop│  Go to tab                                   Tabs  ^Space 1…9│op 5 bac
-backdrop│↑↓ select · Enter run · Esc close                             │op 6 bac
-backdrop╰──────────────────────────────────────────────────────────────╯op 7 bac
-› one
-  two
-  three
+backdrop│  Switch to tab                               Tabs  ^Space t t│op 6 bac
+backdrop│  Close tab                                   Tabs  ^Space t c│op 7 bac
+› one   │  Move tab right                              Tabs  ^Space t l│
+  two   │↑↓ select · Enter run · Esc close                             │
+  three ╰──────────────────────────────────────────────────────────────╯
 
 
 

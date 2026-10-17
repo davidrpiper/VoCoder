@@ -1,10 +1,11 @@
-// `vocoder bridge-demo` (hidden): exercises the UI bridge live until the real chrome exists
-// (P1-07), and is the target of `scripts/bridge-pty-test.py`. Talks to VoCoderUIBridge directly,
-// which only this demo does; the app goes through VoCoderUI.
+// `vocoder bridge-demo` (hidden): exercises the UI bridge live and is the target of
+// `scripts/bridge-pty-test.py`. Talks to VoCoderUIBridge directly, which only this demo does;
+// the app goes through VoCoderUI (it shares the `TerminalSession`).
 import ArgumentParser
 import Darwin
 import Foundation
 import VoCoderCore
+import VoCoderUI
 import VoCoderUIBridge
 
 struct BridgeDemoCommand: ParsableCommand {
@@ -46,10 +47,7 @@ final class BridgeDemo {
   private var selectedRow = 0
   private var submitted = ""
   private var keyLog: [String] = []
-  private var poppedOut = false {
-    didSet { runLoop.ignoresInterrupt = poppedOut }
-  }
-  private lazy var runLoop = TerminalRunLoop(renderer: renderer, log: log)
+  private lazy var session = TerminalSession(renderer: renderer, log: log)
   private var timers: [Timer] = []
 
   init(mouse: Bool, still: Bool, dumpPath: String?, crashAfter: Double?) {
@@ -75,7 +73,7 @@ final class BridgeDemo {
     if let crashAfter {
       schedule(after: crashAfter) { _ in fatalError("bridge-demo: deliberate crash") }
     }
-    runLoop.run()
+    session.run()
     for timer in timers { timer.invalidate() }
     log.info("bridge demo exited cleanly")
   }
@@ -144,46 +142,12 @@ final class BridgeDemo {
 
   private func popOut() {
     let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
-    poppedOut = true
-    renderer.runSuspended { [self] in
-      print("bridge-demo: popped out to \(shell). Exit the shell to return.")
-      let status = Self.spawnAndWait(shell)
-      DispatchQueue.main.async {
-        MainActor.assumeIsolated {
-          self.poppedOut = false
-          self.record("pop-out: \(shell) exited with \(status)")
-          self.update()
-        }
-      }
+    Task {
+      let status = await session.popOut(
+        shell, banner: "bridge-demo: popped out to \(shell). Exit the shell to return.")
+      record("pop-out: \(shell) exited with \(status)")
+      update()
     }
-  }
-
-  /// Runs `path` attached to the terminal and waits. Not `Process`: it starts the child in a
-  /// new process group, which isn't the terminal's foreground group, so Ctrl-C and tty reads
-  /// fail. posix_spawn keeps our group; SETSIGDEF undoes our SIG_IGN (inherited across exec).
-  private nonisolated static func spawnAndWait(_ path: String) -> Int32 {
-    var attributes: posix_spawnattr_t?
-    posix_spawnattr_init(&attributes)
-    defer { posix_spawnattr_destroy(&attributes) }
-    var defaults = sigset_t()
-    sigemptyset(&defaults)
-    for sig in [SIGINT, SIGTERM, SIGHUP, SIGQUIT, SIGTSTP] { sigaddset(&defaults, sig) }
-    posix_spawnattr_setsigdefault(&attributes, &defaults)
-    var mask = sigset_t()
-    sigemptyset(&mask)
-    posix_spawnattr_setsigmask(&attributes, &mask)
-    posix_spawnattr_setflags(&attributes, Int16(POSIX_SPAWN_SETSIGDEF | POSIX_SPAWN_SETSIGMASK))
-    let argv: [UnsafeMutablePointer<CChar>?] = [strdup(path), nil]
-    let envp: [UnsafeMutablePointer<CChar>?] =
-      ProcessInfo.processInfo.environment.map { strdup("\($0.key)=\($0.value)") } + [nil]
-    defer { for pointer in argv + envp { free(pointer) } }
-    var pid: pid_t = 0
-    guard posix_spawn(&pid, path, nil, &attributes, argv, envp) == 0 else {
-      return -1
-    }
-    var status: Int32 = 0
-    while waitpid(pid, &status, 0) == -1 && errno == EINTR {}
-    return status
   }
 
   // MARK: Off-screen dump (for the pty test)

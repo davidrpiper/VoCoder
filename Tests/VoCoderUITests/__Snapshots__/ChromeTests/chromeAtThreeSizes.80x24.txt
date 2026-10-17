@@ -1,0 +1,24 @@
+ 1 Home 3  2 api-server ◐  3 web ●  4 infra ✓  5 docs ✗
+────────────────────────────────────────────────────────────────────────────────
+╭Needs you (3)─────────────────────────────────────────────────────────────────╮
+│› ! api-server wants to run npm install                                       │
+│  • Turn finished in web                                                      │
+│  · Doc edited                                                                │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭Getting around────────────────────────────────────────────────────────────────╮
+│The daily briefing arrives with Phase 3. The bar at the bottom shows the main │
+│keys; the palette finds any command, and help lists them all with their keys. │
+╰──────────────────────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 3
+ ^Space leader   ^P palette   ? help

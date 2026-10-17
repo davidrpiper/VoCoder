@@ -307,6 +307,9 @@ key and palette; sessions resume after restart; terminal is always restored.
   `SecretStore` protocol + `SecretStoreContract` (Keychain store goes here; `InMemorySecretStore`
   is in `VoCoderFakes`); `--demo` already exists on the root command. `vocoder doctor` can list
   `AppState.issues` / `LoadedModules.issues`.
+  Since P1-07, plain `vocoder` runs the TUI (`VoCoderApp` → `AppShell`) with an
+  `InMemorySecretStore` and no config: replace both here (Keychain store, `environment.repos`,
+  enabled modules, `[keys]` overrides into `AppShell(…, overrides:)`, theme).
 
 ### P1-07 — App chrome
 - **Depends on:** P1-03, P1-05
@@ -331,6 +334,13 @@ key and palette; sessions resume after restart; terminal is always restored.
   `DemoApp`'s development keys (digits, `q`); render tab content with `TabContent`, badges with
   `TabBadge.label`, and drive tabs through `AppState.select/close`. Keep `bridge-demo` while `make pty-test` uses it, or port the pty test to the
   real app and delete the demo.
+  **Done** ([ADR 0008](decisions/0008-app-chrome-prompts-and-modals.md)). Agreed at plan time:
+  the outward-command confirm dialog starts on Cancel (`y` confirms); closed tabs don't come
+  back until restart (session restore, P1-11); Home can't be closed or moved. Also added:
+  `CommandPrompter` in Core (commands ask confirm/text/choice and post notices), bridge `strip`
+  node (tab bar and hint bar overflow), `Tab.isClosable`/`hintCommands`, `AppState.voice`,
+  `TerminalSession` in `VoCoderUI` (run loop + `popOut`). `bridge-demo` stays; `make pty-test`
+  also smoke-tests `vocoder --demo` and `vocoder`.
 
 ### P1-08 — Git module
 - **Depends on:** P1-04
@@ -369,6 +379,11 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Acceptance:** works against the fake backend in snapshot tests and against real Claude Code
   manually.
 - **Design refs:** §3.2, §4.4.
+- **Notes (from P1-07):** pop-out goes through `TerminalSession.popOut(_:arguments:directory:
+  environment:banner:)` (in `VoCoderUI`); decide how the module reaches the session (a service
+  key or a registry). The approval modal can be built on `ModalPresenter` or as its own trap
+  scope; commands ask questions via `context.prompter`. Give the repo tab `hintCommands`
+  (approve/deny/prompt). Closing a repo tab with a running agent probably wants a confirm.
 
 ### P1-11 — M1 hardening and dogfood
 - **Depends on:** P1-10, P1-06
@@ -377,6 +392,7 @@ key and palette; sessions resume after restart; terminal is always restored.
   transcripts (virtualised scrolling); resize edge cases; crash/terminal-restore audit;
   Terminal.app + Ghostty check; fix-list from a dogfood day recorded in PROGRESS.md.
 - **Acceptance:** M1 acceptance criteria met; user signs off.
+- **Notes:** closed tabs come back only through session restore (P1-07 has no reopen command).
 
 ---
 
@@ -460,6 +476,10 @@ mirrored on screen.
 - **Notes:** the hooks exist since P1-05: `CommandDispatcher.confirmer` (`CommandConfirmer`;
   without one, outward commands from voice/brain are declined) and `.undoSink` (`UndoSink`,
   fed by `CommandContext.offerUndo`). P1-07's dialog covers keys; this WP adds the voice flow.
+  Since P1-07 the chrome's `ModalPresenter` is both the confirmer and the dispatcher's
+  `CommandPrompter` (confirm/text/choice/notify, ADR 0008) for every source, voice included:
+  answer its requests by voice (or compose a voice prompter with it). A read-back text per
+  command (beyond title + arguments) would go on `Command`.
 
 ### P2-08 — Agent voice integration
 - **Depends on:** P2-07, P1-10

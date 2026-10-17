@@ -70,11 +70,13 @@ The project is built over many sessions. Context is carried by the docs above, n
 ## Commands
 
 - `make build` / `make test` (Swift Testing + `vocoder --version` smoke check) / `make run ARGS=…`
-- `make pty-test` — drives the hidden `vocoder bridge-demo` in a pty (UI bridge end to end; slower)
+- `make pty-test` — drives the hidden `vocoder bridge-demo` (UI bridge end to end) and smoke-tests
+  the app in a pty; slower
 - `make snapshot-update` — regenerate UI goldens, then review the diff
 - `make fmt` / `make lint` — toolchain `swift format` (`.swift-format`: 2 spaces, 100 columns);
   `lint` also runs `make check-deps` (target dependency rules, `scripts/check-deps.py`)
-- `make run ARGS=--demo` — the app on fake modules (`DemoModule`), no accounts needed
+- `make run` — the app (no config until P1-06: Home only); `make run ARGS=--demo` — the app on
+  fake modules (`DemoModule`), no accounts needed
 - `make logs` — tail `~/Library/Logs/VoCoder/vocoder.log` (log via `Log(category:)` in Core)
 - `make clean`; fresh clone needs `git submodule update --init` first
 

@@ -41,6 +41,13 @@ import VoCoderTestSupport
     await LanguageModelContract.verify(model)
   }
 
+  @Test func prompter() async {
+    let prompter = FakePrompter()
+    await CommandPrompterContract.verify(
+      prompter, answer: { prompter.respond($0) }, pending: { prompter.pendingRequests.count })
+    #expect(prompter.notices == [Notice("done", kind: .success)])
+  }
+
   @Test func moduleContractCatchesProblems() {
     let environment = ModuleEnvironment(secrets: InMemorySecretStore())
     ModuleContract.verify(AcceptanceModule.self, environment: environment)

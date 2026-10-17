@@ -60,6 +60,43 @@ public final class DemoModule: VoCoderModule {
           })
       },
       Command(
+        id: "demo.rename", title: "Rename the demo repo", category: "Demo",
+        keys: ["<leader> d r"]
+      ) { context in
+        let request = TextRequest(
+          title: "Rename the demo repo", placeholder: "New name", initial: repoTab.title)
+        guard let name = await context.prompter.askText(request), !name.isEmpty else { return }
+        repoTab.title = name
+        context.say("Renamed to \(name)")
+      },
+      Command(
+        id: "demo.triage", title: "Set issue status", category: "Demo",
+        keys: ["<leader> d t"], isAvailable: { $0.state.selectedTabID == tasksTab.id }
+      ) { context in
+        guard let index = tasksTab.list.selectedIndex(count: tasksTab.issues.count) else {
+          return
+        }
+        let issue = tasksTab.issues[index]
+        let request = ChoiceRequest(
+          title: "\(issue.key) status",
+          choices: DemoTasksTab.statuses.map { .init(value: $0, title: $0) })
+        guard let status = await context.prompter.choose(request) else { return }
+        tasksTab.issues[index].status = status
+        context.prompter.notify(Notice("\(issue.key) is now \(status)", kind: .success))
+        context.say("\(issue.key) is now \(status)")
+      },
+      Command(
+        id: "demo.publish", title: "Publish the demo", category: "Demo",
+        keys: ["<leader> d u"], risk: .outward
+      ) { context in
+        tasksTab.published += 1
+        attention.post(
+          AttentionItem(
+            id: AttentionItemID("demo.publish.\(tasksTab.published)"), source: attention.id,
+            priority: .soon, title: "Published the demo"))
+        context.prompter.notify(Notice("Published", kind: .success))
+      },
+      Command(
         id: "demo.note", title: "Post a note", category: "Demo",
         params: [CommandParameter("text", title: "Note")]
       ) { context in
@@ -76,12 +113,12 @@ public final class DemoModule: VoCoderModule {
           CommandParameter(
             "issue", title: "Issue",
             kind: .choice { _ in
-              tasksTab.issues.map { .init(value: $0.0, title: "\($0.0) \($0.1)") }
+              tasksTab.issues.map { .init(value: $0.key, title: "\($0.key) \($0.title)") }
             })
         ]
       ) { context in
         guard let key = context.arguments.text("issue"),
-          let index = tasksTab.issues.firstIndex(where: { $0.0 == key })
+          let index = tasksTab.issues.firstIndex(where: { $0.key == key })
         else { return }
         tasksTab.list.selection = index
         context.state.select(tasksTab.id)
@@ -98,8 +135,9 @@ public final class DemoModule: VoCoderModule {
 @Observable
 final class DemoRepoTab: ViewTab {
   let id: TabID = "demo.repo"
-  let title = "demo-repo"
+  var title = "demo-repo"
   let aliases = ["the demo repo"]
+  let hintCommands: [CommandID] = ["demo.cycleBadge", "demo.rename"]
   private(set) var badge = TabBadge.working
   private(set) var activations = 0
 
@@ -119,7 +157,7 @@ final class DemoRepoTab: ViewTab {
         "A stand-in for a repo tab (P1-10). Its badge is \(badge == .none ? "empty" : badge.label);"
           + " run “Cycle repo badge” to change it. Shown \(activations) time(s).")
     }
-    .border(.rounded, title: "demo-repo", color: .border)
+    .border(.rounded, title: title, color: .border)
   }
 }
 
@@ -131,15 +169,18 @@ final class DemoTasksTab: ViewTab {
 
   let id: TabID = "demo.tasks"
   let title = "Tasks"
+  let hintCommands: [CommandID] = ["demo.triage", "demo.ping"]
   var pings = 0
   var notes = 0
+  var published = 0
   let list = ListState()
-  let issues = [
+  var issues: [(key: String, title: String, status: String)] = [
     ("DEMO-1", "Wire the module system", "Done"),
-    ("DEMO-2", "Command palette", "Todo"),
-    ("DEMO-3", "App chrome", "Todo"),
+    ("DEMO-2", "Command palette", "Done"),
+    ("DEMO-3", "App chrome", "In Progress"),
     ("DEMO-4", "Repo tab", "Backlog"),
   ]
+  static let statuses = ["Backlog", "Todo", "In Progress", "In Review", "Done"]
 
   var badge: TabBadge { .count(pings) }
 
@@ -147,10 +188,10 @@ final class DemoTasksTab: ViewTab {
     ListView(Self.listID, state: list, items: issues) { issue, row in
       HStack {
         Text(row.isSelected ? "› " : "  ")
-        Text(issue.0).foreground(.accent)
-        Text(" " + issue.1)
+        Text(issue.key).foreground(.accent)
+        Text(" " + issue.title)
         Spacer()
-        Text(issue.2 + " ").foreground(.muted)
+        Text(issue.status + " ").foreground(.muted)
       }
     }
     .border(.rounded, title: "Demo tasks", color: .border)
