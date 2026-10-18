@@ -16,16 +16,22 @@ public final class ScrollState {
 }
 
 /// A vertical viewport. A view marked `keepVisible()` inside stays visible. With a `state`, the
-/// view is a focusable leaf that scrolls with the movement actions.
+/// view is a focusable leaf that scrolls with the movement actions; `onAction` sees each action
+/// first and may take it (return true).
 public struct ScrollView: View, PrimitiveView {
   public typealias Body = Never
   let id: FocusID
   let state: ScrollState?
+  let onAction: ActionHandler?
   let content: ViewGroup
 
-  public init(_ id: FocusID, state: ScrollState? = nil, @ViewBuilder content: () -> ViewGroup) {
+  public init(
+    _ id: FocusID, state: ScrollState? = nil, onAction: ActionHandler? = nil,
+    @ViewBuilder content: () -> ViewGroup
+  ) {
     self.id = id
     self.state = state
+    self.onAction = onAction
     self.content = content()
   }
 
@@ -33,7 +39,8 @@ public struct ScrollView: View, PrimitiveView {
     let widgetId = id.rawValue
     if let state {
       let renderer = context.renderer
-      context.focusTree.addLeaf(id, widgetId: nil) { action in
+      context.focusTree.addLeaf(id, widgetId: nil) { [onAction] action in
+        if onAction?(action) == true { return true }
         guard let renderer else { return false }
         return Self.scroll(renderer, widgetId, state, action)
       }

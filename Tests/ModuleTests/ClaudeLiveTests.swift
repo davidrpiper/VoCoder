@@ -1,8 +1,12 @@
 import ClaudeCodeModule
 import Foundation
+import GitModule
+import RepoModule
 import Testing
 import VoCoderCore
+import VoCoderFakes
 import VoCoderTestSupport
+import VoCoderUI
 
 /// Real Claude Code (Haiku) in a throwaway git repo: an approved tool call, `<spoken>`, an
 /// interrupt and a resume. Opt-in (`VOCODER_LIVE_CLAUDE=1 make test`): needs `claude` logged in
@@ -54,6 +58,47 @@ struct ClaudeLiveTests {
     let reply = resumedRecorder.events.compactMap(\.text).map(\.text).joined()
     #expect(reply.contains("hello.txt"))
     await resumed.close()
+  }
+
+  /// The repo tab over the real modules: a prompt from the keyboard, an approval with `a`, the
+  /// git panel seeing the new file, and the session remembered for resume.
+  @MainActor
+  @Test func repoTabRunsARealTurn() async throws {
+    let repo = FileManager.default.temporaryDirectory
+      .appending(path: "vocoder-live-tab-\(UUID().uuidString)")
+    defer { try? FileManager.default.removeItem(at: repo) }
+    try FileManager.default.createDirectory(at: repo, withIntermediateDirectories: true)
+    try run("/usr/bin/git", "init", "-q", in: repo)
+    let store = AgentSessionStore(file: repo.appending(path: ".git/vocoder-sessions.json"))
+    var environment = ModuleEnvironment(
+      secrets: InMemorySecretStore(), repos: [RepoRoot(url: repo)],
+      configSection: { module, _ in module == "claude-code" ? ClaudeCodeConfig(model: "haiku") : nil
+      })
+    environment.services.agentSessions = store
+    let host = UIHost(theme: .dark)
+    let shell = AppShell(
+      modules: [GitModule.self, ClaudeCodeModule.self, RepoModule.self],
+      environment: environment, host: host, quit: {})
+    shell.start()
+    host.renderer.onEvent = { [host] event in MainActor.assumeIsolated { host.handle(event) } }
+    func type(_ input: String) {
+      host.renderer.injectInput(input)
+      host.renderIfNeeded()
+    }
+    let tab = try #require(shell.core.state.tabs.last)
+    shell.core.state.select(tab.id)
+    host.render()
+    type("Use the Write tool to create hello.txt containing exactly: hi\r")
+    #expect(await eventually(timeout: .seconds(120)) { tab.badge == TabBadge.needsYou })
+    host.render()
+    type("a")
+    #expect(await eventually(timeout: .seconds(120)) { tab.badge == TabBadge.none })
+    let written = try String(contentsOf: repo.appending(path: "hello.txt"), encoding: .utf8)
+    #expect(written.trimmingCharacters(in: .whitespacesAndNewlines) == "hi")
+    let screen = host.renderer.renderToString(width: 100, height: 30, ansi: false)
+    #expect(screen.contains("hello.txt"), "\(screen)")
+    #expect(store.lastSession(repo: repo, backend: "claude-code") != nil)
+    shell.stop()
   }
 
   private func run(_ executable: String, _ arguments: String..., in directory: URL) throws {

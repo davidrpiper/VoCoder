@@ -1,0 +1,24 @@
+ 1 Home  2 api-server ✗
+────────────────────────────────────────────────────────────────────────────────
+╭No agent · not running──────────────────────────╮╭Git─────────────────────────╮
+│No coding agent is enabled: enable the          ││No source control module is │
+│claude-code module in the config.               ││enabled.                    │
+│                                                │╰────────────────────────────╯
+│                                                │╭Todos───────────────────────╮
+│                                                ││No todos                    │
+│                                                │╰────────────────────────────╯
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+╰────────────────────────────────────────────────╯
+╭Prompt──────────────────────────────────────────╮
+│Prompt (Enter sends, Alt-Enter adds a line)     │
+╰────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 0
+ ^Space leader   ^Space i write a prompt   ^Space r p toggle side panel       2›

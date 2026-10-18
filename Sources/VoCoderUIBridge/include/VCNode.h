@@ -108,6 +108,12 @@ NS_SWIFT_SENDABLE
 + (VCNode *)inputWithId:(NSString *)widgetId
             placeholder:(NSString *)placeholder
               multiline:(BOOL)multiline NS_SWIFT_NAME(input(id:placeholder:multiline:));
+/// A multi-line input where Enter submits (a prompt): Alt-Enter, or Enter right after a
+/// backslash (which is removed), inserts a newline at the cursor instead.
++ (VCNode *)inputWithId:(NSString *)widgetId
+            placeholder:(NSString *)placeholder
+         submitsOnEnter:(BOOL)submitsOnEnter
+    NS_SWIFT_NAME(input(id:placeholder:submitsOnEnter:));
 /// Vertical selection list. The selected index is the widget's integer value; Enter reports
 /// `VCEventKindWidgetSubmitted`.
 + (VCNode *)menuWithId:(NSString *)widgetId entries:(NSArray<NSString *> *)entries

@@ -39,6 +39,10 @@ public struct Command: Identifiable, Sendable {
   /// Asked for in order when missing (the palette prompts; voice fills slots).
   public let params: [CommandParameter]
   public let risk: RiskTier
+  /// The command's own UI already shows what it will do and is the confirmation (the agent's
+  /// approval card): from keys and the palette an outward command then runs without the
+  /// dispatcher's confirm dialog. Voice and the brain still confirm (ADR 0013).
+  public let confirmsInline: Bool
   /// Whether the command makes sense in a context (the focused tab, the focused item). An
   /// unavailable command is hidden from the palette and help, and its keys fall through.
   public let isAvailable: Availability
@@ -47,6 +51,7 @@ public struct Command: Identifiable, Sendable {
   public init(
     id: CommandID, title: String, category: String, keys: [KeyBinding] = [],
     voicePhrases: [String] = [], params: [CommandParameter] = [], risk: RiskTier = .readOnly,
+    confirmsInline: Bool = false,
     isAvailable: @escaping Availability = { _ in true },
     perform: @escaping Perform
   ) {
@@ -57,6 +62,7 @@ public struct Command: Identifiable, Sendable {
     self.voicePhrases = voicePhrases
     self.params = params
     self.risk = risk
+    self.confirmsInline = confirmsInline
     self.isAvailable = isAvailable
     self.perform = perform
   }

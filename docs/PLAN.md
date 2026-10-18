@@ -440,6 +440,19 @@ key and palette; sessions resume after restart; terminal is always restored.
   key or a registry). The approval modal can be built on `ModalPresenter` or as its own trap
   scope; commands ask questions via `context.prompter`. Give the repo tab `hintCommands`
   (approve/deny/prompt). Closing a repo tab with a running agent probably wants a confirm.
+- **Split (agreed 2026-10-18):**
+  - **P1-10a — tab, conversation, prompt, approvals:** `RepoModule` with one `RepoTab` per
+    repo; `TabContext` gets the agent and source-control registries; lazy agent start with
+    resume through `AgentSessionStore`; conversation view (streaming markdown, collapsible tool
+    calls, truncated results, errors, turn footer); multi-line prompt (Enter sends) with
+    history; inline approval card (approve once / for session / deny), whose commands skip the
+    dispatcher's second confirm from keys (`Command.confirmsInline`); badges; minimal side panel
+    (branch, changed files, todos); demo runs the real repo tab on fakes.
+  - **P1-10b — diff viewer, pop-outs, real-terminal checks:** per-file diff viewer from the
+    changed-files list; `TerminalHandoff` service and `AgentBackend.interactiveLaunch` for
+    `claude --resume` pop-out; `$EDITOR` (open file, compose prompt); `make term-test` repo
+    scenarios; manual acceptance against real Claude Code. Lazy start, inline confirmation and
+    attention items left to P3-01/P2-08 were agreed at plan time.
 
 ### P1-11 — M1 hardening and dogfood
 - **Depends on:** P1-10, P1-06

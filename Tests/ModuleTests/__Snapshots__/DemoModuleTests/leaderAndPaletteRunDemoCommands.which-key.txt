@@ -1,4 +1,4 @@
- 1 Home 1  2 demo-repo ◐  3 Tasks
+ 1 Home 1  2 vocoder-demo  3 Tasks
 ────────────────────────────────────────────────────────────────────────────────
 ╭Needs you (1)─────────────────────────────────────────────────────────────────╮
 │› · Demo module loaded                                                        │
@@ -15,10 +15,10 @@
 │                                                                              │
 │                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-╭Getting around────────────────────────────────────────────────────────────────╮
-│The daily briefing arrives with Phase 3. The bar at the bottom shows the main │
 ╭^Space …──────────────────────────────────────────────────────────────────────╮
-│p Command palette    ? Help           q Quit                                  │
-│t +Tabs              1…9 Go to tab    d +Demo                                 │
+│p Command palette           ? Help                   q Quit                   │
+│t +Tabs                     1…9 Go to tab            d +Demo                  │
+│i Write a prompt            x Interrupt the agent    a Approve                │
+│s Allow for this session    D Deny                   r +Repo                  │
 │Esc cancel                                                                    │
 ╰──────────────────────────────────────────────────────────────────────────────╯

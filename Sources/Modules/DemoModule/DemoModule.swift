@@ -1,6 +1,7 @@
 // `vocoder --demo` (DESIGN §4.10 "fakes first"): contributes tabs, commands, an attention source
 // and fake providers so the app runs without accounts or network. The only module that may use
-// `VoCoderFakes`.
+// `VoCoderFakes`. Its fake agent and fake repositories back the real repo tab (`RepoModule`),
+// which the demo loads too, over `DemoModule.repos`.
 import Foundation
 import Observation
 import VoCoderCore
@@ -10,11 +11,23 @@ import VoCoderUI
 public final class DemoModule: VoCoderModule {
   public static let id: ModuleID = "demo"
 
-  private let repoTab = DemoRepoTab()
+  /// The demo's repo roots (they don't exist on disk; the fake source control has them).
+  public static let repos = [
+    RepoRoot(url: URL(filePath: "/demo/vocoder-demo"), aliases: ["the demo repo"])
+  ]
+
   private let tasksTab = DemoTasksTab()
   private let attention = FakeAttentionSource(id: "demo-attention")
+  private let sourceControl = FakeSourceControl(id: "demo-vcs")
+  private let agent: FakeAgentBackend
+  /// Pause between streamed words and steps of the demo agent (tests set zero).
+  public static var agentPace = Duration.milliseconds(40)
 
   public init(context: ModuleContext) {
+    agent = FakeAgentBackend(
+      id: "demo-agent", displayName: "Demo agent",
+      behavior: DemoAgent.behavior(pace: Self.agentPace))
+    for root in context.repos { DemoAgent.makeRepository(in: sourceControl, at: root.url) }
     attention.post(
       AttentionItem(
         id: "demo.loaded", source: attention.id, priority: .ambient,
@@ -22,10 +35,9 @@ public final class DemoModule: VoCoderModule {
   }
 
   public func register(into registry: inout ModuleRegistry) {
-    let repoTab = repoTab
     let tasksTab = tasksTab
-    registry.add(
-      tabs: TabFactory(id: "demo.repo", placement: .repo) { _ in [repoTab] })
+    registry.add(agent: agent)
+    registry.add(sourceControl: sourceControl)
     registry.add(
       tabs: TabFactory(id: "demo.tasks", placement: .integration) { _ in [tasksTab] })
 
@@ -43,12 +55,6 @@ public final class DemoModule: VoCoderModule {
         context.say("Ping \(tasksTab.pings)")
       },
       Command(
-        id: "demo.cycleBadge", title: "Cycle repo badge", category: "Demo",
-        keys: ["<leader> d b"]
-      ) { _ in
-        repoTab.cycleBadge()
-      },
-      Command(
         id: "demo.clearAttention", title: "Clear attention", category: "Demo",
         keys: ["<leader> d c"], voicePhrases: ["clear attention"], risk: .reversible
       ) { context in
@@ -58,16 +64,6 @@ public final class DemoModule: VoCoderModule {
           UndoAction(title: "Restore \(cleared.count) attention items") { [state = context.state] in
             for item in cleared { state.post(item) }
           })
-      },
-      Command(
-        id: "demo.rename", title: "Rename the demo repo", category: "Demo",
-        keys: ["<leader> d r"]
-      ) { context in
-        let request = TextRequest(
-          title: "Rename the demo repo", placeholder: "New name", initial: repoTab.title)
-        guard let name = await context.prompter.askText(request), !name.isEmpty else { return }
-        repoTab.title = name
-        context.say("Renamed to \(name)")
       },
       Command(
         id: "demo.triage", title: "Set issue status", category: "Demo",
@@ -127,37 +123,6 @@ public final class DemoModule: VoCoderModule {
     registry.add(attentionSource: attention)
     registry.add(tracker: FakeTaskTracker(id: "demo-tracker", capabilities: [.iterations]))
     registry.add(languageModel: FakeLanguageModel(id: "demo-model"))
-  }
-}
-
-/// A repo-style tab whose badge the `demo.cycleBadge` command cycles.
-@MainActor
-@Observable
-final class DemoRepoTab: ViewTab {
-  let id: TabID = "demo.repo"
-  var title = "demo-repo"
-  let aliases = ["the demo repo"]
-  let hintCommands: [CommandID] = ["demo.cycleBadge", "demo.rename"]
-  private(set) var badge = TabBadge.working
-  private(set) var activations = 0
-
-  private static let badges: [TabBadge] = [.working, .needsYou, .finished, .error, .none]
-
-  func cycleBadge() {
-    let index = Self.badges.firstIndex(of: badge) ?? 0
-    badge = Self.badges[(index + 1) % Self.badges.count]
-  }
-
-  func didActivate() { activations += 1 }
-
-  var body: some View {
-    VStack {
-      Text("Demo repository").bold()
-      Paragraph(
-        "A stand-in for a repo tab (P1-10). Its badge is \(badge == .none ? "empty" : badge.label);"
-          + " run “Cycle repo badge” to change it. Shown \(activations) time(s).")
-    }
-    .border(.rounded, title: title, color: .border)
   }
 }
 

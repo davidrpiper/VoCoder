@@ -60,6 +60,7 @@ public final class KeyboardController {
   public func rebuildKeymap(overrides: KeyBindingOverrides? = nil) {
     if let overrides { self.overrides = overrides }
     keymap = Keymap(commands: dispatcher.registry.all, overrides: self.overrides)
+    host.renderer.suspendingKey = keymap.leader.name
     for issue in keymap.issues { log.error("keymap: \(issue)") }
     resolver.reset()
     pending = []

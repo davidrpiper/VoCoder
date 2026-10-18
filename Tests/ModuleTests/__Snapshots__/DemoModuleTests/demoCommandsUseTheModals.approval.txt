@@ -1,0 +1,24 @@
+ 1 Home 1  2 vocoder-demo ●  3 Tasks
+────────────────────────────────────────────────────────────────────────────────
+╭Demo agent · needs approval─────────────────────╮╭Git─────────────────────────╮
+│                                                ││main                        │
+│› what changed?                                 │╰────────────────────────────╯
+│I'll check what changed in the work tree first. │╭Changes (2)─────────────────╮
+│▸ Bash  git status --short            ● approval││M Sources/App.swift         │
+│                                                ││? notes.md                  │
+│                                                ││                            │
+│                                                ││                            │
+│                                                ││                            │
+│                                                ││                            │
+╰────────────────────────────────────────────────╯╰────────────────────────────╯
+╭Allow Bash?─────────────────────────────────────╮╭Todos───────────────────────╮
+│List changed files                              ││◐ Look at the changes       │
+│git status --short                              ││○ Answer the question       │
+│[ a Allow ] [ s Allow for session ] [ d Deny ]  │╰────────────────────────────╯
+╰────────────────────────────────────────────────╯
+╭Prompt──────────────────────────────────────────╮
+│Prompt (Enter sends, Alt-Enter adds a line)     │
+╰────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 1
+ ^Space leader   a approve   s allow for this session   d deny   ^P palette   1›

@@ -1,0 +1,24 @@
+ 1 Home 1  2 vocoder-demo  3 Tasks
+────────────────────────────────────────────────────────────────────────────────
+╭Demo agent · ready · fake───────────────────────╮╭Git─────────────────────────╮
+│                                                ││main                        │
+│› what changed?                                 │╰────────────────────────────╯
+│I'll check what changed in the work tree first. │╭Changes (2)─────────────────╮
+│▸ Bash  git status --short                     ✓││M Sources/App.swift         │
+│▸ Read  Sources/App.swift                      ✓││? notes.md                  │
+│What I found                                    ││                            │
+│                                                ││                            │
+│You asked: what changed?                        ││                            │
+│                                                ││                            │
+│• Sources/App.swift now greets the demo         │╰────────────────────────────╯
+│• notes.md is new and untracked                 │╭Todos───────────────────────╮
+│                                                ││✓ Look at the changes       │
+│Nothing else changed.                           ││✓ Answer the question       │
+│── done ──                                      │╰────────────────────────────╯
+╰────────────────────────────────────────────────╯
+╭Prompt──────────────────────────────────────────╮
+│Prompt (Enter sends, Alt-Enter adds a line)     │
+╰────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 1
+ ^Space leader   ^Space i write a prompt   ^Space r p toggle side panel       2›

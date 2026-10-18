@@ -1,4 +1,5 @@
 import DemoModule
+import RepoModule
 import Testing
 import VoCoderCore
 import VoCoderFakes
@@ -12,8 +13,8 @@ final class QuitFlag {
 }
 
 /// `vocoder --demo` end to end, minus the terminal (wired like `VoCoderApp`): the demo module's
-/// tabs, commands and attention items reach the chrome, and commands run from the leader, the
-/// palette and the modals they open.
+/// tabs, commands and attention items reach the chrome, commands run from the leader, the
+/// palette and the modals they open, and the repo tab runs a turn on the demo agent.
 @MainActor
 @Suite struct DemoModuleTests {
   let host = UIHost(theme: .dark)
@@ -24,9 +25,11 @@ final class QuitFlag {
 
   init() {
     let quitFlag = quitFlag
+    DemoModule.agentPace = .zero
     shell = AppShell(
-      modules: [DemoModule.self],
-      environment: ModuleEnvironment(secrets: InMemorySecretStore()), host: host,
+      modules: [DemoModule.self, RepoModule.self],
+      environment: ModuleEnvironment(secrets: InMemorySecretStore(), repos: DemoModule.repos),
+      host: host,
       quit: { quitFlag.quit = true })
     shell.toasts.sleep = { _ in try await Task.sleep(for: .seconds(3600)) }
     shell.start()
@@ -40,11 +43,11 @@ final class QuitFlag {
   }
 
   @Test func contributionsAppearOnScreen() async {
-    #expect(core.state.tabs.map(\.title) == ["Home", "demo-repo", "Tasks"])
+    #expect(core.state.tabs.map(\.title) == ["Home", "vocoder-demo", "Tasks"])
     #expect(
-      core.registry.commands.map(\.id) == [
-        "demo.ping", "demo.cycleBadge", "demo.clearAttention", "demo.rename", "demo.triage",
-        "demo.publish", "demo.note", "demo.selectIssue",
+      core.registry.commands.map(\.id).filter { $0.rawValue.hasPrefix("demo.") } == [
+        "demo.ping", "demo.clearAttention", "demo.triage", "demo.publish", "demo.note",
+        "demo.selectIssue",
       ])
     #expect(core.state.issues.isEmpty)
     #expect(keyboard.keymap.issues.isEmpty)
@@ -58,8 +61,6 @@ final class QuitFlag {
     type("\0dp")  // Ping
     #expect(await eventually { core.state.attention.count == 2 })
     #expect(core.state.tabs.last?.badge == .count(1))
-    type("\0db")  // Cycle repo badge
-    #expect(await eventually { core.state.tabs[1].badge == .needsYou })
     core.state.select("demo.tasks")
     assertSnapshot(of: host, width: 80, height: 24)
     type("\0dc")  // Clear attention
@@ -68,11 +69,14 @@ final class QuitFlag {
   }
 
   @Test func demoCommandsUseTheModals() async {
-    type("\0dr")  // Rename: a text prompt
-    type(String(repeating: "\u{7F}", count: 9) + "renamed")  // backspaces over "demo-repo"
-    assertSnapshot(of: host, width: 80, height: 24, named: "rename")
-    type("\r")
-    #expect(await eventually { core.state.tabs[1].title == "renamed" })
+    type("\02")  // the repo tab: focus goes to the prompt
+    host.render()
+    type("what changed?\r")
+    #expect(await eventually { core.state.tabs[1].badge == .needsYou })
+    assertSnapshot(of: host, width: 80, height: 24, named: "approval")
+    type("a")  // approve once
+    #expect(await eventually { core.state.tabs[1].badge == TabBadge.none })
+    assertSnapshot(of: host, width: 80, height: 24, named: "answered")
 
     type("\03")  // the Tasks tab
     type("jj")  // DEMO-3

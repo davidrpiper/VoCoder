@@ -102,7 +102,9 @@ public final class CommandDispatcher {
 
     if command.risk == .outward {
       let approved: Bool
-      if let confirmer {
+      if command.confirmsInline && [.key, .palette, .program].contains(source) {
+        approved = true
+      } else if let confirmer {
         approved = await confirmer.confirm(command, in: context)
       } else {
         approved = [.key, .palette, .program].contains(source)

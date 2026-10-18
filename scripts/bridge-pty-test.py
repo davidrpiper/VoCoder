@@ -550,6 +550,25 @@ def _(binary):
         app.close()
 
 
+@check("app: the demo repo tab streams a turn, asks for approval and answers on 'a'")
+def _(binary):
+    app = Demo(binary, command=("--demo",), width=100, height=30)
+    try:
+        app.wait_for(lambda s: "1 Home" in s, what="chrome")
+        app.send("\x002")
+        app.wait_for(lambda s: "starts with your first prompt" in s or "ready" in s, what="repo tab")
+        app.wait_for(lambda s: "Changes (2)" in s, what="git panel")
+        app.send("what changed?\r")
+        app.wait_for(lambda s: "Allow Bash?" in s and "git status --short" in s, what="approval card")
+        app.send("a")
+        app.wait_for(lambda s: "Nothing else changed." in s and "── done" in s, what="reply")
+        assert "Allow Bash?" not in app.screen.text(), "approval card still shown"
+        app.send("\x00q")
+        assert_clean_exit(app, app.wait_exit())
+    finally:
+        app.close()
+
+
 @check("app: vocoder (no config) shows Home and quits with the leader")
 def _(binary):
     app = Demo(binary, command=())

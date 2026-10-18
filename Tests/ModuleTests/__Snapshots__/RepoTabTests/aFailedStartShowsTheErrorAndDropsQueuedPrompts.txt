@@ -1,0 +1,24 @@
+ 1 Home  2 api-server ✗
+────────────────────────────────────────────────────────────────────────────────
+╭Fake agent · not running────────────────────────╮╭Git─────────────────────────╮
+│Fake agent didn't start: claude wasn't found    ││main                        │
+│                                                ││clean                       │
+│› anyone?                                       │╰────────────────────────────╯
+│Fake agent didn't start: claude wasn't found    │╭Todos───────────────────────╮
+│── failed: not sent; send again to retry ──     ││No todos                    │
+│                                                │╰────────────────────────────╯
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+│                                                │
+╰────────────────────────────────────────────────╯
+╭Prompt──────────────────────────────────────────╮
+│Prompt (Enter sends, Alt-Enter adds a line)     │
+╰────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────
+ ○ voice off                                                           queue: 0
+ ^Space leader   ^Space i write a prompt   ^Space r p toggle side panel       2›

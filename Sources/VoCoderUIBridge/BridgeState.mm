@@ -234,6 +234,7 @@ VCWidget *VCBridgeState::Update(VCNode *node) {
       VCWidget &w = Widget(VCToStd(node.widgetId), VCWidgetKind::Input);
       w.placeholder = VCToStd(node.string);
       w.multiline = node.flag;
+      w.submitsOnEnter = node.flag && node.integer != 0;
       return &w;
     }
     case VCNodeKindMenu: {
@@ -350,6 +351,10 @@ bool VCRootComponent::OnEvent(F::Event event) {
   bool handled = false;
   {
     std::lock_guard<std::recursive_mutex> lock(state_->mutex);
+    if (!state_->suspendingKey.empty() && !state_->focused.empty() &&
+        [VCKeyName(event.input()) isEqualToString:VCToNS(state_->suspendingKey)]) {
+      state_->focused.clear();  // the leader: the keys after it are Swift's
+    }
     auto it = state_->widgets.find(state_->focused);
     // Navigation and command keys are never text: always give them to Swift.
     bool command = isNul || event == F::Event::Escape || event == F::Event::Tab ||
@@ -358,7 +363,33 @@ bool VCRootComponent::OnEvent(F::Event event) {
       VCWidget &w = it->second;
       NSString *widgetId = VCToNS(it->first);
       bool isInput = w.kind == VCWidgetKind::Input;
-      if (event == F::Event::Return && (w.kind == VCWidgetKind::Menu || !w.multiline)) {
+      bool prompt = isInput && w.submitsOnEnter;
+      bool altEnter = event.input() == "\x1b\r" || event.input() == "\x1b\n";
+      bool continued = prompt && event == F::Event::Return && w.cursor > 0 &&
+                       w.cursor <= int(w.content.size()) && w.content[w.cursor - 1] == '\\';
+      // A prompt leaves Up on its first line and Down on its last to the app (history).
+      size_t cursor = size_t(std::clamp(w.cursor, 0, int(w.content.size())));
+      size_t firstBreak = w.content.find('\n');
+      bool edgeUp = prompt && event == F::Event::ArrowUp &&
+                    (firstBreak == std::string::npos || firstBreak >= cursor);
+      bool edgeDown = prompt && event == F::Event::ArrowDown &&
+                      w.content.find('\n', cursor) == std::string::npos;
+      if (edgeUp || edgeDown) {
+        handled = false;
+      } else if (prompt && (altEnter || continued)) {
+        // A newline in a prompt: "\" + Enter drops the backslash first.
+        std::string contentBefore = w.content;
+        if (continued) w.content.erase(size_t(--w.cursor), 1);
+        handled = w.component->OnEvent(F::Event::Return);
+        if (w.content != contentBefore) {
+          widgetEvent = [VCEvent widgetEvent:VCEventKindWidgetChanged
+                                    widgetId:widgetId
+                                 stringValue:VCToNS(w.content)
+                                integerValue:w.cursor];
+        }
+        handled = true;
+      } else if (event == F::Event::Return &&
+                 (w.kind == VCWidgetKind::Menu || !w.multiline || prompt)) {
         widgetEvent = [VCEvent widgetEvent:VCEventKindWidgetSubmitted
                                   widgetId:widgetId
                                stringValue:isInput ? VCToNS(w.content) : nil

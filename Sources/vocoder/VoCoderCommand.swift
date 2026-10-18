@@ -1,4 +1,5 @@
 import ArgumentParser
+import DemoModule
 import Foundation
 import VoCoderCore
 import VoCoderFakes
@@ -38,9 +39,15 @@ struct VoCoderCommand: ParsableCommand {
       let notice =
         loaded.exists || demo
         ? nil : Notice("No config file: run `vocoder config init` to add repos", kind: .info)
+      var environment = loaded.config.environment(for: modules, secrets: secrets)
+      if demo {
+        environment.repos = DemoModule.repos
+      } else {
+        environment.services.agentSessions = AgentSessionStore()
+      }
       VoCoderApp(
         modules: modules,
-        environment: loaded.config.environment(for: modules, secrets: secrets),
+        environment: environment,
         theme: .preferred(loaded.config.theme), overrides: loaded.config.keys, notice: notice
       ).run()
     }

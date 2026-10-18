@@ -80,7 +80,9 @@ public final class AppCore {
   /// Home, then repo, then integration tabs; built-ins first, then registration order within
   /// each.
   private func openTabs() {
-    let context = TabContext(repos: environment.repos)
+    let context = TabContext(
+      repos: environment.repos, agents: registry.agents, sourceControl: registry.sourceControl,
+      services: environment.services)
     let factories = (builtInTabs + registry.tabFactories).enumerated().sorted {
       ($0.element.placement, $0.offset) < ($1.element.placement, $1.offset)
     }

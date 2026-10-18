@@ -23,6 +23,8 @@ public final class AppShell {
   ) {
     let state = AppState()
     let home = HomeTab(state: state)
+    var environment = environment
+    environment.services.uiHost = host
     let core = AppCore(
       loaded: ModuleLoader.load(modules, environment: environment), environment: environment,
       state: state, builtInTabs: [home.factory])

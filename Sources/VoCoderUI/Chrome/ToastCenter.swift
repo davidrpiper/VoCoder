@@ -62,7 +62,8 @@ struct ToastsView: View {
             .border(.rounded, color: Self.color(toast.notice.kind))
             .frame(width: .atMost(50))
             .clearUnder()
-            Text("  ")
+            // A filler, not spaces: text would paint over what's under the gap (a border).
+            Spacer().frame(width: .exactly(2))
           }
         }
       }

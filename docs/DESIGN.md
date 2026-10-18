@@ -114,6 +114,20 @@ No outer border: it would cost two columns and two rows at 80×24 (P1-07,
 | **Calendar** | Today only: timeline, countdown to next event, join link | "What's next?", "join my meeting", "am I free at three?" |
 | **Docs** (Notion) | Feed: mentions, edits to followed pages, recent publications | "Summarise that page", "read it to me", "search docs for …" |
 
+**Repo tab** (P1-10, [ADR 0013](decisions/0013-repo-tab-module-and-tab-context.md)), in
+`RepoModule`:
+- Layout: the conversation on the left, with the approval card and the prompt below it; a side
+  panel on the right (branch, changed files, agent todos), toggled with `<leader> r p`.
+- The agent starts on the first visit or prompt and resumes the repo's last session.
+- Prompt: Enter sends; Alt-Enter (or `\` + Enter) adds a line; Up/Down at its edges walk the
+  history.
+- Tool calls are one line each; `[`/`]` select one, Enter expands it (input and up to 12 result
+  lines).
+- Permission requests appear as an inline card that takes focus: `a` allow, `s` allow for the
+  session, `d` deny, `D` deny with a reason. From keys there is no second confirm; voice
+  confirms.
+- `<leader> i` focuses the prompt and `<leader> x` interrupts.
+
 **Cross-app workflows** are first-class commands composed from provider actions. The first one:
 
 > **"Start working on ENG-123"** → resolve the repo (from issue/team config) → create and check out
@@ -261,6 +275,7 @@ Sources/
   Modules/                     one target per module (§4.10)
     GitModule/
     ClaudeCodeModule/          + Codex/Gemini stub backends (not registered)
+    RepoModule/                repo tabs over the registered agent + source control (ADR 0013)
     EventKitCalendarModule/
     LinearModule/
     NotionModule/
@@ -443,7 +458,12 @@ enum PermissionDecision { … }
     (`~/Library/Application Support/VoCoder/agent-sessions.json`).
 - **Stubs**: `CodexBackend`, `GeminiBackend` conform to the protocol and throw
   `AgentError.notImplemented`, keeping the abstraction honest. They aren't registered.
-- One `AgentSession` per repo tab initially; multiple sessions per repo later.
+- One `AgentSession` per repo tab initially; multiple sessions per repo later. The repo tab
+  owns it: started lazily, resumed from `AgentSessionStore` (a shared service), restarted with
+  `--resume` after it ends, closed with the tab
+  ([ADR 0013](decisions/0013-repo-tab-module-and-tab-context.md)).
+- Approvals: `agent.approve`/`approveForSession` are `outward` with `confirmsInline`: the
+  inline card is the read-back, so keys skip the dispatcher's confirm and voice doesn't.
 
 ### 4.5 Integration providers
 
@@ -603,7 +623,7 @@ protocol VoCoderModule {
 | `DocsProvider` | docs | Notion | Confluence |
 | `CalendarProvider` | calendars | EventKit | — |
 | `ChatProvider` | chat | — (protocol defined, unused) | Slack |
-| `TabFactory` | tabs | core (Home, built in), Repo, each provider module | — |
+| `TabFactory` | tabs | core (Home, built in), Repo (`RepoModule`), each provider module | — |
 | `Command` sets | commands | core + every module | — |
 | `Workflow` | workflows | core ("start working on …") | per-integration workflows |
 | `AttentionSource` | attention | agent, calendar, tracker, docs modules | — |
@@ -650,6 +670,11 @@ How it works (P1-04, [ADR 0006](decisions/0006-module-system-and-tab-model.md)):
   branches, stage, commit, debounced FSEvents `changes()`); `GitModule` implements it over the
   `git` CLI. Repo commands act on the selected tab's `Tab.repo`, else the only configured repo,
   else they ask.
+- **Tab context** (P1-10, [ADR 0013](decisions/0013-repo-tab-module-and-tab-context.md)):
+  factories get the repos, the registered agents and source control, and the services
+  (`agentSessions`, and `uiHost` for tabs that move focus or edit their fields). A repo tab is
+  built from these, never from another module's types. `Tab.closeWarning` makes `tab.close`
+  confirm.
 
 Rules:
 

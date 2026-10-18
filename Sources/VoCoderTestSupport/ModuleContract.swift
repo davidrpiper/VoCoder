@@ -29,7 +29,10 @@ public enum ModuleContract {
     var tabIDs: Set<TabID> = []
     for factory in registry.tabFactories {
       do {
-        for tab in try factory.makeTabs(in: TabContext(repos: environment.repos)) {
+        let context = TabContext(
+          repos: environment.repos, agents: registry.agents,
+          sourceControl: registry.sourceControl, services: environment.services)
+        for tab in try factory.makeTabs(in: context) {
           #expect(
             tabIDs.insert(tab.id).inserted, "duplicate tab id \(tab.id)",
             sourceLocation: sourceLocation)

@@ -128,6 +128,14 @@
   return node;
 }
 
++ (VCNode *)inputWithId:(NSString *)widgetId
+            placeholder:(NSString *)placeholder
+         submitsOnEnter:(BOOL)submitsOnEnter {
+  VCNode *node = [self inputWithId:widgetId placeholder:placeholder multiline:YES];
+  node->_integer = submitsOnEnter;  // inputs don't use the integer otherwise
+  return node;
+}
+
 + (VCNode *)menuWithId:(NSString *)widgetId entries:(NSArray<NSString *> *)entries {
   VCNode *node = [[VCNode alloc] initWithKind:VCNodeKindMenu];
   node->_widgetId = [widgetId copy];

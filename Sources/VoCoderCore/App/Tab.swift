@@ -32,6 +32,8 @@ public protocol Tab: AnyObject {
   var repo: RepoRoot? { get }
   /// Whether `tab.close` may close it (Home can't be closed).
   var isClosable: Bool { get }
+  /// Asked before `tab.close` closes it ("The agent is still working."); nil closes at once.
+  var closeWarning: String? { get }
   /// Commands the hint bar offers while this tab is shown, most useful first (those not
   /// available at the moment are skipped).
   var hintCommands: [CommandID] { get }
@@ -49,6 +51,7 @@ extension Tab {
   public var badge: TabBadge { .none }
   public var repo: RepoRoot? { nil }
   public var isClosable: Bool { true }
+  public var closeWarning: String? { nil }
   public var hintCommands: [CommandID] { [] }
   public func didActivate() {}
   public func didDeactivate() {}
@@ -62,12 +65,25 @@ public enum TabPlacement: Int, Sendable, Comparable {
   public static func < (lhs: Self, rhs: Self) -> Bool { lhs.rawValue < rhs.rawValue }
 }
 
-/// What a tab factory may base its tabs on.
+/// What a tab factory may base its tabs on: the configured repos, the providers modules
+/// registered (a repo tab finds its agent and source control here, never by importing a
+/// module; ADR 0013) and the shared services.
 @MainActor
 public struct TabContext {
   public let repos: [RepoRoot]
+  public let agents: [any AgentBackend]
+  public let sourceControl: [any SourceControl]
+  public let services: ServiceContainer
 
-  public init(repos: [RepoRoot] = []) { self.repos = repos }
+  public init(
+    repos: [RepoRoot] = [], agents: [any AgentBackend] = [],
+    sourceControl: [any SourceControl] = [], services: ServiceContainer = ServiceContainer()
+  ) {
+    self.repos = repos
+    self.agents = agents
+    self.sourceControl = sourceControl
+    self.services = services
+  }
 }
 
 /// Creates a module's tabs at startup (one per repo root, one per integration, …). Modules

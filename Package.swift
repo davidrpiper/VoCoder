@@ -70,6 +70,11 @@ let package = Package(
       path: "Sources/Modules/ClaudeCodeModule"
     ),
     .target(
+      name: "RepoModule",
+      dependencies: ["VoCoderCore", "VoCoderUI"],
+      path: "Sources/Modules/RepoModule"
+    ),
+    .target(
       name: "EventKitCalendarModule",
       dependencies: ["VoCoderCore"],
       path: "Sources/Modules/EventKitCalendarModule"
@@ -96,8 +101,8 @@ let package = Package(
       name: "vocoder",
       dependencies: [
         "VoCoderCore", "VoCoderUI", "VoCoderUIBridge", "VoCoderVoice", "VoCoderFakes",
-        "GitModule", "ClaudeCodeModule", "EventKitCalendarModule", "LinearModule", "NotionModule",
-        "DemoModule",
+        "GitModule", "ClaudeCodeModule", "RepoModule", "EventKitCalendarModule", "LinearModule",
+        "NotionModule", "DemoModule",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ],
       exclude: ["Info.plist"],
@@ -127,8 +132,8 @@ let package = Package(
       name: "ModuleTests",
       dependencies: [
         "VoCoderCore", "VoCoderUI", "VoCoderFakes", "VoCoderTestSupport", "VoCoderUITestSupport",
-        "GitModule", "ClaudeCodeModule", "EventKitCalendarModule", "LinearModule", "NotionModule",
-        "DemoModule",
+        "GitModule", "ClaudeCodeModule", "RepoModule", "EventKitCalendarModule", "LinearModule",
+        "NotionModule", "DemoModule",
       ],
       exclude: ["__Snapshots__"],
       // Claude Code stream-json transcripts recorded by the P0-04 spike (replay tests).

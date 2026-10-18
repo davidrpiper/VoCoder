@@ -6,6 +6,7 @@ import EventKitCalendarModule
 import GitModule
 import LinearModule
 import NotionModule
+import RepoModule
 import VoCoderCore
 
 @MainActor
@@ -14,16 +15,17 @@ enum CompiledModules {
   static let all: [any VoCoderModule.Type] = [
     GitModule.self,
     ClaudeCodeModule.self,
+    RepoModule.self,
     EventKitCalendarModule.self,
     LinearModule.self,
     NotionModule.self,
   ]
 
-  /// `vocoder --demo`: fake-backed modules only, no accounts or network.
-  static let demo: [any VoCoderModule.Type] = [DemoModule.self]
+  /// `vocoder --demo`: fake-backed modules (and the repo tab over them), no accounts or network.
+  static let demo: [any VoCoderModule.Type] = [DemoModule.self, RepoModule.self]
 
   /// Every compiled-in module: their ids are the config's module sections.
-  static var known: [any VoCoderModule.Type] { all + demo }
+  static var known: [any VoCoderModule.Type] { all + [DemoModule.self] }
 
   static func named(_ id: String) -> (any VoCoderModule.Type)? {
     known.first { $0.id.rawValue == id }

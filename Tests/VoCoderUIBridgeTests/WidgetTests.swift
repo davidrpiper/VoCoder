@@ -70,6 +70,51 @@ import VoCoderUIBridge
     #expect(renderer.renderToString(width: 5, height: 0, ansi: false) == lines("a", "b"))
   }
 
+  @Test func promptInputSubmitsOnEnter() {
+    let recorder = EventRecorder(renderer)
+    renderer.setRoot(.input(id: "prompt", placeholder: "", submitsOnEnter: true))
+    renderer.focusedWidget = "prompt"
+    renderer.injectInput("ab\r")
+    let submitted = recorder.events.filter { $0.kind == .widgetSubmitted }
+    #expect(submitted.map(\.stringValue) == ["ab"])
+    #expect(renderer.stringValue(forWidget: "prompt") == "ab")
+  }
+
+  @Test func promptInputNewlineFromAltEnterOrBackslash() {
+    let recorder = EventRecorder(renderer)
+    renderer.setRoot(.input(id: "prompt", placeholder: "", submitsOnEnter: true))
+    renderer.focusedWidget = "prompt"
+    renderer.injectInput("a\u{1B}\rb")  // Alt-Enter
+    #expect(renderer.stringValue(forWidget: "prompt") == "a\nb")
+    renderer.injectInput("\\\rc")  // backslash, Enter
+    #expect(renderer.stringValue(forWidget: "prompt") == "a\nb\nc")
+    #expect(!recorder.events.contains { $0.kind == .widgetSubmitted })
+    #expect(recorder.events.last { $0.kind == .widgetChanged }?.stringValue == "a\nb\nc")
+    #expect(recorder.keys.isEmpty)
+  }
+
+  @Test func promptInputLeavesUpAndDownAtItsEdgesToTheApp() {
+    let recorder = EventRecorder(renderer)
+    renderer.setRoot(.input(id: "prompt", placeholder: "", submitsOnEnter: true))
+    renderer.focusedWidget = "prompt"
+    renderer.injectInput("ab\u{1B}\rcd")  // "ab\ncd", cursor at the end
+    renderer.injectInput("\u{1B}[B")  // last line: Down goes to the app
+    renderer.injectInput("\u{1B}[A")  // moves to the first line
+    renderer.injectInput("\u{1B}[A")  // first line: Up goes to the app
+    #expect(recorder.keys == ["ArrowDown", "ArrowUp"])
+  }
+
+  @Test func suspendingKeyTakesTheKeysAfterItFromTheWidget() {
+    let recorder = EventRecorder(renderer)
+    renderer.setRoot(tree("A"))
+    renderer.focusedWidget = "name"
+    renderer.suspendingKey = "Ctrl-b"
+    renderer.injectInput("x\u{2}q")  // x, Ctrl-B, q in one chunk
+    #expect(renderer.stringValue(forWidget: "name") == "x")
+    #expect(recorder.keys == ["Ctrl-b", "q"])
+    #expect(renderer.focusedWidget == nil)
+  }
+
   @Test func commandKeysBypassFocusedInput() {
     let recorder = EventRecorder(renderer)
     renderer.setRoot(tree("A"))

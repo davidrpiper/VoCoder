@@ -51,6 +51,11 @@ NS_SWIFT_SENDABLE
 // MARK: Widgets
 /// Which widget receives keys first; nil for none. The bridge doesn't move focus by itself.
 @property(atomic, copy, nullable) NSString *focusedWidget;
+/// A key (by its bridge name, e.g. `Ctrl-Space`: the leader) that takes typed keys away from
+/// the focused widget the moment it arrives, on the input thread: `focusedWidget` becomes nil
+/// before the key is reported. Keys read with it in one chunk (`Ctrl-Space q`) then reach
+/// Swift instead of a text field. Swift sets the focused widget again when it is done.
+@property(atomic, copy, nullable) NSString *suspendingKey;
 /// Text of an input; nil if there is no input with that id.
 - (nullable NSString *)stringValueForWidget:(NSString *)widgetId;
 /// Sets an input's text (cursor moves to the end). Creates the widget state if it doesn't

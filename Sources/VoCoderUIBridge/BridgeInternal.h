@@ -113,6 +113,7 @@ struct VCWidget {
   std::string placeholder;
   int cursor = 0;
   bool multiline = false;
+  bool submitsOnEnter = false;  // multi-line prompt: Enter submits
   // Menu
   std::vector<std::string> entries;
   int selected = 0;
@@ -135,6 +136,7 @@ struct VCBridgeState {
   /// Bumped whenever the set of components changes, so the root re-adds its children.
   unsigned generation = 0;
   std::string focused;
+  std::string suspendingKey;  // see `VCRenderer.suspendingKey`
   ftxui::App *app = nullptr;  // non-null only while the loop runs
   int lastWidth = -1, lastHeight = -1;
   bool trackMouse = false;

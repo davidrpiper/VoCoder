@@ -188,6 +188,16 @@ std::mutex gColorPinMutex;
   return _state->focused.empty() ? nil : VCToNS(_state->focused);
 }
 
+- (void)setSuspendingKey:(NSString *)key {
+  std::lock_guard<std::recursive_mutex> lock(_state->mutex);
+  _state->suspendingKey = key ? VCToStd(key) : std::string();
+}
+
+- (NSString *)suspendingKey {
+  std::lock_guard<std::recursive_mutex> lock(_state->mutex);
+  return _state->suspendingKey.empty() ? nil : VCToNS(_state->suspendingKey);
+}
+
 - (NSString *)stringValueForWidget:(NSString *)widgetId {
   std::lock_guard<std::recursive_mutex> lock(_state->mutex);
   auto it = _state->widgets.find(VCToStd(widgetId));

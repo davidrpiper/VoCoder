@@ -64,6 +64,11 @@ public enum TabCommands {
         isAvailable: canClose
       ) { context in
         guard let tab = context.state.selectedTab, tab.isClosable else { return }
+        if let warning = tab.closeWarning {
+          let request = ConfirmRequest(
+            title: "Close \(tab.title)?", message: warning, confirmTitle: "Close")
+          guard await context.prompter.confirm(request) else { return }
+        }
         context.state.close(tab.id)
         context.say("Closed \(tab.title)")
       },

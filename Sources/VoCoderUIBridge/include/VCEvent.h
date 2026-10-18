@@ -10,7 +10,7 @@ typedef NS_ENUM(NSInteger, VCEventKind) {
   VCEventKindMouse,
   /// A widget's value changed through user input (not through `setValue`).
   VCEventKindWidgetChanged,
-  /// Enter in a single-line input or a menu.
+  /// Enter in a single-line input, a prompt input (`submitsOnEnter`) or a menu.
   VCEventKindWidgetSubmitted,
   /// The terminal size changed (also sent once when the first frame is drawn).
   VCEventKindResize,

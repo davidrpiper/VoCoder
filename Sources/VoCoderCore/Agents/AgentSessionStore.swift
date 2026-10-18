@@ -94,3 +94,16 @@ public final class AgentSessionStore: Sendable {
     return decoder
   }()
 }
+
+public enum AgentSessionStoreKey: ServiceKey {
+  public static var defaultValue: AgentSessionStore? { nil }
+}
+
+extension ServiceContainer {
+  /// Where repo tabs remember agent sessions; nil (tests, unless they set one) remembers
+  /// nothing. The app sets the real store.
+  public var agentSessions: AgentSessionStore? {
+    get { self[AgentSessionStoreKey.self] }
+    set { self[AgentSessionStoreKey.self] = newValue }
+  }
+}

@@ -129,21 +129,55 @@ new bridge `flow` node wraps styled words. A word wider than the line is broken 
 gallery has a Markdown page (6/F6), which `make term-test` checks in Terminal.app
 ([ADR 0012](decisions/0012-markdown-lite-and-flow-node.md)).
 
+P1-10a done (2026-10-18; P1-10 split into a/b at plan time): the repo tab, in a new
+`RepoModule` (one `RepoTab` per configured repo). It uses whichever agent and source control
+are registered, found through `TabContext`, which now carries the agents, the source control
+and the services.
+- **Agent**: starts lazily (first visit or first prompt) and resumes from `AgentSessionStore`.
+  That store is now a service set by the app; nil in tests. An unknown resume id falls back to
+  a new session.
+- **Conversation**: a pure reducer (`Conversation.apply`). Streaming markdown re-parses only the
+  open block. Tool calls show as one line each (`[`/`]`, Enter expands). The view also shows
+  notices and turn footers.
+- **Prompt**: multi-line, Enter sends; Alt-Enter or `\`+Enter adds a line (new bridge
+  `submitsOnEnter` input). Up/Down at its edges walk the history.
+- **Approvals**: an inline card with `a`/`s`/`d`/`D`. `Command.confirmsInline` skips the
+  dispatcher's confirm from keys; voice still confirms.
+- **Other**:
+  - badges and `hintCommands`;
+  - `Tab.closeWarning` (`tab.close` confirms while working);
+  - a side panel (branch, changes, todos) live on `changes()`;
+  - `ScrollView(onAction:)`;
+  - `ServiceContainer.uiHost`.
+- **Bridge fix**: `VCRenderer.suspendingKey`. The leader read in one chunk with the next key
+  used to type that key into a focused text field.
+- **Toast fix**: the toast's gap no longer blanks the border under it (P1-07 follow-up).
+- **Demo**: `--demo` now runs the real repo tab on a scripted fake agent and a fake repo
+  (`DemoModule.repos`).
+- **Tests**: a new opt-in live test drives the tab against real Claude Code (approve with `a`,
+  file written, git panel shows it).
+([ADR 0013](decisions/0013-repo-tab-module-and-tab-context.md)).
+
 ## Next up
 
-**P1-10 repo tab**: all its dependencies are done. It builds on:
-- `FakeAgentBackend` and `FakeSourceControl` for snapshots;
-- the registered `claude-code` backend and `git` source control for real use;
-- `Markdown(document:)` for agent messages. Cache the parsed document per message and re-parse
-  only the one still streaming (ADR 0012).
+**P1-10b — diff viewer, pop-outs, real-terminal checks** (PLAN P1-10 "Split"):
+- **Diff viewer**: Enter on a file in the side panel's changes list (`RepoTab.filesID`) opens a
+  scrollable per-file diff in place of the conversation. `n`/`p` move between files, `s` toggles
+  staged, Esc goes back. It reloads on `changes()`.
+- **Pop-out**: a Core `TerminalHandoff` service (`TerminalSession` conforms). `VoCoderApp` must
+  create the session before `AppShell` so the service exists when modules load.
+- **`AgentBackend.interactiveLaunch(_:)`**: Claude Code returns `claude --resume <id>` with its
+  env stripping. `repo.popOutAgent` closes the headless session first (confirm if working),
+  then restarts it with `--resume`.
+- **`$EDITOR`** (fall back to `vi`): `repo.openInEditor` opens the selected changed file;
+  `repo.composeInEditor` writes a prompt in a temp file.
+- **Keys** proposed: `<leader> r d/c/e/E`. Check them against the keymap.
+- **Tests**: `make term-test` repo-tab scenarios in `--demo` (prompt, approve with `a`, diff),
+  and a `make pty-test` pop-out round trip.
+- **User present for**: manual acceptance against real Claude Code in Terminal.app and Ghostty.
+  Send a prompt, approve and deny a Bash call, interrupt, pop out to `claude --resume` and back,
+  open `$EDITOR`. Also running `make term-test` (it takes keyboard focus).
 
-See ADR 0010 "Consequences": write `AgentSessionStore` on `sessionStarted`, close an open
-approval modal on `turnEnd`, show `crashed`/`ended`, and call `close()` when the tab goes.
-ADR 0011 "Consequences": give `TabContext` registry access, set `Tab.repo`, and refresh the
-panel on `changes()`. Add repo-tab scenarios to `make term-test` then.
-Small follow-up from P1-07b (P1-07 chrome, not urgent): the toast's `clearUnder` area is one
-column wider than its box, so it hides the panel's right border on the toast's rows (visible
-off-screen too, so a snapshot test can pin it).
 Voice spikes P0-02/P0-03 (+ P0-07) stay deferred until after P1-11 (user confirmed
 2026-10-17). Keep the embedded-Info.plist and voice service boundaries easy to change
 (helper-app risk). Optional user checks:
@@ -177,7 +211,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-07b | Real-terminal UI checks (Terminal.app) | done | `make term-test`; fixed DECRQSS shift |
 | P1-08 | Git module | done | ADR 0011; `SourceControl` seam, `<leader> g` commands |
 | P1-09 | Agent backend and Claude Code module | done | ADR 0010; live test passes on 2.1.302 |
-| P1-10 | Repo tab | todo | |
+| P1-10 | Repo tab | in-progress | Split a/b; P1-10a done (ADR 0013), P1-10b next |
 | P1-11 | M1 hardening and dogfood | todo | |
 | P2-01 | Audio engine and device management | todo | |
 | P2-02 | Speech recognition service | todo | |
@@ -209,7 +243,10 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 _Filled in when a session ends with a WP unfinished: exact stopping point, what's half-done,
 what to do next, anything uncommitted. Cleared when the WP completes._
 
-(none)
+P1-10: part a is committed and complete; part b hasn't started (see Next up). Nothing is
+uncommitted. The P1-10b manual acceptance covers part a too: none of it has been looked at in
+a real terminal by the user yet. The automated checks were the pty test (demo turn and
+approval) and the live test (real Claude Code).
 
 ## Known gotchas
 
@@ -346,6 +383,16 @@ to one or two lines; move anything architectural into an ADR._
 - A deep recursive-descent parser overflows the Swift Testing thread's stack (SIGBUS, "signal
   code 10") at around 2000 levels. Cap nesting.
 - Terminal.app doesn't draw strikethrough (SGR 9); Ghostty does.
+- Keys read in one chunk (`Ctrl-Space q`) are dispatched on the input thread before Swift
+  reacts to the first: routing changes made from Swift (`suspendsWidgetFocus`) come too late.
+  Decide in the bridge (`suspendingKey`).
+- FTXUI's multi-line `Input` takes ArrowUp on the first line (cursor to the line start) and
+  ArrowDown on the last. Prompt inputs (`submitsOnEnter`) leave those edges to the app.
+- In an overlay, `Text("  ")` paints spaces over what's underneath; use a fixed-width `Spacer`
+  for gaps. Box borders merge with neighbouring boxes' borders even across a scroll frame's
+  clip (`┬` on the outer top border); draw nested content with a text gutter instead.
+- Paths from Claude Code tools are real paths (`/private/var/…`) even when the repo was given
+  as `/var/…`; compare with both (`ToolSummary.roots(of:)`).
 - User git config can change machine-readable output: `diff.noprefix`/`mnemonicPrefix` (no
   `a/`/`b/`), `diff.relative`, `diff.suppressBlankEmpty`, `core.quotePath`. Pass explicit
   options, and isolate tests with `GIT_CONFIG_GLOBAL=/dev/null` + `GIT_CONFIG_NOSYSTEM=1`.
@@ -353,6 +400,38 @@ to one or two lines; move anything architectural into an ADR._
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-18 · P1-10a
+- Decisions (user, at plan time, as recommended): split P1-10 into a/b (recorded in PLAN);
+  start the agent lazily; skip the second confirm for keyboard approvals
+  (`Command.confirmsInline`); attention items for approvals are left to P3-01/P2-08. ADR 0013.
+- Core:
+  - `TabContext(repos:agents:sourceControl:services:)`, `Tab.closeWarning` (`tab.close`
+    confirms);
+  - `ServiceContainer.agentSessions`, `Command.confirmsInline` and the dispatcher rule.
+- Bridge: `input(id:placeholder:submitsOnEnter:)` (Enter submits, Alt-Enter / `\`+Enter
+  newline, Up/Down at the edges go to the app), `VCRenderer.suspendingKey`. 4 new widget tests.
+- UI: `TextField(submitsOnEnter:)`, `ScrollView(onAction:)`, `ServiceContainer.uiHost` (weak,
+  set by `AppShell`), and the `KeyboardController` sets `suspendingKey` to the leader. The toast
+  gap is now a filler (the border under a toast's first row was blanked).
+- `RepoModule` (new target):
+  - `Conversation` (reducer), `ToolSummary`, `RepoTab` (lifecycle, git, focus, history);
+  - `RepoTabView` (conversation, tool calls, footer, approval card, side panel);
+  - `RepoCommands`: 12 commands (prompt, send, interrupt, approve, allow for session, deny, deny
+    with reason, next/previous tool, restart, new conversation, toggle panel).
+- Demo: `DemoAgent` (scripted turn with a permission request) + `FakeSourceControl` repo;
+  `--demo` loads `RepoModule` over `DemoModule.repos`. `demo.cycleBadge`/`demo.rename` and the
+  placeholder repo tab are gone.
+- Tests:
+  - `ConversationTests` (6), `ToolSummaryTests` (6), `RepoTabTests` (16, with snapshots);
+  - updated `DemoModuleTests` and the module contract;
+  - new pty check (the demo turn: approval, then the reply, then quit);
+  - live `repoTabRunsARealTurn`.
+  The pty check found the leader race above.
+- Verified: build has 0 warnings. `make test`: all runs pass (the only known issue is the
+  existing one in `ContractTests`). `make lint` is clean, `make pty-test` 17/17, and
+  `VOCODER_LIVE_CLAUDE=1` passes both live tests on this Mac.
+- Nothing needed the user present. Not run: `make term-test` (no repo scenarios yet; P1-10b).
 
 ### 2026-10-18 · P1-03b
 - Decisions (user, at plan time, as recommended): the parser and model in Core, not UI (so voice
