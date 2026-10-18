@@ -22,6 +22,12 @@ import VoCoderTestSupport
     await AttentionSourceContract.verify(source) { source.post("x", title: "Something") }
   }
 
+  @Test func sourceControl() async throws {
+    let fake = FakeSourceControl()
+    try await SourceControlContract.verify(
+      fake, fixture: FakeSourceControlFixture(sourceControl: fake))
+  }
+
   @Test func secretStore() throws {
     try SecretStoreContract.verify(InMemorySecretStore())
   }
@@ -82,4 +88,22 @@ import VoCoderTestSupport
     #expect(CommandID("a") < CommandID("b"))
     #expect(Set<TabID>(["x", "x", "y"]).count == 2)
   }
+}
+
+/// Repositories for the fake's contract run, made in the fake under test.
+private struct FakeSourceControlFixture: SourceControlFixture {
+  let sourceControl: FakeSourceControl
+
+  func makeRepository() async throws -> URL {
+    let root = URL(filePath: "/fake/repo-\(UUID().uuidString)")
+    sourceControl.makeRepository(at: root, files: ["README.md": "hello\n"])
+    return root
+  }
+
+  func write(_ path: String, _ contents: String?, in root: URL) async throws {
+    let repository = try await sourceControl.repository(at: root)
+    (repository as? FakeRepository)?.write(path, contents)
+  }
+
+  func makeNonRepository() async throws -> URL { URL(filePath: "/fake/elsewhere") }
 }

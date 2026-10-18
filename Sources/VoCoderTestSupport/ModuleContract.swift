@@ -62,6 +62,7 @@ public enum ModuleContract {
     all += registry.docs as [any Provider]
     all += registry.calendars as [any Provider]
     all += registry.chat as [any Provider]
+    all += registry.sourceControl as [any Provider]
     all += registry.attentionSources as [any Provider]
     all += registry.brainTools as [any Provider]
     all += registry.activationSources as [any Provider]

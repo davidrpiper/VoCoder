@@ -596,6 +596,7 @@ protocol VoCoderModule {
 | Extension point | Registry | Contributed by (now) | Future contributors |
 |---|---|---|---|
 | `AgentBackend` | agents | ClaudeCode | Codex, Gemini (stubs exist) |
+| `SourceControl` | source control | Git ([ADR 0011](decisions/0011-source-control-seam-and-git-module.md)) | — |
 | `TaskTracker` | trackers | Linear | Jira |
 | `DocsProvider` | docs | Notion | Confluence |
 | `CalendarProvider` | calendars | EventKit | — |
@@ -642,6 +643,11 @@ How it works (P1-04, [ADR 0006](decisions/0006-module-system-and-tab-model.md)):
 - Seams whose WP hasn't started are declared with identity (`Provider.id`) and capabilities
   only; `LanguageModel` is complete (ADR 0003 shape over a neutral flat `GenerationSchema`).
 - `vocoder --demo` loads only `DemoModule` (fake-backed) in the real chrome (`AppShell`).
+- **Source control** (P1-08, [ADR 0011](decisions/0011-source-control-seam-and-git-module.md)):
+  `SourceControl.repository(at:)` gives one shared `Repository` per work tree (status, diffs,
+  branches, stage, commit, debounced FSEvents `changes()`); `GitModule` implements it over the
+  `git` CLI. Repo commands act on the selected tab's `Tab.repo`, else the only configured repo,
+  else they ask.
 
 Rules:
 

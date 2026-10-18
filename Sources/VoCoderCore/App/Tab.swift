@@ -28,6 +28,8 @@ public protocol Tab: AnyObject {
   /// Extra names for voice and the palette ("the api").
   var aliases: [String] { get }
   var badge: TabBadge { get }
+  /// The repository the tab works in (repo tabs); repo commands act on it.
+  var repo: RepoRoot? { get }
   /// Whether `tab.close` may close it (Home can't be closed).
   var isClosable: Bool { get }
   /// Commands the hint bar offers while this tab is shown, most useful first (those not
@@ -45,6 +47,7 @@ public protocol Tab: AnyObject {
 extension Tab {
   public var aliases: [String] { [] }
   public var badge: TabBadge { .none }
+  public var repo: RepoRoot? { nil }
   public var isClosable: Bool { true }
   public var hintCommands: [CommandID] { [] }
   public func didActivate() {}

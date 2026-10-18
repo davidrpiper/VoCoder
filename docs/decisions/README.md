@@ -43,3 +43,4 @@ Briefly, and why not.
 - [0008 — App chrome, command prompts and modals](0008-app-chrome-prompts-and-modals.md) (P1-07, Accepted)
 - [0009 — Config validation, Keychain secrets and `vocoder doctor`](0009-config-secrets-and-doctor.md) (P1-06, Accepted)
 - [0010 — Agent sessions: event model, transport seam, crash restart and session store](0010-agent-sessions-transport-and-restart.md) (P1-09, Accepted)
+- [0011 — Source control seam, git over the CLI, and repo commands](0011-source-control-seam-and-git-module.md) (P1-08, Accepted)

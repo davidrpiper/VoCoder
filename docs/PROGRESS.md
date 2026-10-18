@@ -104,14 +104,33 @@ tests, and the opt-in live test (`VOCODER_LIVE_CLAUDE=1 make test`), which passe
 2.1.302 from inside Claude Code
 ([ADR 0010](decisions/0010-agent-sessions-transport-and-restart.md)).
 
+P1-08 done (2026-10-18): Git module. Core `SourceControl/`: the `SourceControl`/`Repository`
+seam (status, diff, branches, create/checkout branch, stage, commit, `changes()`), neutral
+models and `SourceControlError`, the new `sourceControl` extension point, and `Tab.repo`
+(default nil). `GitModule` runs the `git` CLI through `GitRunner`, with a safe environment and
+output pinned against user config. It has pure parsers (porcelain v2 `-z`, `for-each-ref`,
+unified diff with quoted paths), a per-root shared `GitRepository`, and an FSEvents
+`FileWatcher` with `GitPathFilter` and `Debouncer` (300 ms quiet, 2 s max). Commands:
+- `git.refresh` (`<leader> g r`)
+- `git.checkoutBranch` (`g b`; list or new branch; undo switches back)
+- `git.commit` (`g c`; outward; offers to stage everything)
+
+They target the selected tab's repo, else the only configured one, else they ask.
+`GitCLICheck` requires git ≥ 2.23, and `CLIVersion` moved to Core. `FakeSourceControl` is an
+in-memory VCS, and `SourceControlContract` runs against it and against git on temporary repos
+([ADR 0011](decisions/0011-source-control-seam-and-git-module.md)).
+
 ## Next up
 
-**P1-08 — Git module** (independent; P1-10 needs it). **P1-03b** (markdown renderer) is also
-unblocked. After both: **P1-10 repo tab**, which builds on `FakeAgentBackend` for snapshots
-and on the registered `claude-code` backend for real use (see ADR 0010 "Consequences": write
-`AgentSessionStore` on `sessionStarted`, close an open approval modal on `turnEnd`, show
-`crashed`/`ended`, call `close()` when the tab goes). Add repo-tab scenarios to
-`make term-test` then.
+**P1-03b** (markdown renderer) is the last dependency of **P1-10 repo tab**; do it next. Then
+P1-10, which builds on:
+- `FakeAgentBackend` and `FakeSourceControl` for snapshots;
+- the registered `claude-code` backend and `git` source control for real use.
+
+See ADR 0010 "Consequences": write `AgentSessionStore` on `sessionStarted`, close an open
+approval modal on `turnEnd`, show `crashed`/`ended`, and call `close()` when the tab goes.
+ADR 0011 "Consequences": give `TabContext` registry access, set `Tab.repo`, and refresh the
+panel on `changes()`. Add repo-tab scenarios to `make term-test` then.
 Small follow-up from P1-07b (P1-07 chrome, not urgent): the toast's `clearUnder` area is one
 column wider than its box, so it hides the panel's right border on the toast's rows (visible
 off-screen too, so a snapshot test can pin it).
@@ -146,7 +165,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-06 | Config, secrets and CLI | done | ADR 0009; `vocoder doctor` |
 | P1-07 | App chrome | done | ADR 0008; `vocoder` runs the TUI |
 | P1-07b | Real-terminal UI checks (Terminal.app) | done | `make term-test`; fixed DECRQSS shift |
-| P1-08 | Git module | todo | |
+| P1-08 | Git module | done | ADR 0011; `SourceControl` seam, `<leader> g` commands |
 | P1-09 | Agent backend and Claude Code module | done | ADR 0010; live test passes on 2.1.302 |
 | P1-10 | Repo tab | todo | |
 | P1-11 | M1 hardening and dogfood | todo | |
@@ -306,10 +325,51 @@ to one or two lines; move anything architectural into an ADR._
   a `ReplayTransport`'s gate timeouts start at launch, not at creation.
 - `ClaudeCodeBackend(…) { launcher }` as a trailing closure binds to `environment`; label
   `launcher:` (swift-format also rejects a closure argument plus a trailing closure).
+- Foundation's `URL.resolvingSymlinksInPath()` turns `/private/var/…` into `/var/…`, but FSEvents
+  reports real paths (`/private/var/…` for temp dirs). Use `realpath()` to compare.
+- `git status` refreshes the index (and writes it) unless `GIT_OPTIONAL_LOCKS=0`. Without that
+  flag a watcher on `.git/index` ticks itself in a loop, and it fights the agent's git over
+  `index.lock`.
+- User git config can change machine-readable output: `diff.noprefix`/`mnemonicPrefix` (no
+  `a/`/`b/`), `diff.relative`, `diff.suppressBlankEmpty`, `core.quotePath`. Pass explicit
+  options, and isolate tests with `GIT_CONFIG_GLOBAL=/dev/null` + `GIT_CONFIG_NOSYSTEM=1`.
 
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-18 · P1-08
+- Decisions (user, at plan time, as recommended): Core `SourceControl` seam + ADR 0011;
+  `Tab.repo` in Core; no commit undo; git doctor check included.
+- Core: `SourceControl/SourceControl.swift`, registry `sourceControl`, `Tab.repo`,
+  `CLIVersion` moved to `Doctor/` (its `versionOutput` parse now skips leading words like
+  `git version`).
+- GitModule:
+  - `GitRunner` (Process, timeout, safe env, message cleanup)
+  - `GitParsers`
+  - `GitSourceControl`/`GitRepository`
+  - `FileWatcher` (FSEvents, `queue.sync` on stop so no callback outlives the box),
+    `DebounceSchedule` (pure) + `Debouncer`, `GitPathFilter`
+  - `GitCommands`, `GitCLICheck`
+- Fakes/contracts: `FakeSourceControl`/`FakeRepository` (in-memory VCS, `write(_:_:)` like an
+  editor), `SourceControlContract` + `SourceControlFixture`, `FakeTab.repo`.
+- Parser literals were checked against real git 2.56 output (renames, binary files, missing
+  final newlines, paths with spaces/tabs/é).
+- Tests: ModuleTests +35 (`GitParserTests` 12, `GitTests` 11, `GitCommandTests` 12), Core +1
+  (fake contract). `GitTests` covers:
+  - the contract on git
+  - unborn, renames, upstream, detached HEAD
+  - conflicts
+  - checkout refusing to overwrite
+  - a failing hook's message
+  - literal pathspecs
+  - the watcher (bursts coalesce; objects/logs/locks don't tick; refs do)
+
+  A mutation check showed both filter tests fail when the filter accepts everything. The git
+  suites ran 6× without a flake.
+- Verified: build 0 warnings, `make test` all runs pass, `make lint` clean, `make pty-test`
+  16/16, `vocoder doctor` shows `✓ Git 2.56.0 at /opt/homebrew/bin/git`.
+- Nothing needed the user present. Next: P1-03b, then P1-10.
 
 ### 2026-10-17 · P1-09
 - Decisions (user, at plan time, as recommended): build the session store now; I run the live

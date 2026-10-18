@@ -10,18 +10,21 @@ public final class FakeTab: Tab {
   public var title: String
   public var aliases: [String]
   public var badge: TabBadge
+  public var repo: RepoRoot?
   public var isClosable = true
   public var hintCommands: [CommandID] = []
   /// "activate", "deactivate", "close", in call order.
   public private(set) var lifecycle: [String] = []
 
   public init(
-    id: TabID, title: String? = nil, aliases: [String] = [], badge: TabBadge = .none
+    id: TabID, title: String? = nil, aliases: [String] = [], badge: TabBadge = .none,
+    repo: RepoRoot? = nil
   ) {
     self.id = id
     self.title = title ?? id.rawValue
     self.aliases = aliases
     self.badge = badge
+    self.repo = repo
   }
 
   public func didActivate() { lifecycle.append("activate") }

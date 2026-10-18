@@ -382,6 +382,12 @@ key and palette; sessions resume after restart; terminal is always restored.
   files and diff hunks; commands: refresh, checkout branch, commit (risk tier: outward).
 - **Acceptance:** tested against temporary repos created in tests.
 - **Design refs:** §3.2.
+- **Done 2026-10-18** ([ADR 0011](decisions/0011-source-control-seam-and-git-module.md)):
+  Core `SourceControl`/`Repository` seam + `sourceControl` extension point, `Tab.repo`;
+  `GitSourceControl` over the CLI (porcelain v2 status, diff, branches, switch, add, commit),
+  FSEvents watcher with debounce; `git.refresh`/`git.checkoutBranch`/`git.commit`
+  (`<leader> g r/b/c`); `GitCLICheck` (≥ 2.23); `FakeSourceControl` + `SourceControlContract`,
+  run against git on temporary repos.
 
 ### P1-09 — Agent backend and Claude Code module
 - **Depends on:** P1-04, P0-04 findings
@@ -422,6 +428,10 @@ key and palette; sessions resume after restart; terminal is always restored.
 - **Acceptance:** works against the fake backend in snapshot tests and against real Claude Code
   manually.
 - **Design refs:** §3.2, §4.4.
+- **Notes (from P1-08):** git is `registry.sourceControl.first`; `TabContext` needs registry
+  access (agents, source control) for the repo tab. Set `Tab.repo` so `<leader> g …` commands
+  target the tab; refresh the side panel on `repository.changes()`; make `git.refresh` reload
+  the panel too. `FakeSourceControl` gives snapshots realistic status/diffs.
 - **Notes (from P1-07):** pop-out goes through `TerminalSession.popOut(_:arguments:directory:
   environment:banner:)` (in `VoCoderUI`); decide how the module reaches the session (a service
   key or a registry). The approval modal can be built on `ModalPresenter` or as its own trap

@@ -66,44 +66,6 @@ public struct ClaudeCodeConfig: ConfigSection, Equatable {
   }
 }
 
-/// A dotted numeric version (`2.1.302`).
-public struct CLIVersion: Comparable, Sendable, CustomStringConvertible {
-  public let components: [Int]
-
-  public init?(_ text: String) {
-    let parts = text.split(separator: ".").map { Int($0) }
-    guard !parts.isEmpty, parts.allSatisfy({ $0 != nil }) else { return nil }
-    components = parts.compactMap { $0 }
-  }
-
-  /// The version in `claude --version` output (`2.1.302 (Claude Code)`).
-  public init?(versionOutput: String) {
-    guard let first = versionOutput.split(whereSeparator: \.isWhitespace).first else { return nil }
-    self.init(String(first))
-  }
-
-  public var description: String { components.map(String.init).joined(separator: ".") }
-
-  public static func < (lhs: Self, rhs: Self) -> Bool {
-    let (left, right) = padded(lhs, rhs)
-    return left.lexicographicallyPrecedes(right)
-  }
-
-  /// `2.1` equals `2.1.0`.
-  public static func == (lhs: Self, rhs: Self) -> Bool {
-    let (left, right) = padded(lhs, rhs)
-    return left == right
-  }
-
-  private static func padded(_ lhs: Self, _ rhs: Self) -> ([Int], [Int]) {
-    let count = max(lhs.components.count, rhs.components.count)
-    let pad = { (version: Self) in
-      version.components + Array(repeating: 0, count: count - version.components.count)
-    }
-    return (pad(lhs), pad(rhs))
-  }
-}
-
 /// `vocoder doctor`: the `claude` CLI is installed and new enough.
 public struct ClaudeCLICheck: DoctorCheck {
   public let id: ProviderID = "claude-code.cli"

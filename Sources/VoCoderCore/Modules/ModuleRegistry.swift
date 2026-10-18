@@ -1,6 +1,7 @@
 /// The extension points of DESIGN §4.10, named for messages and lookups.
 public enum ExtensionPoint: String, Sendable, CaseIterable {
   case agents, trackers, docs, calendars, chat, tabs, commands, workflows, attention
+  case sourceControl = "source control"
   case brainTools = "brain tools"
   case activation
   case speechRecognizers = "speech recognizers"
@@ -19,6 +20,7 @@ public struct ModuleRegistry {
   public private(set) var docs: [any DocsProvider] = []
   public private(set) var calendars: [any CalendarProvider] = []
   public private(set) var chat: [any ChatProvider] = []
+  public private(set) var sourceControl: [any SourceControl] = []
   public private(set) var tabFactories: [TabFactory] = []
   public private(set) var commands: [Command] = []
   public private(set) var workflows: [any Workflow] = []
@@ -62,6 +64,9 @@ public struct ModuleRegistry {
   }
   public mutating func add(chat provider: any ChatProvider) {
     add(provider, id: provider.id.rawValue, to: .chat, at: \.chat)
+  }
+  public mutating func add(sourceControl provider: any SourceControl) {
+    add(provider, id: provider.id.rawValue, to: .sourceControl, at: \.sourceControl)
   }
   /// Modules use `add(tabs:)` from `VoCoderUI`, which only takes factories of drawable tabs.
   package mutating func add(tabFactory: TabFactory) {
