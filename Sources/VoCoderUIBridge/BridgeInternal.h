@@ -55,6 +55,7 @@ typedef NS_ENUM(NSInteger, VCNodeKind) {
   VCNodeKindMenu,
   VCNodeKindScrollFrame,
   VCNodeKindStrip,
+  VCNodeKindFlow,
 };
 
 /// A modifier, applied in the order it was added.
@@ -190,6 +191,9 @@ ftxui::Element VCScrollFrame(ftxui::Element child, std::shared_ptr<std::atomic<i
 
 /// The overflowing horizontal strip (Strip.mm).
 ftxui::Element VCStrip(ftxui::Elements children, int keepVisible);
+
+/// The word-wrapping flow whose over-wide words break instead of being clipped (Flow.mm).
+ftxui::Element VCFlow(ftxui::Elements children);
 
 // MARK: - Crash restore (CrashRestore.mm)
 

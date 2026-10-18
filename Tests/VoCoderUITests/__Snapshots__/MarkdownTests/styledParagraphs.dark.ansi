@@ -1,0 +1,9 @@
+The [1magent[22m finished [3mall[23m of the [9mthree[29m     
+tasks: it ran [39m[48;2;38;38;38mmake test[39m[49m, fixed the [1mflaky[22m
+[1m[3msnapshot[22m[23m [1mtest[22m and updated               
+[39m[48;2;38;38;38mdocs/PROGRESS.md[39m[49m (see [4m[38;2;95;175;255m[49mthe[24m[39m[49m [4m[38;2;95;175;255m[49mplan[24m[39m[49m). Second 
+line of the same paragraph.             
+                                        
+A hard break follows this line, and     
+[4m[38;2;95;175;255m[49mhttps://example.com/a/very/long/path/tha[24m[39m[49m
+[4m[38;2;95;175;255m[49mt/does/not/fit/in/forty/columns[24m[39m[49m.        

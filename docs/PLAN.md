@@ -236,6 +236,9 @@ key and palette; sessions resume after restart; terminal is always restored.
   styled text; malformed input (unclosed fences/emphasis) renders as text, never crashes.
 - **Design refs:** §3.2 (agent output, docs), §4.2.
 - **Notes:** needed by P1-10 (agent conversation) and P5-02; can run in parallel with P1-04.
+  Done 2026-10-18: the document model and parser went to Core so voice can reuse them (user,
+  at plan time); pipe tables are kept as unwrapped lines; over-wide words break instead of
+  clipping ([ADR 0012](decisions/0012-markdown-lite-and-flow-node.md)).
 
 ### P1-04 — Core architecture and module system (`VoCoderCore`)
 - **Depends on:** P1-01

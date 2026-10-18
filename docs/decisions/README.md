@@ -44,3 +44,4 @@ Briefly, and why not.
 - [0009 — Config validation, Keychain secrets and `vocoder doctor`](0009-config-secrets-and-doctor.md) (P1-06, Accepted)
 - [0010 — Agent sessions: event model, transport seam, crash restart and session store](0010-agent-sessions-transport-and-restart.md) (P1-09, Accepted)
 - [0011 — Source control seam, git over the CLI, and repo commands](0011-source-control-seam-and-git-module.md) (P1-08, Accepted)
+- [0012 — Markdown-lite: document model in Core, renderer in UI, bridge `flow` node](0012-markdown-lite-and-flow-node.md) (P1-03b, Accepted)

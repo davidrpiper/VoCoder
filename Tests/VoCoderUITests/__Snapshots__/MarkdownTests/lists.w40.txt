@@ -1,0 +1,12 @@
+• first item that is long enough to wrap
+  onto a second line at forty columns
+• second with bold and code
+  ◦ nested one
+    ▪ nested two
+      • nested three
+• third
+
+ 8. eight
+ 9. nine, with a continuation line
+10. ten
+     code in an item

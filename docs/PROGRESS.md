@@ -120,12 +120,22 @@ They target the selected tab's repo, else the only configured one, else they ask
 in-memory VCS, and `SourceControlContract` runs against it and against git on temporary repos
 ([ADR 0011](decisions/0011-source-control-seam-and-git-module.md)).
 
+P1-03b done (2026-10-18): markdown-lite. The document model and hand-written parser are in Core
+(`Text/`: `MarkdownDocument`/`MarkdownBlock`/`MarkdownInline`, `plainText` for voice). It never
+fails: malformed markup stays text, and nesting and closer searches are bounded. `VoCoderUI` has
+`Markdown(_:)` / `Markdown(document:)` (parse once, render many) and a public `Flow` view. The
+new bridge `flow` node wraps styled words. A word wider than the line is broken across lines
+(`BreakableWord` in `Flow.mm`) instead of clipped. Pipe tables are shown as unwrapped lines. The
+gallery has a Markdown page (6/F6), which `make term-test` checks in Terminal.app
+([ADR 0012](decisions/0012-markdown-lite-and-flow-node.md)).
+
 ## Next up
 
-**P1-03b** (markdown renderer) is the last dependency of **P1-10 repo tab**; do it next. Then
-P1-10, which builds on:
+**P1-10 repo tab**: all its dependencies are done. It builds on:
 - `FakeAgentBackend` and `FakeSourceControl` for snapshots;
-- the registered `claude-code` backend and `git` source control for real use.
+- the registered `claude-code` backend and `git` source control for real use;
+- `Markdown(document:)` for agent messages. Cache the parsed document per message and re-parse
+  only the one still streaming (ADR 0012).
 
 See ADR 0010 "Consequences": write `AgentSessionStore` on `sessionStarted`, close an open
 approval modal on `turnEnd`, show `crashed`/`ended`, and call `close()` when the tab goes.
@@ -159,7 +169,7 @@ Status: `todo` · `in-progress` · `done` · `blocked` · `skipped`
 | P1-01 | Package scaffold and tooling | done | `unsafeFlags` only on the executable (plist) |
 | P1-02 | UI bridge | done | `make pty-test`; manual terminal check optional |
 | P1-03 | Swift UI DSL, focus and snapshot testing | done | ADR 0005; markdown → P1-03b |
-| P1-03b | Markdown-lite renderer | todo | Split from P1-03; adds bridge `flow` node |
+| P1-03b | Markdown-lite renderer | done | ADR 0012; model + parser in Core, bridge `flow` |
 | P1-04 | Core architecture and module system | done | ADR 0006; `vocoder --demo` |
 | P1-05 | Command system, keymap, leader key, palette | done | ADR 0007; tab next/prev/goto pulled in |
 | P1-06 | Config, secrets and CLI | done | ADR 0009; `vocoder doctor` |
@@ -330,6 +340,12 @@ to one or two lines; move anything architectural into an ADR._
 - `git status` refreshes the index (and writes it) unless `GIT_OPTIONAL_LOCKS=0`. Without that
   flag a watcher on `.git/index` ticks itself in a loop, and it fights the agent's git over
   `index.lock`.
+- FTXUI's flexbox (`hflow`, `paragraph`) clips a child wider than its line. The bridge's
+  `flow` wraps each child in `BreakableWord`, which learns its width from the previous layout
+  pass and requests another (`Check` → `need_iteration`). Layout runs up to 20 passes per frame.
+- A deep recursive-descent parser overflows the Swift Testing thread's stack (SIGBUS, "signal
+  code 10") at around 2000 levels. Cap nesting.
+- Terminal.app doesn't draw strikethrough (SGR 9); Ghostty does.
 - User git config can change machine-readable output: `diff.noprefix`/`mnemonicPrefix` (no
   `a/`/`b/`), `diff.relative`, `diff.suppressBlankEmpty`, `core.quotePath`. Pass explicit
   options, and isolate tests with `GIT_CONFIG_GLOBAL=/dev/null` + `GIT_CONFIG_NOSYSTEM=1`.
@@ -337,6 +353,27 @@ to one or two lines; move anything architectural into an ADR._
 ## Session log
 
 Newest first. One entry per session: date · WP(s) · what was done · decisions · follow-ups.
+
+### 2026-10-18 · P1-03b
+- Decisions (user, at plan time, as recommended): the parser and model in Core, not UI (so voice
+  can reuse them); pipe tables as unwrapped lines; a term-test step for the gallery page.
+  ADR 0012.
+- Bridge: `+[VCNode flow:]`, `Flow.mm` (`VCFlow`: FTXUI flexbox with gap 1 and `xflex`, each
+  child in a `BreakableWord`). 4 bridge tests (`FlowTests`).
+- Core: `Text/Markdown.swift` (model, `plainText`) and `Text/MarkdownParser.swift` (blocks,
+  inlines). Code blocks keep the full info string (`.code(info:lines:)`), so no text is lost.
+  18 tests: blocks, inlines, and robustness (500 seeded random markup strings keep every letter;
+  pathological input stays fast; nesting is capped at 32).
+- UI: `Views/Markdown.swift` (`Markdown`, `Flow`, renderer). 8 constructs × (widths 40/80 plain +
+  dark/light ANSI) = 32 goldens, plus 8 layout tests (styled wrapping, punctuation, word
+  breaking, no-wrap code, hanging indents).
+- Gallery: page 6 Markdown in a scroll view; the status text is shorter so the tab bar fits at
+  80 columns. `make term-test`'s gallery pages step now visits F6 and checks the sample text and
+  the code background's pixels.
+- Verified: build 0 warnings; `make test` all runs pass (the only known issue is the existing
+  one in `ContractTests`); `make lint` clean; `make pty-test` 16/16; `make term-test -k gallery`
+  2 scenarios green.
+- Nothing needed the user present. Next: P1-10.
 
 ### 2026-10-18 · P1-08
 - Decisions (user, at plan time, as recommended): Core `SourceControl` seam + ADR 0011;

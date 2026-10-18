@@ -1,0 +1,13 @@
+I fixed the failing test. The problem   
+was in [39m[48;2;238;238;238mGitParsers.swift[39m[49m:                
+                                        
+[38;2;118;118;118m[49m1. [1m[39m[49mQuoted[22m [1mpaths[22m weren't unescaped, so   
+[38;2;118;118;118m[49m   [39m[48;2;238;238;238m"a b.txt"[39m[49m kept its quotes.           
+[38;2;118;118;118m[49m2. [39m[49mThe rename score was parsed as the   
+[38;2;118;118;118m[49m   [39m[49mpath.                                
+                                        
+[39m[48;2;238;238;238m - let path = fields[8]                 [39m[49m
+[39m[48;2;238;238;238m + let path = unquote(fields[9])        [39m[49m
+                                        
+[38;2;178;178;178m[49m│[39m[49m Note: run [39m[48;2;238;238;238mmake test[39m[49m again before      
+[38;2;178;178;178m[49m│[39m[49m committing.                           

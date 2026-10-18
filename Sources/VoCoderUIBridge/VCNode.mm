@@ -78,6 +78,10 @@
   return node;
 }
 
++ (VCNode *)flow:(NSArray<VCNode *> *)children {
+  return [self container:VCNodeKindFlow children:children];
+}
+
 + (VCNode *)gauge:(float)progress axis:(VCAxis)axis {
   VCNode *node = [[VCNode alloc] initWithKind:VCNodeKindGauge];
   node->_number = progress;

@@ -65,8 +65,9 @@ final class GalleryModel {
   let table = ListState()
   let log = ScrollState(followsEnd: true)
   var logLines: [String] = (1...40).map { "log line \($0)" }
+  let markdown = ScrollState()
 
-  static let pages = ["Theme", "List", "Table", "Form", "Layout"]
+  static let pages = ["Theme", "List", "Table", "Form", "Layout", "Markdown"]
 
   let rows: [(key: String, title: String, status: String)] = (1...60).map {
     (
@@ -188,7 +189,7 @@ private struct GalleryView: View {
           GalleryModel.pages.enumerated().map { "\($0.offset + 1) \($0.element)" },
           selected: model.page)
         Spacer()
-        Text("theme \(model.themeName) · colours \(depthName) ").foreground(.muted)
+        Text("\(model.themeName) · \(depthName) ").foreground(.muted)
       }
       Divider()
       page.flex()
@@ -198,7 +199,7 @@ private struct GalleryView: View {
           .foreground(.muted)
       }
       Text(
-        "1-5/F1-F5 page · Tab focus · j/k/g/G move · t theme · c colours · ^P palette · "
+        "1-6/F1-F6 page · Tab focus · j/k/g/G move · t theme · c colours · ^P palette · "
           + "? help · q quit"
       ).dim()
     }
@@ -219,7 +220,8 @@ private struct GalleryView: View {
     case 1: ListPage(model: model)
     case 2: TablePage(model: model)
     case 3: FormPage(model: model)
-    default: LayoutPage(model: model)
+    case 4: LayoutPage(model: model)
+    default: MarkdownPage(model: model)
     }
   }
 }
@@ -371,6 +373,49 @@ private struct LayoutPage: View {
       .focusPanel("gallery.log", title: model.log.followsEnd ? "Log (following; a adds)" : "Log")
       .flex()
     }
+  }
+}
+
+private struct MarkdownPage: View {
+  let model: GalleryModel
+
+  static let sample = MarkdownDocument(
+    parsing: """
+      # Markdown-lite
+      Agent output and docs: **bold**, *italic*, ~~strike~~, `inline code` and \
+      [links](https://example.com) shown as text. Styled text **wraps like any other \
+      text**, and a long word such as /a/very/long/path/that/does/not/fit/on/one/line/at/all \
+      breaks instead of being clipped.
+
+      ## Lists
+      - a bullet
+        - nested
+          - deeper
+      - another, with `code`
+
+      8. eight
+      9. nine
+      10. ten
+
+      ## Code and quotes
+      ```swift
+      let document = MarkdownDocument(parsing: text)  // code blocks never wrap
+      ```
+
+      > Quotes get a bar. Malformed markup (**unclosed, `open) renders as text.
+
+      ---
+
+      | Table | Shown as lines |
+      |-------|----------------|
+      | a     | b              |
+      """)
+
+  var body: some View {
+    ScrollView("gallery.markdown", state: model.markdown) {
+      Markdown(document: Self.sample)
+    }
+    .focusPanel("gallery.markdown", title: "Markdown (j/k scroll)")
   }
 }
 

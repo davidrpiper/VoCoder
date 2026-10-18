@@ -1,0 +1,10 @@
+│ Quoted text that goes on for long
+│ enough to wrap inside the quote bar.
+│
+│ • a list in a quote
+│
+│ │ nested quote
+
+────────────────────────────────────────
+
+after the rule

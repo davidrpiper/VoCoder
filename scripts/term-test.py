@@ -42,6 +42,7 @@ PROFILE_COLORS = {
 # Theme roles the checks look for (Sources/VoCoderUI/Style/Theme.swift).
 SELECTION = {"dark": (0, 75, 135), "light": (175, 215, 255)}
 FOCUS = {"dark": (95, 175, 255), "light": (0, 95, 175)}
+CODE_BACKGROUND = {"dark": (38, 38, 38), "light": (238, 238, 238)}
 
 # Per-channel tolerance after converting the screenshot to sRGB.
 BG_TOLERANCE = 12
@@ -853,11 +854,21 @@ def gallery_steps():
 
     def pages(w, report):
         # F-keys switch pages even while the form's text field has focus.
-        f_keys = {1: 122, 2: 120, 3: 99, 4: 118, 5: 96}  # macOS key codes for F1…F5
-        for page, label in ((2, "list"), (3, "table"), (4, "form"), (5, "layout")):
+        f_keys = {1: 122, 2: 120, 3: 99, 4: 118, 5: 96, 6: 97}  # macOS key codes for F1…F6
+        pages = ((2, "list"), (3, "table"), (4, "form"), (5, "layout"), (6, "markdown"))
+        for page, label in pages:
             w.keys(("code", f_keys[page]))
             s = Screen(w, f"page-{label}", w.settle(f"gallery page {page} (F{page})"))
             s.check_backgrounds()
+            if label == "markdown":
+                # Styled text wrapped by the bridge's flow node, and the code block's background.
+                if "Markdown-lite" not in s.text or "inline code" not in s.text:
+                    raise CheckFailed("markdown page didn't render its sample")
+                code = CODE_BACKGROUND[w.scenario.theme]
+                cells = s.cells_with_background(code)
+                if not cells:
+                    raise CheckFailed("no code background on the markdown page")
+                s.check_pixel_background(cells[:8], code, "code background")
         w.keys(("code", f_keys[1]))
         s = w.settle("back to page 1")
         if "Roles" not in s["text"]:

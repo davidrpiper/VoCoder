@@ -223,6 +223,7 @@ F::Element VCBridgeState::BuildBase(VCNode *node) {
     case VCNodeKindScrollFrame:
       return VCScrollFrame(Build(node.children.firstObject), Update(node)->scrollOffset, node.flag);
     case VCNodeKindStrip: return VCStrip(buildChildren(node.children), int(node.integer));
+    case VCNodeKindFlow: return VCFlow(buildChildren(node.children));
   }
   return F::text("");
 }

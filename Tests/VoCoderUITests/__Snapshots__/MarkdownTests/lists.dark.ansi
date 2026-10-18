@@ -1,0 +1,12 @@
+[38;2;128;128;128m[49m• [39m[49mfirst item that is long enough to wrap
+[38;2;128;128;128m[49m  [39m[49monto a second line at forty columns   
+[38;2;128;128;128m[49m• [39m[49msecond with [1mbold[22m and [39m[48;2;38;38;38mcode[39m[49m             
+[38;2;128;128;128m[49m  ◦ [39m[49mnested one                          
+[38;2;128;128;128m[49m    ▪ [39m[49mnested two                        
+[38;2;128;128;128m[49m      • [39m[49mnested three                    
+[38;2;128;128;128m[49m• [39m[49mthird                                 
+                                        
+[38;2;128;128;128m[49m 8. [39m[49meight                               
+[38;2;128;128;128m[49m 9. [39m[49mnine, with a continuation line      
+[38;2;128;128;128m[49m10. [39m[49mten                                 
+[38;2;128;128;128m[49m    [39m[48;2;38;38;38m code in an item                    [39m[49m

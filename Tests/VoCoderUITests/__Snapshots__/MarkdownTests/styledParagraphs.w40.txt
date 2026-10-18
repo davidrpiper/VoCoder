@@ -1,0 +1,9 @@
+The agent finished all of the three
+tasks: it ran make test, fixed the flaky
+snapshot test and updated
+docs/PROGRESS.md (see the plan). Second
+line of the same paragraph.
+
+A hard break follows this line, and
+https://example.com/a/very/long/path/tha
+t/does/not/fit/in/forty/columns.

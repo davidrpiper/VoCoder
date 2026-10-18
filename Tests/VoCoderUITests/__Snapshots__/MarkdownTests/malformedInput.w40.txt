@@ -1,0 +1,5 @@
+**never closed and *also not, `open
+code, [open link](, a_b_c, 2 * 3 * 4
+
+ unclosed fence
+ # not a heading

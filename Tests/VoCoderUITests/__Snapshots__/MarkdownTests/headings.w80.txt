@@ -1,0 +1,9 @@
+Release notes for the next version
+
+Intro text.
+
+Fixes
+
+Details, styled and coded
+
+Setext title

@@ -1,0 +1,13 @@
+I fixed the failing test. The problem
+was in GitParsers.swift:
+
+1. Quoted paths weren't unescaped, so
+   "a b.txt" kept its quotes.
+2. The rename score was parsed as the
+   path.
+
+ - let path = fields[8]
+ + let path = unquote(fields[9])
+
+│ Note: run make test again before
+│ committing.

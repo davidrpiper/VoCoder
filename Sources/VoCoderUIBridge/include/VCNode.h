@@ -79,6 +79,11 @@ NS_SWIFT_SENDABLE
 + (VCNode *)text:(NSString *)text;
 /// Text that wraps at word boundaries to the available width.
 + (VCNode *)paragraph:(NSString *)text;
+/// Children laid out left to right like words: each child is unbreakable, one space apart,
+/// wrapping onto new lines at the available width (FTXUI `hflow`). Lets styled text wrap: Swift
+/// sends one child per word (an `hbox` of styled `text`s when a word mixes styles). A child
+/// wider than a line is broken across lines rather than clipped.
++ (VCNode *)flow:(NSArray<VCNode *> *)children;
 /// Progress in 0…1.
 + (VCNode *)gauge:(float)progress axis:(VCAxis)axis NS_SWIFT_NAME(gauge(_:axis:));
 /// One frame of an FTXUI spinner; `charset` selects the glyph set (0…22), the caller advances

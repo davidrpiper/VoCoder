@@ -1,0 +1,8 @@
+Run this:
+
+ let renderer = VCRenderer()  // a line
+     indented()
+
+ done()
+
+

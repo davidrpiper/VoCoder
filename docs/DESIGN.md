@@ -250,7 +250,8 @@ Vendor/FTXUI/                  git submodule, compiled as a SwiftPM C++20 target
 Sources/
   CFTXUI/                      FTXUI sources/headers target
   VoCoderUIBridge/             ObjC++ (.mm) bridge; public headers are plain Objective-C
-  VoCoderCore/                 Swift: domain types, protocols, registries, commands, attention, brain
+  VoCoderCore/                 Swift: domain types, protocols, registries, commands, attention, brain,
+                               markdown-lite document model + parser (ADR 0012)
   VoCoderFakes/                in-memory fakes of every Core protocol (tests, fixtures, `--demo`)
   VoCoderTestSupport/          protocol contract test suites (test-only; imports Swift Testing)
   VoCoderUITestSupport/        `assertSnapshot` for views (test-only; keeps FTXUI out of Core tests)
@@ -293,9 +294,10 @@ Objective-C gives us blocks ↔ closures, `NSString`, ARC, and zero special flag
 **Not a 1:1 wrapper.** The bridge exposes a *render protocol*, not FTXUI's API:
 
 - Swift builds an immutable **node tree** each update from a small vocabulary: `vbox`, `hbox`,
-  `dbox`, `text`, `paragraph`, `border`, `separator`, `table`, `gauge`, `spinner`, `scrollFrame`,
-  `tabBar`, `strip` (keeps one child visible when the children overflow, with `‹n`/`n›`
-  markers), `filler`, plus style (colour, bold, dim, inverted), border (optionally coloured without colouring the content), size, alignment and flex
+  `dbox`, `text`, `paragraph`, `flow` (words that wrap, each keeping its own style; a word wider
+  than the line is broken across lines, not clipped, ADR 0012), `border`, `separator`, `table`,
+  `gauge`, `spinner`, `scrollFrame`, `tabBar`, `strip` (keeps one child visible when the
+  children overflow, with `‹n`/`n›` markers), `filler`, plus style (colour, bold, dim, inverted), border (optionally coloured without colouring the content), size, alignment and flex
   modifiers. Modifiers apply in call order. Colours keep the requested value (16/256/RGB) and
   are converted while building, because FTXUI degrades a colour to the terminal's support when
   it is constructed.
@@ -348,8 +350,8 @@ pop-out (found by `make term-test`; `make pty-test` checks the byte stream).
 
 **Swift side (`VoCoderUI`, [ADR 0005](decisions/0005-view-dsl-focus-and-key-routing.md)):**
 views are `@MainActor` value types with a `@ViewBuilder` `body` (`VStack`, `HStack`, `Text`,
-`Paragraph`, `Grid`, `ListView`, `TableView`, `ScrollView`, `TextField`, … plus modifiers that
-apply in call order); state lives in `@Observable` view models, and `UIHost` re-renders when
+`Paragraph`, `Flow`, `Markdown`, `Grid`, `ListView`, `TableView`, `ScrollView`, `TextField`, …
+plus modifiers that apply in call order); state lives in `@Observable` view models, and `UIHost` re-renders when
 anything a render read changes. Colours are semantic theme roles (dark/light built-ins, `auto`
 follows the macOS appearance); the bridge degrades them to the terminal's colour depth, which
 can be overridden process-wide. Each render also collects a **focus tree** (focusable leaves
